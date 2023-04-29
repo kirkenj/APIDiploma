@@ -29,6 +29,22 @@ namespace Database
             optionsBuilder.UseSqlServer("Server=DESKTOP-8RFLKAQ\\SQLEXPRESS;Database=DiplomaTest;Trusted_Connection=True;TrustServerCertificate=True;");
         }
 
+        public IEnumerable<MonthReport> GetMonthReportsRecursively(int sourceContractID)
+        {
+            return MonthReports.FromSql<MonthReport>
+            (
+            $"declare @list table(id int null);declare @currentID int = {sourceContractID};while (@currentID is not null)begin insert into @list values(@currentID) set @currentID = (select ParentContractID from Contracts where ID = @currentID) end select * from MonthReports where ContractID in (select * from @list)"
+            ).ToArray();
+        }   
+
+        public IEnumerable<Contract> GetContractsRecursuvely(int sourceContractID)
+        {
+            return Contracts.FromSql<Contract>
+            (
+            $"declare @list table(id int null);declare @currentID int = {sourceContractID};while (@currentID is not null)begin insert into @list values(@currentID) set @currentID = (select ParentContractID from Contracts where ID = @currentID) end select * from Contracts where ID in (select * from @list)"
+            ).ToArray();
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>(entity =>
@@ -67,6 +83,7 @@ namespace Database
                 entity.Property(e => e.ID).HasColumnName("ID").UseIdentityColumn();
                 entity.Property(e => e.UserID).HasColumnName("UserID");
                 entity.Property(e => e.ParentContractID).HasColumnName("ParentContractID");
+                entity.HasIndex(e => e.ParentContractID).IsUnique();
                 entity.Property(e => e.PeriodStart).HasColumnName("PeriodStart");
                 entity.Property(e => e.PeriodEnd).HasColumnName("PeriodEnd");
                 entity.Property(e => e.ConfirmedByUserID).HasColumnName("ConfirmedByUserID");

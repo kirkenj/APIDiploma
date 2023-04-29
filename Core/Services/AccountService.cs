@@ -1,8 +1,10 @@
 ﻿using Data.Constants;
 using Database.Entities;
 using Database.Interfaces;
+using Logic.Exceptions;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Logic.Services;
 
@@ -44,45 +46,68 @@ public class AccountService : IAccountService
         return (true, $"User {userEntity.Login} created");
     }
 
-    public async Task<Role> GetRoleByIDAsync(int id)
+    public async Task<Role?> GetRole(int id)
     {
         return await _context.Roles.FirstAsync(u => u.ID == id);
     }
 
-    public async Task<User> GetUserByIDAsync(int id)
+    public async Task<User?> GetUser(int id)
     {
-        return await _context.Users.Include(y => y.Contracts).ThenInclude(c => c.Department).FirstAsync(u => u.ID == id);
+        return await _context.Users.FirstOrDefaultAsync(u => u.ID == id);
     }
 
-    public async Task<User> GetUserByLoginAsync(string Login)
+    public async Task<User?> GetUserAsync(string Login)
     {
-        return await _context.Users.Include(y => y.Contracts).ThenInclude(c => c.Department).FirstAsync(u => u.Login == Login);
+        return await _context.Users.FirstOrDefaultAsync(u => u.Login == Login);
     }
 
-    public async Task<IEnumerable<User>> GetUsers()
+    public async Task<IEnumerable<User>> GetUsersAsync()
     {
         return await _context.Users.ToListAsync();
     }
 
-    public bool IsAdmin(User user)
+    public bool IsAdmin(int roleID)
     {
-        return user.RoleId == IncludeModels.RolesNavigation.AdminRoleID || user.RoleId == IncludeModels.RolesNavigation.SuperAdminRoleID;
+        return roleID == IncludeModels.RolesNavigation.AdminRoleID || roleID == IncludeModels.RolesNavigation.SuperAdminRoleID;
+    }
+
+    public bool IsAdmin(User user) => IsAdmin(user.RoleId);
+
+    public bool IsAdmin(string roleName)
+    {
+        return roleName == IncludeModels.RolesNavigation.AdminRoleName || roleName == IncludeModels.RolesNavigation.SuperAdminRoleName;
     }
 
     public async Task SetRoleAsync(int userId, int roleId)
     {
-        var roleExcists = await _context.Roles.AnyAsync(r => r.ID == roleId);
+        var roleExists = await _context.Roles.AnyAsync(r => r.ID == roleId);
         var user = await _context.Users.FirstOrDefaultAsync(r => r.ID == userId);
-        if (roleExcists && user != null)
+        if (roleExists && user != null)
         {
             user.RoleId = roleId;
             await _context.SaveChangesAsync();
         }
     }
 
-    public async Task<User?> SignInAsync(string login, string password)
+    public async Task<User?> GetUser(string login, string password)
     {
         return await _context.Users.Include(u => u.Contracts)
             .FirstOrDefaultAsync(u => u.Login == login && u.PasswordHash == _hashProvider.GetHash(password));
+    }
+
+    public async Task UpdateUser(User userUpdaateData)
+    {
+        var userToUpdate = await GetUserAsync(userUpdaateData.Login) ?? throw new ObjectNotFoundException($"User with login '{userUpdaateData.Login}' not found");
+        userToUpdate.Name = userUpdaateData.Name;
+        userToUpdate.Surname = userUpdaateData.Surname;
+        userToUpdate.Patronymic = userUpdaateData.Patronymic;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdatePasswordAsync(string userLogin, string password)
+    {
+        var userToUpdate = await GetUserAsync(userLogin) ?? throw new ObjectNotFoundException($"User with login '{userLogin}' not found");
+        userToUpdate.PasswordHash = _hashProvider.GetHash(password);
+        await _context.SaveChangesAsync();
     }
 }

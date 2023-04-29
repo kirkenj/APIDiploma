@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Diploma.Models.Middlewares
+namespace Web.Middlewares
 {
     public class ExceptionMiddleware
     {
@@ -13,13 +13,13 @@ namespace Diploma.Models.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
+                await _next(context);
             try
             {
-                await _next(context);
             }
             catch (Exception ex)
             {
-                context.Response.Body.Write(Encoding.UTF8.GetBytes("ArgumentException:\n" + ex.Message));
+                await context.Response.BodyWriter.WriteAsync(Encoding.UTF8.GetBytes(ex.Message));
             }
         }
     }

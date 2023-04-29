@@ -1,16 +1,16 @@
 ﻿using Database.Entities;
 
-namespace Logic.RequestModels.Contracts
+namespace Web.RequestModels.Contracts
 {
     public class ContractViewModel
     {
         public int Id { get; set; }
         public int UserId { get; set; }
         public int DepartmentID { get; set; }
+        public int? ParentContractID { get; set; }
         public DateTime PeriodStart { get; set; } = DateTime.Now;
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
         public bool IsConfirmed { get; set; } = false;
-        public IEnumerable<MonthReportViewModel> MonthReports { get; set; } = null!;
         public int LectionsMaxTime { get; set; } = 0;
         public int PracticalClassesMaxTime { get; set; } = 0;
         public int LaboratoryClassesMaxTime { get; set; } = 0;

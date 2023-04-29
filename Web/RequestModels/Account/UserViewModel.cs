@@ -1,4 +1,4 @@
-﻿namespace Logic.RequestModels.Account
+﻿namespace Web.RequestModels.Account
 {
     public class UserViewModel
     {

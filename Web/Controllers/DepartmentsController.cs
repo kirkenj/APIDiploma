@@ -2,6 +2,7 @@
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Constants;
 
 namespace Diploma.Controllers
 {
@@ -16,33 +17,25 @@ namespace Diploma.Controllers
             _departmentService = departmentService;
         }
 
-        // GET: api/<ValuesController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Department>>> Get()
+        public async Task<IActionResult> Get()
         {
-            return await _departmentService.GetAllAsync();
+            return Ok(await _departmentService.GetAllAsync());
         }
 
-        // POST api/<ValuesController>
         [HttpPost]
-        [Authorize("OnlyAdmin")]
-        public async Task<IActionResult> Post([FromBody] string value)
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> Post([FromBody] string newDepartmentsName)
         {
-            if (await _departmentService.FindByNameAsync(value) != null)
-            {
-                return BadRequest();
-            }
-
-            await _departmentService.Create(new Department { Name = value });
-            return Created(nameof(Post),value);
+            await _departmentService.Create(new Department { Name = newDepartmentsName });
+            return Created(nameof(Post),newDepartmentsName);
         }
 
-        // PUT api/<ValuesController>/5
         [HttpPut("{id}")]
-        [Authorize("OnlyAdmin")]
-        public async Task<IActionResult> Put(int id, [FromBody] string value)
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> Put(int id, [FromBody] string newName)
         {
-            if (!(await _departmentService.TryEditAsync(id, value)))
+            if (!(await _departmentService.TryEditAsync(id, newName)))
             {
                 return BadRequest();
             }
@@ -50,9 +43,8 @@ namespace Diploma.Controllers
             return Ok();
         }
 
-        // DELETE api/<ValuesController>/5
         [HttpDelete("{id}")]
-        [Authorize("OnlySuperAdmin")]
+        [Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> Delete(int id)
         {
             await _departmentService.DeleteAsync(id);

@@ -1,5 +1,6 @@
 ﻿using Database.Entities;
 using Database.Interfaces;
+using Logic.Exceptions;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,7 +30,7 @@ namespace Logic.Services
             var item = await _appDBContext.Departments.FirstOrDefaultAsync(d => d.ID == id);
             if (item is null)
             {
-                throw new ArgumentException(nameof(id), "Entity with this ID not found");
+                throw new ObjectNotFoundException($"Entity with this ID = {id} not found");
             }
 
             _appDBContext.Departments.Remove(item);

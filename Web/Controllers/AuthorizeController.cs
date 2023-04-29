@@ -1,27 +1,29 @@
 ﻿using Logic.Interfaces;
+using Logic.Exceptions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Logic.RequestModels.Authorize;
+using Web.RequestModels.Authorize;
+using AutoMapper;
+using Database.Entities;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
-namespace DiplomaAPI.Controllers
+namespace Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthorizeController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IMapper _mapper;
 
-        public AuthorizeController(IAccountService accountService)
+        public AuthorizeController(IAccountService accountService, IMapper mapper)
         {
             _accountService = accountService;
+            _mapper = mapper;
         }
 
-        // POST api/<AccountController>
-        [HttpPost("Login")]
+        [HttpPost(nameof(Login))]
         public async Task<IActionResult> Login(string login, string password)
         {
             if (User.Identity?.IsAuthenticated ?? false)
@@ -29,24 +31,26 @@ namespace DiplomaAPI.Controllers
                 Logout();
             }
 
-            var result = await _accountService.SignInAsync(login, password);
+            var result = await _accountService.GetUser(login, password);
             if (result is null)
             {
                 return BadRequest("Invalid login or password");
             }
 
-            var claims = new List<Claim> 
+            var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, result.Login),
-                new Claim(ClaimTypes.Role, (await _accountService.GetRoleByIDAsync(result.RoleId)).Name)
+                new Claim(Constants.IncludeModels.UserIdentitiesTools.NameKey, result.Login),
+                new Claim(Constants.IncludeModels.UserIdentitiesTools.IDKey, result.ID.ToString()),
+                new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, (await _accountService.GetRole(result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}")).Name)
             };
+    
 
             ClaimsIdentity claimsIdentity = new(claims, "Cookies");
             await Request.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
             return Ok();
         }
 
-        [HttpGet("Logout")]
+        [HttpPost(nameof(Logout))]
         public ActionResult Logout()
         {
             if (User.Identity?.IsAuthenticated ?? false)
@@ -58,18 +62,10 @@ namespace DiplomaAPI.Controllers
             return BadRequest();
         }
 
-        // POST: AuthorizeControlle/Create
-        [HttpPost("Register")]
+        [HttpPost(nameof(Register))]
         public async Task<ActionResult> Register(RegisterUserModel registerModel)
         {
-
-            var q = registerModel.Validate(new System.ComponentModel.DataAnnotations.ValidationContext(User));
-            if (q.Any())
-            {
-                return BadRequest(string.Join("\n", q));
-            }
-
-            var (succed, explanation) = await _accountService.AddUser(registerModel);
+            var (succed, explanation) = await _accountService.AddUser(_mapper.Map<User>(registerModel));
             if (succed)
             {
                 return Ok();

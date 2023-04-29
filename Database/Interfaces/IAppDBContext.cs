@@ -11,5 +11,7 @@ namespace Database.Interfaces
         DbSet<MonthReport> MonthReports { get; }
         DbSet<Department> Departments { get; }
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        public IEnumerable<MonthReport> GetMonthReportsRecursively(int sourceContractID);
+        public IEnumerable<Contract> GetContractsRecursuvely(int sourceContractID);
     }
 }

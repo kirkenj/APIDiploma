@@ -1,9 +1,9 @@
-﻿namespace Logic.RequestModels.Contracts
+﻿namespace Logic.Models.MonthReports
 {
-    public class MonthReportViewModel
+    public class MonthReportsUntakenTimeModel
     {
-        public int Month { get; set; }
-        public int Year { get; set; }
+        public int ContractID { get; set; }
+        public IEnumerable<(int contractID, int year, int month)> ExceptForReportsWithKey { get; set; } = new List<(int, int, int)> ();
         public int LectionsTime { get; set; } = 0;
         public int PracticalClassesTime { get; set; } = 0;
         public int LaboratoryClassesTime { get; set; } = 0;
@@ -22,24 +22,25 @@
         public int GraduatesAcademicWorkTime { get; set; } = 0;
         public int PlasticPosesDemonstrationTime { get; set; } = 0;
         public int TestingEscortTime { get; set; } = 0;
+
         public int TimeSum =>
-            TestingEscortTime
-            + PlasticPosesDemonstrationTime
-            + GraduatesAcademicWorkTime
-            + GraduatesManagementTime
-            + SECTime
-            + DiplomasReviewsTime
-            + DiplomasTime
-            + InternshipsTime
-            + TestsAndReferatsTime
-            + InterviewsTime
-            + LectionsTime
-            + PracticalClassesTime
-            + LaboratoryClassesTime
-            + ConsultationsTime
-            + OtherTeachingClassesTime
-            + CreditsTime
-            + ExamsTime
-            + CourseProjectsTime;
+         TestingEscortTime
+         + PlasticPosesDemonstrationTime
+         + GraduatesAcademicWorkTime
+         + GraduatesManagementTime
+         + SECTime
+         + DiplomasReviewsTime
+         + DiplomasTime
+         + InternshipsTime
+         + TestsAndReferatsTime
+         + InterviewsTime
+         + LectionsTime
+         + PracticalClassesTime
+         + LaboratoryClassesTime
+         + ConsultationsTime
+         + OtherTeachingClassesTime
+         + CreditsTime
+         + ExamsTime
+         + CourseProjectsTime;
     }
 }

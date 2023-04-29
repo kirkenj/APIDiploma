@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Cryptography;
 using API.Mapping;
-using System;
+using Web.Middlewares;
+using static Web.Constants.IncludeModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +21,6 @@ builder.Services.AddTransient<IAppDBContext, AppDbContext>();
 builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IDepartmentService, DepartmentService>();
 builder.Services.AddTransient<IContractService, ContractService>();
-builder.Services.AddTransient<IMonthReportService, MonthReportService>();
-
 builder.Services.AddTransient<IHashProvider, HashProvider>((a) => new HashProvider(HashAlgorithm.Create("MD5") ?? throw new ArgumentException("Hash algorithm not found"), System.Text.Encoding.UTF8));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -31,14 +30,14 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("OnlyAdmin", policy =>
-        policy.RequireRole(new[] { "Admin", "SuperAdmin" }));
-    options.AddPolicy("OnlySuperAdmin", policy =>
-        policy.RequireRole(new[] { "SuperAdmin" }));
+    options.AddPolicy(PolicyNavigation.OnlyAdminPolicy.PolicyName, policy =>
+        policy.RequireRole(PolicyNavigation.OnlyAdminPolicy.RoleNames));
+    options.AddPolicy(PolicyNavigation.OnlySuperAdminPolicy.PolicyName, policy =>
+        policy.RequireRole(PolicyNavigation.OnlySuperAdminPolicy.RoleNames));
 });
 
 var app = builder.Build();
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
