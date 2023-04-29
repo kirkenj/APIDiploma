@@ -35,14 +35,11 @@ namespace Web.Controllers
         [HttpGet("{contractID}")]
         public async Task<IActionResult> Get(int contractID) 
         {
-            var userLogin = User?.Identity?.Name ?? throw new UnauthorizedAccessException();
-            if (!_accountService.IsAdmin(userLogin))
+            bool isAdmin = _accountService.IsAdmin(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
+            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
             {
-                var ownerLogin = await _contractService.GetOwnersLoginAsync(contractID);
-                if (ownerLogin == null || ownerLogin != userLogin)
-                {
-                    return BadRequest();
-                }
+                return BadRequest();
             }
 
             var mappedContract = _mapper.Map<ContractFullViewModel>(await _contractService.GetContractAsync(contractID));
