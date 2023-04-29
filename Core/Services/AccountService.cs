@@ -46,24 +46,27 @@ public class AccountService : IAccountService
         return (true, $"User {userEntity.Login} created");
     }
 
-    public async Task<Role?> GetRole(int id)
+    public async Task<Role?> GetRoleAsync(int id)
     {
+        if (IncludeModels.RolesNavigation.SuperAdminRoleID == id) return new Role { ID = id, Name = IncludeModels.RolesNavigation.SuperAdminRoleName };
+        if (IncludeModels.RolesNavigation.AdminRoleID == id) return new Role { ID = id, Name = IncludeModels.RolesNavigation.AdminRoleName };
+        if (IncludeModels.RolesNavigation.OrdinaryUserRoleID == id) return new Role { ID = id, Name = IncludeModels.RolesNavigation.OrdinaryUserRoleName };
         return await _context.Roles.FirstAsync(u => u.ID == id);
     }
 
-    public async Task<User?> GetUser(int id)
+    public async Task<User?> GetUserAsync(int id)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.ID == id);
+        return await _context.Users.Include(u=>u.Role).FirstOrDefaultAsync(u => u.ID == id);
     }
 
-    public async Task<User?> GetUserAsync(string Login)
+    public async Task<User?> GetUserAsync(string login)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Login == Login);
+        return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Login == login);
     }
 
     public async Task<IEnumerable<User>> GetUsersAsync()
     {
-        return await _context.Users.ToListAsync();
+        return await _context.Users.Include(u => u.Role).ToListAsync();
     }
 
     public bool IsAdmin(int roleID)
@@ -89,9 +92,9 @@ public class AccountService : IAccountService
         }
     }
 
-    public async Task<User?> GetUser(string login, string password)
+    public async Task<User?> GetUserAsync(string login, string password)
     {
-        return await _context.Users.Include(u => u.Contracts)
+        return await _context.Users.Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Login == login && u.PasswordHash == _hashProvider.GetHash(password));
     }
 

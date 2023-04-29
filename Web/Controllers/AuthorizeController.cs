@@ -31,7 +31,7 @@ namespace Web.Controllers
                 Logout();
             }
 
-            var result = await _accountService.GetUser(login, password);
+            var result = await _accountService.GetUserAsync(login, password);
             if (result is null)
             {
                 return BadRequest("Invalid login or password");
@@ -41,7 +41,7 @@ namespace Web.Controllers
             {
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.NameKey, result.Login),
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.IDKey, result.ID.ToString()),
-                new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, (await _accountService.GetRole(result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}")).Name)
+                new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, (await _accountService.GetRoleAsync(result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}")).Name)
             };
     
 
