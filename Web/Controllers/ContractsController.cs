@@ -28,10 +28,9 @@ namespace Web.Controllers
         public async Task<IActionResult> Get() 
         {
             string? userName = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            
             return Ok(_mapper.Map<List<ContractViewModel>>(await _contractService.GetUserContracts(userName)));
         }
-
+       
         [HttpGet("{contractID}")]
         public async Task<IActionResult> Get(int contractID) 
         {

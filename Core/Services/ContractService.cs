@@ -112,17 +112,26 @@ namespace Logic.Services
       
         public async Task<IEnumerable<MonthReport>> GetMonthReportsAsync(int contractID)
         {
-            var contract = await GetContractAsync(contractID) 
+            var contract = await _appDBContext.Contracts.Include(c=>c.MonthReports).FirstOrDefaultAsync(c => c.ID == contractID) 
                 ?? throw new KeyNotFoundException($"Contract wasn't found by ID = {contractID}"); 
             
             if (!contract.IsConfirmed)
             {
-                throw new ArgumentException($"Contract(ID = {contract.ID}) is not confirmed");
+                return Enumerable.Empty<MonthReport>();
             }
 
-            return _appDBContext.GetMonthReportsRecursively(contractID) ?? throw new Exception();
+            List<MonthReport> result = contract.MonthReports.ToList();
+
+            while(contract.ParentContractID != null)
+            {
+                contract = await _appDBContext.Contracts.Include(c => c.MonthReports).FirstOrDefaultAsync(c => c.ID == contract.ParentContractID)
+                ?? throw new KeyNotFoundException($"Contract wasn't found by ID = {contractID}");
+                result.AddRange(contract.MonthReports);
+            }
+
+            return result;
         }
-        
+
         public async Task UpdateMonthReport(MonthReport monthReportToAply)
         {
             var report = await _appDBContext.MonthReports.FirstOrDefaultAsync(r => r.ContractID == monthReportToAply.ContractID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year) 

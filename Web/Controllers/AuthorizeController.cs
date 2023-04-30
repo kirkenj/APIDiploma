@@ -23,7 +23,7 @@ namespace Web.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost(nameof(Login))]
+        [HttpPost(nameof(Login))]//ttt
         public async Task<IActionResult> Login(string login, string password)
         {
             if (User.Identity?.IsAuthenticated ?? false)

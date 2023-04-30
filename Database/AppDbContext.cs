@@ -2,6 +2,7 @@
 using Database.Entities;
 using Database.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace Database
 {
@@ -13,9 +14,10 @@ namespace Database
         public virtual DbSet<MonthReport> MonthReports { get; set; } = null!;
         public virtual DbSet<Department> Departments { get; set; } = null!;
 
+        
+
         public AppDbContext()
         {
-
         }
 
         public AppDbContext(DbContextOptions<AppDbContext> options)
@@ -26,37 +28,21 @@ namespace Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=DESKTOP-8RFLKAQ\\SQLEXPRESS;Database=DiplomaTest;Trusted_Connection=True;TrustServerCertificate=True;");
-        }
-
-        public IEnumerable<MonthReport> GetMonthReportsRecursively(int sourceContractID)
-        {
-            return MonthReports.FromSql<MonthReport>
-            (
-            $"declare @list table(id int null);declare @currentID int = {sourceContractID};while (@currentID is not null)begin insert into @list values(@currentID) set @currentID = (select ParentContractID from Contracts where ID = @currentID) end select * from MonthReports where ContractID in (select * from @list)"
-            ).ToArray();
-        }   
-
-        public IEnumerable<Contract> GetContractsRecursuvely(int sourceContractID)
-        {
-            return Contracts.FromSql<Contract>
-            (
-            $"declare @list table(id int null);declare @currentID int = {sourceContractID};while (@currentID is not null)begin insert into @list values(@currentID) set @currentID = (select ParentContractID from Contracts where ID = @currentID) end select * from Contracts where ID in (select * from @list)"
-            ).ToArray();
+            optionsBuilder.UseMySql("server=localhost;user=root;password=mysqlpassword1;database=diplomaTest;", new MySqlServerVersion(new Version(8,0,33)));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>(entity =>
             {
-                entity.Property(x => x.ID).HasColumnName("ID").UseIdentityColumn();
+                entity.Property(x => x.ID).HasColumnName("ID").UseMySqlIdentityColumn();
                 entity.Property(e => e.Name).HasColumnName("Name");
                 entity.HasIndex(e => e.Name).IsUnique();
             });
 
             modelBuilder.Entity<Department>(entity =>
             {
-                entity.Property(x => x.ID).HasColumnName("ID").UseIdentityColumn();
+                entity.Property(x => x.ID).HasColumnName("ID").UseMySqlIdentityColumn();
                 entity.Property(e => e.Name).HasColumnName("Name");
                 entity.HasIndex(e => e.Name).IsUnique();
             });
@@ -64,7 +50,7 @@ namespace Database
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(e => new { e.Login }).IsUnique();
-                entity.Property(e => e.ID).HasColumnName("ID").UseIdentityColumn();
+                entity.Property(e => e.ID).HasColumnName("ID").UseMySqlIdentityColumn();
                 entity.Property(e => e.RoleId).HasColumnName("RoleID");
                 entity.Property(e => e.Name).HasColumnName("Name").IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Surname).HasColumnName("Surname").IsRequired().HasMaxLength(50);
@@ -80,7 +66,7 @@ namespace Database
 
             modelBuilder.Entity<Contract>(entity =>
             {
-                entity.Property(e => e.ID).HasColumnName("ID").UseIdentityColumn();
+                entity.Property(e => e.ID).HasColumnName("ID").UseMySqlIdentityColumn();
                 entity.Property(e => e.UserID).HasColumnName("UserID");
                 entity.Property(e => e.ParentContractID).HasColumnName("ParentContractID");
                 entity.HasIndex(e => e.ParentContractID).IsUnique();

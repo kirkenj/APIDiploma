@@ -1,53 +1,63 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Database.Migrations
+namespace Data.Migrations
 {
-    /// <inheritdoc />
     public partial class init : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("MySql:CharSet", "utf8mb4");
+
             migrationBuilder.CreateTable(
                 name: "Departments",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Departments", x => x.ID);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.ID);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Surname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Patronymic = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Surname = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Patronymic = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     RoleID = table.Column<int>(type: "int", nullable: false),
-                    Login = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Login = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     PasswordHash = table.Column<string>(type: "NVARCHAR(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
@@ -59,19 +69,20 @@ namespace Database.Migrations
                         principalTable: "Roles",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "Contracts",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserID = table.Column<int>(type: "int", nullable: false),
                     DepartmentID = table.Column<int>(type: "int", nullable: false),
-                    PeriodStart = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PeriodEnd = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PeriodStart = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ConfirmedByUserID = table.Column<int>(type: "int", nullable: true),
                     ParentContractID = table.Column<int>(type: "int", nullable: true),
                     LectionsMaxTime = table.Column<int>(type: "int", nullable: false),
                     PracticalClassesMaxTime = table.Column<int>(type: "int", nullable: false),
@@ -96,6 +107,11 @@ namespace Database.Migrations
                 {
                     table.PrimaryKey("PK_Contracts", x => x.ID);
                     table.ForeignKey(
+                        name: "FK_Contract_Confirmed_By_User",
+                        column: x => x.ConfirmedByUserID,
+                        principalTable: "Users",
+                        principalColumn: "ID");
+                    table.ForeignKey(
                         name: "FK_Contracts_Departments",
                         column: x => x.DepartmentID,
                         principalTable: "Departments",
@@ -112,7 +128,8 @@ namespace Database.Migrations
                         column: x => x.ParentContractID,
                         principalTable: "Contracts",
                         principalColumn: "ID");
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "MonthReports",
@@ -149,7 +166,28 @@ namespace Database.Migrations
                         principalTable: "Contracts",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "ID", "Name" },
+                values: new object[] { 1, "SuperAdmin" });
+
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "ID", "Name" },
+                values: new object[] { 2, "User" });
+
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "ID", "Name" },
+                values: new object[] { 3, "Admin" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Contracts_ConfirmedByUserID",
+                table: "Contracts",
+                column: "ConfirmedByUserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_DepartmentID",
@@ -160,8 +198,7 @@ namespace Database.Migrations
                 name: "IX_Contracts_ParentContractID",
                 table: "Contracts",
                 column: "ParentContractID",
-                unique: true,
-                filter: "[ParentContractID] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_UserID",
@@ -197,7 +234,6 @@ namespace Database.Migrations
                 column: "RoleID");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
@@ -207,10 +243,10 @@ namespace Database.Migrations
                 name: "Contracts");
 
             migrationBuilder.DropTable(
-                name: "Departments");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Departments");
 
             migrationBuilder.DropTable(
                 name: "Roles");

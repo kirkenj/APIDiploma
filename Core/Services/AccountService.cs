@@ -4,7 +4,6 @@ using Database.Interfaces;
 using Logic.Exceptions;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Logic.Services;
 

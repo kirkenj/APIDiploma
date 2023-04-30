@@ -9,30 +9,30 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Database.Migrations
+namespace Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230318231841_meow")]
-    partial class meow
+    [Migration("20230429231421_init")]
+    partial class init
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+                .HasAnnotation("ProductVersion", "6.0.15")
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Database.Entities.Contract", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("ID");
+                        .HasColumnName("ID")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+                    b.Property<int?>("ConfirmedByUserID")
+                        .HasColumnType("int")
+                        .HasColumnName("ConfirmedByUserID");
 
                     b.Property<int>("ConsultationsMaxTime")
                         .HasColumnType("int")
@@ -77,10 +77,6 @@ namespace Database.Migrations
                         .HasColumnType("int")
                         .HasColumnName("InterviewsMaxTime");
 
-                    b.Property<bool>("IsConfirmed")
-                        .HasColumnType("bit")
-                        .HasColumnName("IsConfirmed");
-
                     b.Property<int>("LaboratoryClassesMaxTime")
                         .HasColumnType("int")
                         .HasColumnName("LaboratoryClassesMaxTime");
@@ -98,11 +94,11 @@ namespace Database.Migrations
                         .HasColumnName("ParentContractID");
 
                     b.Property<DateTime>("PeriodEnd")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime(6)")
                         .HasColumnName("PeriodEnd");
 
                     b.Property<DateTime>("PeriodStart")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime(6)")
                         .HasColumnName("PeriodStart");
 
                     b.Property<int>("PlasticPosesDemonstrationMaxTime")
@@ -131,11 +127,12 @@ namespace Database.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("ConfirmedByUserID");
+
                     b.HasIndex("DepartmentID");
 
                     b.HasIndex("ParentContractID")
-                        .IsUnique()
-                        .HasFilter("[ParentContractID] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("UserID");
 
@@ -147,13 +144,12 @@ namespace Database.Migrations
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("ID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+                        .HasColumnName("ID")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("Name");
 
                     b.HasKey("ID");
@@ -261,13 +257,12 @@ namespace Database.Migrations
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("ID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+                        .HasColumnName("ID")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("varchar(255)")
                         .HasColumnName("Name");
 
                     b.HasKey("ID");
@@ -300,32 +295,31 @@ namespace Database.Migrations
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasColumnName("ID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+                        .HasColumnName("ID")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Login");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Name");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR")
+                        .HasColumnType("NVARCHAR(200)")
                         .HasColumnName("PasswordHash");
 
                     b.Property<string>("Patronymic")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Patronymic");
 
                     b.Property<int>("RoleId")
@@ -335,7 +329,7 @@ namespace Database.Migrations
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("Surname");
 
                     b.HasKey("ID");
@@ -350,6 +344,12 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.Contract", b =>
                 {
+                    b.HasOne("Database.Entities.User", "ConfirmedByUser")
+                        .WithMany("ConfirmedContracts")
+                        .HasForeignKey("ConfirmedByUserID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_Contract_Confirmed_By_User");
+
                     b.HasOne("Database.Entities.Department", "Department")
                         .WithMany("Contracts")
                         .HasForeignKey("DepartmentID")
@@ -369,6 +369,8 @@ namespace Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Contracts_Users");
+
+                    b.Navigation("ConfirmedByUser");
 
                     b.Navigation("Department");
 
@@ -419,6 +421,8 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.User", b =>
                 {
+                    b.Navigation("ConfirmedContracts");
+
                     b.Navigation("Contracts");
                 });
 #pragma warning restore 612, 618
