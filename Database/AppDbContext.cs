@@ -2,7 +2,6 @@
 using Database.Entities;
 using Database.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace Database
 {
