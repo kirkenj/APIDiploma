@@ -118,7 +118,7 @@ namespace Web.Controllers
                 return BadRequest();
             }
         
-            return Ok(await _contractService.GetMonthReportsUntakenTime(contractID, Enumerable.Empty<(int,int,int)>()));
+            return Ok(await _contractService.GetMonthReportsUntakenTimeAsync(contractID, Enumerable.Empty<(int,int,int)>()));
         }
 
         [HttpPut(nameof(EditMonthReport))]
@@ -134,6 +134,14 @@ namespace Web.Controllers
             var monthReportToApply = _mapper.Map<MonthReport>(editModel);
             await _contractService.UpdateMonthReport(monthReportToApply);
             return Ok();
+        }
+
+        [HttpGet(nameof(GetMonthReportsReport))]
+        public async Task<IActionResult> GetMonthReportsReport(DateTime periodStart, DateTime periodEnd)
+        {
+            if (periodEnd <= periodStart) return BadRequest("periodEnd <= periodStart");
+            var result = await _contractService.GetReportsForReportsOnPeriodAsync(periodStart, periodEnd);
+            return Ok(result.Select(r => new { groupIDs = r.relatedContractsIDs, reports = _mapper.Map<List<MonthReportViewModel>>(r.monthReports) }));
         }
     }
 }

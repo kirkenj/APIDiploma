@@ -136,7 +136,7 @@ namespace Logic.Services
         {
             var report = await _appDBContext.MonthReports.FirstOrDefaultAsync(r => r.ContractID == monthReportToAply.ContractID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year) 
                 ?? throw new ObjectNotFoundException($"Month report not found by key[ID = {monthReportToAply.ContractID}, Month = {monthReportToAply.Month}, Year = {monthReportToAply.Year}]");
-            var untakenTimeIfRemoveTheReport = await GetMonthReportsUntakenTime(report.ContractID, new[] { (report.ContractID, report.Year, report.Month) });
+            var untakenTimeIfRemoveTheReport = await GetMonthReportsUntakenTimeAsync(report.ContractID, new[] { (report.ContractID, report.Year, report.Month) });
 
             if (untakenTimeIfRemoveTheReport.TimeSum < monthReportToAply.TimeSum) 
                 throw new ArgumentException("untakenTimeIfRemoveTheReport.TimeSum > monthReportToAply.TimeSum");
@@ -431,22 +431,17 @@ namespace Logic.Services
             }
         }
 
-        public async Task<List<MonthReport>> GetMonthReportAsyncOnDate(DateTime date)
-        {
-            return await _appDBContext.MonthReports.Include(m => m.Contract).ThenInclude(c => c.User).Where(m => m.Year == date.Year && m.Month == date.Month).ToListAsync();
-        }
-
         public async Task<string?> GetOwnersLoginAsync(int contractID)
         {
             return (await _appDBContext.Contracts.Include(c => c.User).FirstOrDefaultAsync(c => c.ID == contractID))?.User.Login ?? null;
         }
 
-        public async Task<MonthReportsUntakenTimeModel> GetMonthReportsUntakenTime(int contractID, IEnumerable<(int contractID, int year, int month)> exceptValuesWithKeys)
+        public async Task<MonthReportsUntakenTimeModel> GetMonthReportsUntakenTimeAsync(int contractID, IEnumerable<(int contractID, int year, int month)> exceptValuesWithKeys)
         {
-            var clearedReports = (await GetMonthReportsAsync(contractID))
-                .Where(r => !exceptValuesWithKeys.Any(e => e.contractID == r.ContractID && e.year == r.Year && e.month == r.Year));
             var contact = await GetContractAsync(contractID)
                 ?? throw new KeyNotFoundException($"Contract wasn't found by ID = {contractID}");
+            var clearedReports = (await GetMonthReportsAsync(contractID))
+                .Where(r => !exceptValuesWithKeys.Any(e => e.contractID == r.ContractID && e.year == r.Year && e.month == r.Year));
 
             return new MonthReportsUntakenTimeModel
             {
@@ -471,6 +466,35 @@ namespace Logic.Services
                 PlasticPosesDemonstrationTime = contact.PlasticPosesDemonstrationMaxTime - clearedReports.Sum(c => c.PlasticPosesDemonstrationTime),
                 TestingEscortTime = contact.TestingEscortMaxTime - clearedReports.Sum(c => c.TestingEscortTime),
             };
+        }
+
+        public async Task<IEnumerable<(List<int> relatedContractsIDs, List<MonthReport> monthReports)>> GetReportsForReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd)
+        {
+            if (periodEnd <= periodStart) throw new ArgumentException($"{nameof(periodEnd)} <= {nameof(periodStart)}");
+            periodStart = new DateTime(periodStart.Year, periodStart.Month, 1);
+            periodEnd = new DateTime(periodEnd.Year, periodEnd.Month, 1);
+            var reportsContractsIncluded = await _appDBContext.MonthReports.Include(m => m.Contract)
+                .Where(p => (p.Year >= periodStart.Year && p.Month >= periodStart.Month) && (p.Year <= periodEnd.Year && p.Month <= periodEnd.Month))
+                .ToListAsync();
+            var rootParentContracts = reportsContractsIncluded
+                .Select(m => m.Contract)
+                .Distinct()
+                .Where(c=>c.ParentContract == null)
+                .ToList();
+            return rootParentContracts.Select(p =>
+            {
+                Contract? pointer = p;
+                List<MonthReport> reports = new();
+                List<int> groupIDs = new() {};
+                while (pointer != null && pointer.IsConfirmed)
+                {
+                    groupIDs.Add(pointer.ID);
+                    reports.AddRange(pointer.MonthReports);
+                    pointer = pointer.ChildContract;
+                }
+
+                return (groupIDs, reports.OrderBy(r => r.Year).ThenBy(r =>r.Month).ThenBy(r => r.ContractID).ToList());
+            });
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Logic.Interfaces;
 using Logic.Exceptions;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -28,20 +27,13 @@ namespace Web.Controllers
             _mapper = mapper;
         }
 
-        [HttpPost(nameof(Login))]//ttt
+        [HttpPost(nameof(Login))]
         public async Task<IActionResult> Login(string login, string password)
         {
-            if (User.Identity?.IsAuthenticated ?? false)
-            {
-                Logout();
-            }
-
+            if (User.Identity?.IsAuthenticated ?? false) Logout();
             var result = await _accountService.GetUserAsync(login, password);
-            if (result is null)
-            {
-                return BadRequest("Invalid login or password");
-            }
-
+            if (result is null) return BadRequest("Invalid login or password");
+            
             var claims = new List<Claim>
             {
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.NameKey, result.Login),
@@ -59,6 +51,7 @@ namespace Web.Controllers
                     notBefore: DateTime.UtcNow,
                     signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256)
                 );
+
             return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
         }
 

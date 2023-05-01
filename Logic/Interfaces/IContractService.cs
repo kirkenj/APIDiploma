@@ -15,8 +15,8 @@ namespace Logic.Interfaces
         public Task<Contract?> GetContractAsync(int id);
         public Task<IEnumerable<MonthReport>> GetMonthReportsAsync(int contractID);
         public Task UpdateMonthReport(MonthReport monthReport);
-        public Task<List<MonthReport>> GetMonthReportAsyncOnDate(DateTime date);
         public Task<string?> GetOwnersLoginAsync(int contractID);
-        public Task<MonthReportsUntakenTimeModel> GetMonthReportsUntakenTime(int contractID, IEnumerable<(int contractID,int year,int month)> exceptValuesWithKeys);
+        public Task<MonthReportsUntakenTimeModel> GetMonthReportsUntakenTimeAsync(int contractID, IEnumerable<(int contractID,int year,int month)> exceptValuesWithKeys); 
+        public Task<IEnumerable<(List<int> relatedContractsIDs, List<MonthReport> monthReports)>> GetReportsForReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd);
     }
 }
