@@ -7,6 +7,9 @@ using System.Security.Claims;
 using Web.RequestModels.Authorize;
 using AutoMapper;
 using Database.Entities;
+using System.IdentityModel.Tokens.Jwt;
+using Web.Models.JWTModels;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Web.Controllers
 {
@@ -16,9 +19,11 @@ namespace Web.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IMapper _mapper;
+        private readonly JWTSettings _jwtSettings;
 
-        public AuthorizeController(IAccountService accountService, IMapper mapper)
+        public AuthorizeController(IAccountService accountService, IMapper mapper, JWTSettings jwtSettings)
         {
+            _jwtSettings = jwtSettings;
             _accountService = accountService;
             _mapper = mapper;
         }
@@ -43,11 +48,18 @@ namespace Web.Controllers
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.IDKey, result.ID.ToString()),
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, (await _accountService.GetRoleAsync(result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}")).Name)
             };
-    
 
-            ClaimsIdentity claimsIdentity = new(claims, "Cookies");
-            await Request.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-            return Ok();
+            var signingKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+
+            var jwt = new JwtSecurityToken(
+                    issuer: _jwtSettings.Issuer,
+                    audience: _jwtSettings.Audience,
+                    claims: claims,
+                    expires: DateTime.UtcNow.Add(TimeSpan.FromDays(3)),
+                    notBefore: DateTime.UtcNow,
+                    signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256)
+                );
+            return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
         }
 
         [HttpPost(nameof(Logout))]
@@ -55,7 +67,7 @@ namespace Web.Controllers
         {
             if (User.Identity?.IsAuthenticated ?? false)
             {
-                Request.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                Request.HttpContext.SignOutAsync();
                 return Ok();
             }
 

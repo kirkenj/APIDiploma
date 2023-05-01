@@ -8,12 +8,25 @@ using System.Security.Cryptography;
 using API.Mapping;
 using Web.Middlewares;
 using static Web.Constants.IncludeModels;
+using Web.Models.JWTModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+//builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JWTSettings"));
+var secretKey = builder.Configuration.GetSection("JWTSettings:SecretKey").Value ?? throw new Exception("builder.Configuration.GetSection(\"JWTSettings:SecretKey\").Value is null");
+var issuer = builder.Configuration.GetSection("JWTSettings:Issuer").Value ?? throw new Exception("builder.Configuration.GetSection(\"JWTSettings:Issuer\").Value is null");
+var audience = builder.Configuration.GetSection("JWTSettings:Audience").Value ?? throw new Exception("builder.Configuration.GetSection(\"JWTSettings:Audience\").Value is null");
+var signingKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secretKey));
+var settings = new JWTSettings() { Audience = audience, Issuer = issuer, SecretKey = secretKey };
+builder.Services.AddSingleton<JWTSettings>(settings);
+
 
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33))));
@@ -23,8 +36,27 @@ builder.Services.AddTransient<IDepartmentService, DepartmentService>();
 builder.Services.AddTransient<IContractService, ContractService>();
 builder.Services.AddTransient<IHashProvider, HashProvider>((a) => new HashProvider(HashAlgorithm.Create("MD5") ?? throw new ArgumentException("Hash algorithm not found"), System.Text.Encoding.UTF8));
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options => options.LoginPath = "/login");
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(options => options.LoginPath = "/login");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudience = audience,
+            ValidateLifetime = true,
+            IssuerSigningKey = signingKey
+        };
+    });
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
