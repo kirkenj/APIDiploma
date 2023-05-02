@@ -506,7 +506,7 @@ namespace Logic.Services
                 while (pointer != null && pointer.IsConfirmed)
                 {
                     groupIDs.Add(new KeyValuePair<int, string>(pointer.ID, pointer.ContractIdentifier));
-                    reports.AddRange(pointer.MonthReports);
+                    reports.AddRange(reportsContractsIncluded.Where(r => r.ContractID == pointer.ID));
                     pointer = pointer.ChildContract;
                 }
 
