@@ -9,17 +9,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Data.Migrations
+namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230429231421_init")]
+    [Migration("20230501232124_init")]
     partial class init
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.15")
+                .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Database.Entities.Contract", b =>
@@ -37,6 +38,11 @@ namespace Data.Migrations
                     b.Property<int>("ConsultationsMaxTime")
                         .HasColumnType("int")
                         .HasColumnName("ConsultationsMaxTime");
+
+                    b.Property<string>("ContractIdentifier")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("ContractIdentifier");
 
                     b.Property<int>("CourseProjectsMaxTime")
                         .HasColumnType("int")
@@ -128,6 +134,9 @@ namespace Data.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("ConfirmedByUserID");
+
+                    b.HasIndex("ContractIdentifier")
+                        .IsUnique();
 
                     b.HasIndex("DepartmentID");
 
@@ -313,7 +322,7 @@ namespace Data.Migrations
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR(200)")
+                        .HasColumnType("NVARCHAR")
                         .HasColumnName("PasswordHash");
 
                     b.Property<string>("Patronymic")

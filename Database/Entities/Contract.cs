@@ -10,6 +10,7 @@ namespace Database.Entities
         public User User { get; set; } = null!;
         public int UserID { get; set; }
         public int DepartmentID { get; set; }
+        public string ContractIdentifier { get; set; } = null!;
         public Department Department { get; set; } = null!;
         public DateTime PeriodStart { get; set; } = DateTime.Now;
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);

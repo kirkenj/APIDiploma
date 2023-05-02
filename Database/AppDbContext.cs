@@ -69,6 +69,8 @@ namespace Database
                 entity.Property(e => e.UserID).HasColumnName("UserID");
                 entity.Property(e => e.ParentContractID).HasColumnName("ParentContractID");
                 entity.HasIndex(e => e.ParentContractID).IsUnique();
+                entity.Property(e => e.ContractIdentifier).HasColumnName("ContractIdentifier");
+                entity.HasIndex(e => e.ContractIdentifier).IsUnique();
                 entity.Property(e => e.PeriodStart).HasColumnName("PeriodStart");
                 entity.Property(e => e.PeriodEnd).HasColumnName("PeriodEnd");
                 entity.Property(e => e.ConfirmedByUserID).HasColumnName("ConfirmedByUserID");

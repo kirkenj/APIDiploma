@@ -5,7 +5,6 @@ using Logic.Interfaces;
 using Logic.Models.MonthReports;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
 
 namespace Logic.Services
 {
@@ -13,10 +12,12 @@ namespace Logic.Services
     {
         private readonly IAppDBContext _appDBContext;
         private readonly IAccountService _accountService;
-        public ContractService(IAppDBContext appDBContext, IAccountService accountService)
+        private readonly IDepartmentService _departmentService;
+        public ContractService(IAppDBContext appDBContext, IAccountService accountService, IDepartmentService departmentService)
         {
             _appDBContext = appDBContext;
             _accountService = accountService;
+            _departmentService = departmentService;
         }
 
         public async Task<IEnumerable<Contract>> GetAll()
@@ -37,10 +38,20 @@ namespace Logic.Services
                 contract.DepartmentID = contract.ParentContract.DepartmentID;
             }
 
+            if (await _departmentService.FindByIDAsync(contract.DepartmentID) == null)
+            {
+                throw new ObjectNotFoundException($"Department with id = {contract.DepartmentID} not found");
+            }
+
             var res = ValidateOnCreate(contract);
             if (res.Any())
             {
                 throw new ArgumentException(string.Join("\n", res));
+            }
+
+            if (await _appDBContext.Contracts.AnyAsync(c => c.ContractIdentifier == contract.ContractIdentifier))
+            {
+                throw new ArgumentException($"Contract identifier '{contract.ContractIdentifier}' is taken");
             }
 
             _appDBContext.Contracts.Add(contract);
@@ -61,8 +72,13 @@ namespace Logic.Services
                 throw new ArgumentException(string.Join("\n", res));
             }
 
+            if (sourceContract.ContractIdentifier != contract.ContractIdentifier && await _appDBContext.Contracts.AnyAsync(c => c.ContractIdentifier == contract.ContractIdentifier))
+            {
+                throw new ArgumentException($"Contract identifier '{contract.ContractIdentifier}' is taken");
+            }
+
             await Delete(sourceContract);
-            await Add(sourceContract);
+            await Add(contract);
         }
 
         public async Task Delete(int id)
@@ -81,10 +97,11 @@ namespace Logic.Services
                 return;
             }
 
-            var childContract = await _appDBContext.Contracts.FirstOrDefaultAsync(c => c.ParentContractID  == contract.ID);
+            var childContract = await _appDBContext.Contracts.Include(c=>c.ParentContract).FirstOrDefaultAsync(c => c.ParentContractID  == contract.ID);
             if (childContract != null)
             {
                 childContract.ParentContractID = null;
+                await _appDBContext.SaveChangesAsync();
             }
 
             _appDBContext.Contracts.Remove(contract);
@@ -468,7 +485,7 @@ namespace Logic.Services
             };
         }
 
-        public async Task<IEnumerable<(List<int> relatedContractsIDs, List<MonthReport> monthReports)>> GetReportsForReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd)
+        public async Task<IEnumerable<(List<KeyValuePair<int, string>> relatedContractsIDs, List<MonthReport> monthReports)>> GetReportsForReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd)
         {
             if (periodEnd <= periodStart) throw new ArgumentException($"{nameof(periodEnd)} <= {nameof(periodStart)}");
             periodStart = new DateTime(periodStart.Year, periodStart.Month, 1);
@@ -485,10 +502,10 @@ namespace Logic.Services
             {
                 Contract? pointer = p;
                 List<MonthReport> reports = new();
-                List<int> groupIDs = new() {};
+                List<KeyValuePair<int, string>> groupIDs = new() {};
                 while (pointer != null && pointer.IsConfirmed)
                 {
-                    groupIDs.Add(pointer.ID);
+                    groupIDs.Add(new KeyValuePair<int, string>(pointer.ID, pointer.ContractIdentifier));
                     reports.AddRange(pointer.MonthReports);
                     pointer = pointer.ChildContract;
                 }

@@ -14,7 +14,9 @@ namespace Web.RequestModels.Contracts
         public int? ParentContractID { get; set; }
         public DateTime PeriodStart { get; set; } = DateTime.Now;
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
-        [Range(0, int.MaxValue)]
+
+        [Required]
+        public string ContractIdentifier { get; set; } = null!; [Range(0, int.MaxValue)]
         public int LectionsMaxTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
         public int PracticalClassesMaxTime { get; set; } = 0;

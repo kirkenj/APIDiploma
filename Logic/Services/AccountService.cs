@@ -45,12 +45,12 @@ public class AccountService : IAccountService
         return (true, $"User {userEntity.Login} created");
     }
 
-    public async Task<Role?> GetRoleAsync(int id)
+    public async Task<Role?> GetRoleAsync(int roleID)
     {
-        if (IncludeModels.RolesNavigation.SuperAdminRoleID == id) return new Role { ID = id, Name = IncludeModels.RolesNavigation.SuperAdminRoleName };
-        if (IncludeModels.RolesNavigation.AdminRoleID == id) return new Role { ID = id, Name = IncludeModels.RolesNavigation.AdminRoleName };
-        if (IncludeModels.RolesNavigation.OrdinaryUserRoleID == id) return new Role { ID = id, Name = IncludeModels.RolesNavigation.OrdinaryUserRoleName };
-        return await _context.Roles.FirstAsync(u => u.ID == id);
+        if (IncludeModels.RolesNavigation.SuperAdminRoleID == roleID) return new Role { ID = roleID, Name = IncludeModels.RolesNavigation.SuperAdminRoleName };
+        if (IncludeModels.RolesNavigation.AdminRoleID == roleID) return new Role { ID = roleID, Name = IncludeModels.RolesNavigation.AdminRoleName };
+        if (IncludeModels.RolesNavigation.OrdinaryUserRoleID == roleID) return new Role { ID = roleID, Name = IncludeModels.RolesNavigation.OrdinaryUserRoleName };
+        return await _context.Roles.FirstAsync(u => u.ID == roleID);
     }
 
     public async Task<User?> GetUserAsync(int id)

@@ -28,16 +28,12 @@ namespace Logic.Services
         public async Task DeleteAsync(int id)
         {
             var item = await _appDBContext.Departments.FirstOrDefaultAsync(d => d.ID == id);
-            if (item is null)
-            {
-                throw new ObjectNotFoundException($"Entity with this ID = {id} not found");
-            }
-
+            if (item is null) return;
             _appDBContext.Departments.Remove(item);
             await _appDBContext.SaveChangesAsync();
         }
 
-        public async Task<Department?> FindByID(int id)=>await _appDBContext.Departments.FirstOrDefaultAsync(d => d.ID==id);
+        public async Task<Department?> FindByIDAsync(int id)=>await _appDBContext.Departments.FirstOrDefaultAsync(d => d.ID==id);
 
         public async Task<Department?> FindByNameAsync(string name) => await _appDBContext.Departments.FirstOrDefaultAsync(d => d.Name == name);
 
@@ -45,8 +41,8 @@ namespace Logic.Services
 
         public async Task<bool> TryEditAsync(int id, string newName)
         {
-            var dep = await FindByID(id);
-            if (dep is null)
+            var dep = await FindByIDAsync(id);
+            if (dep is null || await _appDBContext.Departments.AnyAsync(d => d.Name == newName))
             {
                 return false;
             }

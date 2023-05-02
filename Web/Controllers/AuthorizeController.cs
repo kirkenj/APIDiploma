@@ -9,6 +9,7 @@ using Database.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using Web.Models.JWTModels;
 using Microsoft.IdentityModel.Tokens;
+using Web.Models.Authorize;
 
 namespace Web.Controllers
 {
@@ -28,10 +29,10 @@ namespace Web.Controllers
         }
 
         [HttpPost(nameof(Login))]
-        public async Task<IActionResult> Login(string login, string password)
+        public async Task<IActionResult> Login([FromBody]LoginModel loginModel)
         {
             if (User.Identity?.IsAuthenticated ?? false) Logout();
-            var result = await _accountService.GetUserAsync(login, password);
+            var result = await _accountService.GetUserAsync(loginModel.Login, loginModel.Password);
             if (result is null) return BadRequest("Invalid login or password");
             
             var claims = new List<Claim>

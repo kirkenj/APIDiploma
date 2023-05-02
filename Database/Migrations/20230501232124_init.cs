@@ -4,10 +4,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Data.Migrations
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
+namespace Database.Migrations
 {
+    /// <inheritdoc />
     public partial class init : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
@@ -80,6 +84,8 @@ namespace Data.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserID = table.Column<int>(type: "int", nullable: false),
                     DepartmentID = table.Column<int>(type: "int", nullable: false),
+                    ContractIdentifier = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     PeriodStart = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ConfirmedByUserID = table.Column<int>(type: "int", nullable: true),
@@ -172,22 +178,23 @@ namespace Data.Migrations
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "ID", "Name" },
-                values: new object[] { 1, "SuperAdmin" });
-
-            migrationBuilder.InsertData(
-                table: "Roles",
-                columns: new[] { "ID", "Name" },
-                values: new object[] { 2, "User" });
-
-            migrationBuilder.InsertData(
-                table: "Roles",
-                columns: new[] { "ID", "Name" },
-                values: new object[] { 3, "Admin" });
+                values: new object[,]
+                {
+                    { 1, "SuperAdmin" },
+                    { 2, "User" },
+                    { 3, "Admin" }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_ConfirmedByUserID",
                 table: "Contracts",
                 column: "ConfirmedByUserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Contracts_ContractIdentifier",
+                table: "Contracts",
+                column: "ContractIdentifier",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_DepartmentID",
@@ -234,6 +241,7 @@ namespace Data.Migrations
                 column: "RoleID");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

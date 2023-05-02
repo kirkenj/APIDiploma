@@ -137,6 +137,7 @@ namespace Web.Controllers
         }
 
         [HttpGet(nameof(GetMonthReportsReport))]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> GetMonthReportsReport(DateTime periodStart, DateTime periodEnd)
         {
             if (periodEnd <= periodStart) return BadRequest("periodEnd <= periodStart");
