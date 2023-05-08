@@ -2,7 +2,7 @@
 
 namespace Logic.Interfaces
 {
-    public interface IDepartmentService
+    public interface IDepartmentService : IDbAccessServise<Department>
     {
         public Task<Department?> FindByNameAsync(string name);
         public Task<Department?> FindByIDAsync(int id);

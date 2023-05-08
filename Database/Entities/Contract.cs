@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Database.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Database.Entities
 {
     [Table(nameof(Contract)+"s")]
-    public class Contract
+    public class Contract : IConfirmableByAdminObjectAbstract
     {
         public int ID { get; set; }
         public User User { get; set; } = null!;
@@ -14,9 +14,6 @@ namespace Database.Entities
         public Department Department { get; set; } = null!;
         public DateTime PeriodStart { get; set; } = DateTime.Now;
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
-        public bool IsConfirmed => ConfirmedByUserID != null;
-        public int? ConfirmedByUserID { get; set; }
-        public User? ConfirmedByUser { get; set; } = null; 
         public IEnumerable<MonthReport> MonthReports { get; set; } = null!;
         public int? ParentContractID { get; set; } = null;
         public Contract? ParentContract { get; set; } = null;
@@ -39,6 +36,9 @@ namespace Database.Entities
         public int GraduatesAcademicWorkMaxTime { get; set; } = 0;
         public int PlasticPosesDemonstrationMaxTime { get; set; } = 0;
         public int TestingEscortMaxTime { get; set; } = 0;
+        public bool IsConfirmed => ConfirmedByUserID != null;
+        public int? ConfirmedByUserID { get; set; }
+        public User? ConfirmedByUser { get; set; }
 
         public int TimeSum =>
             TestingEscortMaxTime

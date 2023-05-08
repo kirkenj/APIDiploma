@@ -9,14 +9,17 @@ namespace Logic.Services;
 
 public class AccountService : IAccountService
 {
-    private readonly IAppDBContext _context;
     private readonly IHashProvider _hashProvider;
 
+    public DbSet<User> DbSet { get; private set; }
+
+    public Func<CancellationToken, Task<int>> SaveChangesAsync {get; private set;}
 
     public AccountService(IAppDBContext context, IHashProvider hashProvider)
     {
-        _context = context;
+        DbSet = context.Set<User>();
         _hashProvider = hashProvider;
+        SaveChangesAsync = context.SaveChangesAsync;
     }
 
     public async Task<(bool, string)> AddUser(User userToAdd)
@@ -26,12 +29,12 @@ public class AccountService : IAccountService
             return (false, $"{nameof(userToAdd)} is null");
         }
 
-        if (await _context.Users.AnyAsync(u => u.Login == userToAdd.Login))
+        if (await DbSet.AnyAsync(u => u.Login == userToAdd.Login))
         {
             return (false, "This login is taken");
         }
 
-        var userEntity = new User 
+        var userToSave = new User 
         { 
             Login = userToAdd.Login, 
             Name = userToAdd.Name, 
@@ -40,9 +43,9 @@ public class AccountService : IAccountService
             PasswordHash = _hashProvider.GetHash(userToAdd.PasswordHash)
         };
         
-        _context.Users.Add(userEntity);
-        await _context.SaveChangesAsync();
-        return (true, $"User {userEntity.Login} created");
+        DbSet.Add(userToSave);
+        await SaveChangesAsync.Invoke(CancellationToken.None);
+        return (true, $"User {userToSave.Login} created");
     }
 
     public async Task<Role?> GetRoleAsync(int roleID)
@@ -55,17 +58,17 @@ public class AccountService : IAccountService
 
     public async Task<User?> GetUserAsync(int id)
     {
-        return await _context.Users.Include(u=>u.Role).FirstOrDefaultAsync(u => u.ID == id);
+        return await DbSet.Include(u=>u.Role).FirstOrDefaultAsync(u => u.ID == id);
     }
 
     public async Task<User?> GetUserAsync(string login)
     {
-        return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Login == login);
+        return await DbSet.Include(u => u.Role).FirstOrDefaultAsync(u => u.Login == login);
     }
 
     public async Task<IEnumerable<User>> GetUsersAsync()
     {
-        return await _context.Users.Include(u => u.Role).ToListAsync();
+        return await DbSet.Include(u => u.Role).ToListAsync();
     }
 
     public bool IsAdmin(int roleID)
@@ -82,18 +85,18 @@ public class AccountService : IAccountService
 
     public async Task SetRoleAsync(int userId, int roleId)
     {
-        var roleExists = await _context.Roles.AnyAsync(r => r.ID == roleId);
-        var user = await _context.Users.FirstOrDefaultAsync(r => r.ID == userId);
+        var roleExists = await DbSet.AnyAsync(r => r.ID == roleId);
+        var user = await DbSet.FirstOrDefaultAsync(r => r.ID == userId);
         if (roleExists && user != null)
         {
-            user.RoleId = roleId;
-            await _context.SaveChangesAsync();
+            user.RoleId = roleId; 
+            await SaveChangesAsync.Invoke(CancellationToken.None);
         }
     }
 
     public async Task<User?> GetUserAsync(string login, string password)
     {
-        return await _context.Users.Include(u => u.Role)
+        return await DbSet.Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Login == login && u.PasswordHash == _hashProvider.GetHash(password));
     }
 
@@ -103,13 +106,13 @@ public class AccountService : IAccountService
         userToUpdate.Name = userUpdaateData.Name;
         userToUpdate.Surname = userUpdaateData.Surname;
         userToUpdate.Patronymic = userUpdaateData.Patronymic;
-        await _context.SaveChangesAsync();
+        await SaveChangesAsync.Invoke(CancellationToken.None);
     }
 
     public async Task UpdatePasswordAsync(string userLogin, string password)
     {
         var userToUpdate = await GetUserAsync(userLogin) ?? throw new ObjectNotFoundException($"User with login '{userLogin}' not found");
         userToUpdate.PasswordHash = _hashProvider.GetHash(password);
-        await _context.SaveChangesAsync();
+        await SaveChangesAsync.Invoke(CancellationToken.None);
     }
 }

@@ -144,5 +144,7 @@ namespace Web.Controllers
             var result = await _contractService.GetReportsForReportsOnPeriodAsync(periodStart, periodEnd);
             return Ok(result.Select(r => new { groupIDs = r.relatedContractsIDs, reports = _mapper.Map<List<MonthReportViewModel>>(r.monthReports) }));
         }
+
+        
     }
 }

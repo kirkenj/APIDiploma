@@ -2,7 +2,7 @@
 
 namespace Logic.Interfaces
 {
-    public interface IAccountService
+    public interface IAccountService : IDbAccessServise<User>
     {
         public Task<(bool succed, string explanation)> AddUser(User userToAdd);
         public Task<User?> GetUserAsync(string login, string password);

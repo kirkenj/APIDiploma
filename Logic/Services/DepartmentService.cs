@@ -9,6 +9,7 @@ namespace Logic.Services
     public class DepartmentService : IDepartmentService
     {
         private readonly IAppDBContext _appDBContext;
+        
         public DepartmentService(IAppDBContext appDBContext)
         {
             _appDBContext= appDBContext;
@@ -16,7 +17,7 @@ namespace Logic.Services
 
         public async Task Create(Department department)
         {
-            if (_appDBContext.Departments.Any(d => d.Name== department.Name))
+            if (_appDBContext.Set<Department>().Any(d => d.Name== department.Name))
             {
                 throw new ArgumentException("Name is taken");
             }

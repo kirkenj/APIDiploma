@@ -11,5 +11,6 @@ namespace Database.Interfaces
         DbSet<MonthReport> MonthReports { get; }
         DbSet<Department> Departments { get; }
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        public DbSet<TEntity> Set<TEntity>() where TEntity : class;
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Database.Entities;
 using Logic.Interfaces;
+using Logic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using Web.Constants;
 
 namespace Diploma.Controllers
@@ -11,10 +13,12 @@ namespace Diploma.Controllers
     public class DepartmentsController : ControllerBase
     {
         private readonly IDepartmentService _departmentService;
+        private readonly IContractService _contractService;
 
-        public DepartmentsController(IDepartmentService departmentService)
+        public DepartmentsController(IDepartmentService departmentService, IContractService contractService)
         {
             _departmentService = departmentService;
+            _contractService = contractService;
         }
 
         [HttpGet]
@@ -49,6 +53,15 @@ namespace Diploma.Controllers
         {
             await _departmentService.DeleteAsync(id);
             return Ok();
+        }
+
+        [HttpGet(nameof(GetMonthReportsReportAsExcel))]
+        public FileResult GetMonthReportsReportAsExcel()
+        {
+            var result = _contractService.GetReportsForReportsOnPeriodInExcelAsync(DateTime.MinValue, DateTime.MaxValue);
+            var bytes = System.IO.File.ReadAllBytes(result);
+            System.IO.File.Delete(result);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");
         }
     }
 }
