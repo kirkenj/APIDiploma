@@ -13,8 +13,6 @@ namespace Database
         public virtual DbSet<MonthReport> MonthReports { get; set; } = null!;
         public virtual DbSet<Department> Departments { get; set; } = null!;
 
-        public DbSet<TEntity> Set<TEntity>() where TEntity : class => base.Set<TEntity>();
-
         public AppDbContext()
         {
         }

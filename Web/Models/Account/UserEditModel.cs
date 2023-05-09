@@ -12,5 +12,6 @@ namespace Web.RequestModels.Account
         public string Patronymic { get; set; } = null!;
         [Required]
         public string Login { get; set; } = null!;
+        public int RoleID { get; set; } = -1;
     }
 }

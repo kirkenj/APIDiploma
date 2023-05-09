@@ -11,6 +11,7 @@ using static Web.Constants.IncludeModels;
 using Web.Models.JWTModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Database.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,8 @@ builder.Services.AddTransient<IAppDBContext, AppDbContext>();
 builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IDepartmentService, DepartmentService>();
 builder.Services.AddTransient<IContractService, ContractService>();
+builder.Services.AddTransient<IRoleService, RoleService>();
+builder.Services.AddTransient<IMonthReportService, MonthReportService>();
 builder.Services.AddTransient<IHashProvider, HashProvider>((a) => new HashProvider(HashAlgorithm.Create("MD5") ?? throw new ArgumentException("Hash algorithm not found"), System.Text.Encoding.UTF8));
 
 //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

@@ -18,28 +18,33 @@ namespace Web.Controllers
     public class AuthorizeController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
+        private readonly IHashProvider _hashProvider;
         private readonly JWTSettings _jwtSettings;
 
-        public AuthorizeController(IAccountService accountService, IMapper mapper, JWTSettings jwtSettings)
+        public AuthorizeController(IAccountService accountService, IRoleService roleService, IHashProvider hashProvider, IMapper mapper, JWTSettings jwtSettings)
         {
-            _jwtSettings = jwtSettings;
             _accountService = accountService;
+            _roleService = roleService;
+            _hashProvider = hashProvider;
             _mapper = mapper;
+            _jwtSettings = jwtSettings;
         }
 
         [HttpPost(nameof(Login))]
         public async Task<IActionResult> Login([FromBody]LoginModel loginModel)
         {
             if (User.Identity?.IsAuthenticated ?? false) Logout();
-            var result = await _accountService.GetUserAsync(loginModel.Login, loginModel.Password);
+            loginModel.Password = _hashProvider.GetHash(loginModel.Password);
+            var result = await _accountService.FirstOrDefaultAsync(u => u.Login == loginModel.Login && u.PasswordHash == loginModel.Password);
             if (result is null) return BadRequest("Invalid login or password");
             
             var claims = new List<Claim>
             {
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.NameKey, result.Login),
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.IDKey, result.ID.ToString()),
-                new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, (await _accountService.GetRoleAsync(result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}")).Name)
+                new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, (await _accountService.FirstOrDefaultAsync(r => r.ID == result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}")).Name)
             };
 
             var signingKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
@@ -71,15 +76,8 @@ namespace Web.Controllers
         [HttpPost(nameof(Register))]
         public async Task<ActionResult> Register(RegisterUserModel registerModel)
         {
-            var (succed, explanation) = await _accountService.AddUser(_mapper.Map<User>(registerModel));
-            if (succed)
-            {
-                return Ok();
-            }
-            else
-            {
-                return BadRequest(explanation);
-            }
+            await _accountService.AddAsync(_mapper.Map<User>(registerModel));
+            return Ok();
         }
     }
 }

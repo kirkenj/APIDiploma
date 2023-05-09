@@ -6,40 +6,45 @@ using Logic.Models.MonthReports;
 using Microsoft.EntityFrameworkCore;
 using ClosedXML.Excel;
 using System.ComponentModel.DataAnnotations;
+using DocumentFormat.OpenXml.InkML;
+using Database;
 
 namespace Logic.Services
 {
     public class ContractService : IContractService
     {
-        private readonly IAppDBContext _appDBContext;
         private readonly IAccountService _accountService;
         private readonly IDepartmentService _departmentService;
-        public ContractService(IAppDBContext appDBContext, IAccountService accountService, IDepartmentService departmentService)
+        private readonly IMonthReportService _monthReportService;
+
+        public DbSet<Contract> DbSet { get; private set; }
+        public Func<CancellationToken, Task<int>> SaveChangesAsync { get; private set; }
+
+        public ContractService(IAppDBContext context, IAccountService accountService, IDepartmentService departmentService, IMonthReportService monthReportService)
         {
-            _appDBContext = appDBContext;
             _accountService = accountService;
             _departmentService = departmentService;
+            _monthReportService = monthReportService;
+            DbSet = context.Set<Contract>(); 
+            SaveChangesAsync = context.SaveChangesAsync;
         }
 
         public async Task<IEnumerable<Contract>> GetAll()
         {
-            return await _appDBContext.Contracts.ToListAsync();
+            return await DbSet.ToListAsync();
         }
 
-        public async Task<Contract?> GetContractAsync(int id) => 
-            await _appDBContext.Contracts.FirstOrDefaultAsync(c => c.ID == id);
-
-        public async Task Add(Contract contract)
+        public async Task AddAsync(Contract contract, CancellationToken token = default)
         {
             if (contract.ParentContractID != null)
             {
-                contract.ParentContract = await GetContractAsync(contract.ParentContractID.Value) ?? throw new ObjectNotFoundException($"Contract with id = {contract.ParentContractID} not found");
+                contract.ParentContract = await DbSet.FirstOrDefaultAsync(p => p.ID == contract.ParentContractID.Value, token) ?? throw new ObjectNotFoundException($"Contract with id = {contract.ParentContractID} not found");
                 contract.PeriodEnd = contract.ParentContract.PeriodEnd;
                 contract.PeriodStart = contract.ParentContract.PeriodStart;
                 contract.DepartmentID = contract.ParentContract.DepartmentID;
             }
 
-            if (await _departmentService.FindByIDAsync(contract.DepartmentID) == null)
+            if (await _departmentService.FirstOrDefaultAsync(d => d.ID == contract.DepartmentID, token) == null)
             {
                 throw new ObjectNotFoundException($"Department with id = {contract.DepartmentID} not found");
             }
@@ -50,74 +55,42 @@ namespace Logic.Services
                 throw new ArgumentException(string.Join("\n", res));
             }
 
-            if (await _appDBContext.Contracts.AnyAsync(c => c.ContractIdentifier == contract.ContractIdentifier))
+            if (await DbSet.AnyAsync(c => c.ContractIdentifier == contract.ContractIdentifier, cancellationToken: token))
             {
                 throw new ArgumentException($"Contract identifier '{contract.ContractIdentifier}' is taken");
             }
 
-            _appDBContext.Contracts.Add(contract);
-            await _appDBContext.SaveChangesAsync();
+            DbSet.Add(contract);
+            await SaveChangesAsync(token);
         }
-
-        public async Task Edit(Contract contract)
-        {
-            var sourceContract = await GetContractAsync(contract.ID) ?? throw new ObjectNotFoundException($"Contract wasn't found with ID = {contract.ID}");
-            if (sourceContract.IsConfirmed)
-            {
-                throw new ArgumentException($"Contract(ID = {contract.ID}) is confirmed. No edition allowed");
-            }
-
-            var res = ValidateOnCreate(contract);
-            if (res.Any())
-            {
-                throw new ArgumentException(string.Join("\n", res));
-            }
-
-            if (sourceContract.ContractIdentifier != contract.ContractIdentifier && await _appDBContext.Contracts.AnyAsync(c => c.ContractIdentifier == contract.ContractIdentifier))
-            {
-                throw new ArgumentException($"Contract identifier '{contract.ContractIdentifier}' is taken");
-            }
-
-            await Delete(sourceContract);
-            await Add(contract);
-        }
-
-        public async Task Delete(int id)
-        {
-            var contract = await GetContractAsync(id);
-            if (contract != null)
-            {
-                await Delete(contract);
-            }
-        }
-
-        public async Task Delete(Contract contract)
+         
+        public async Task DeleteAsync(Contract contract)
         {
             if (contract == null)
             {
                 return;
             }
 
-            var childContract = await _appDBContext.Contracts.Include(c=>c.ParentContract).FirstOrDefaultAsync(c => c.ParentContractID  == contract.ID);
+            var childContract = await DbSet.Include(c=>c.ParentContract).FirstOrDefaultAsync(c => c.ParentContractID  == contract.ID);
             if (childContract != null)
             {
-                childContract.ParentContractID = null;
-                await _appDBContext.SaveChangesAsync();
+                childContract.ParentContractID = null; 
+                await SaveChangesAsync(CancellationToken.None);
             }
 
-            _appDBContext.Contracts.Remove(contract);
-            await _appDBContext.SaveChangesAsync();
+            DbSet.Remove(contract);
+            await SaveChangesAsync(CancellationToken.None);
         }
 
-        public async Task ConfirmContractAsync(int contractID, string adminLogin)
+        public async Task ConfirmContractAsync(int contractID, string adminLogin, CancellationToken token = default)
         {
-            var user = await _accountService.GetUserAsync(adminLogin) ?? throw new ObjectNotFoundException($"User with login = '{adminLogin}' not found");
+            var user = await _accountService.FirstOrDefaultAsync(u => u.Login == adminLogin, token) ?? throw new ObjectNotFoundException($"User with login = '{adminLogin}' not found");
             if (!_accountService.IsAdmin(user))
             {
                 throw new NoAccessException();
             }
 
-            var contract = await GetContractAsync(contractID) ?? throw new ObjectNotFoundException($"Contract wasn't found by ID = {contractID}");
+            var contract = await DbSet.FirstOrDefaultAsync(c => c.ID == contractID, token) ?? throw new ObjectNotFoundException($"Contract wasn't found by ID = {contractID}");
             if (contract.IsConfirmed)
             {
                 throw new ArgumentException("This contract is already confirmed");
@@ -125,12 +98,12 @@ namespace Logic.Services
 
             contract.ConfirmedByUserID = user.ID;
             contract.MonthReports = GenerateMonthReportsForContract(contract);
-            await _appDBContext.SaveChangesAsync();
+            await SaveChangesAsync(token);
         }
       
         public async Task<IEnumerable<MonthReport>> GetMonthReportsAsync(int contractID)
         {
-            var contract = await _appDBContext.Contracts.Include(c=>c.MonthReports).FirstOrDefaultAsync(c => c.ID == contractID) 
+            var contract = await DbSet.Include(c=>c.MonthReports).FirstOrDefaultAsync(c => c.ID == contractID) 
                 ?? throw new KeyNotFoundException($"Contract wasn't found by ID = {contractID}"); 
             
             if (!contract.IsConfirmed)
@@ -142,7 +115,7 @@ namespace Logic.Services
 
             while(contract.ParentContractID != null)
             {
-                contract = await _appDBContext.Contracts.Include(c => c.MonthReports).FirstOrDefaultAsync(c => c.ID == contract.ParentContractID)
+                contract = await DbSet.Include(c => c.MonthReports).FirstOrDefaultAsync(c => c.ID == contract.ParentContractID)
                 ?? throw new KeyNotFoundException($"Contract wasn't found by ID = {contractID}");
                 result.AddRange(contract.MonthReports);
             }
@@ -152,9 +125,9 @@ namespace Logic.Services
 
         public async Task UpdateMonthReport(MonthReport monthReportToAply)
         {
-            var report = await _appDBContext.MonthReports.FirstOrDefaultAsync(r => r.ContractID == monthReportToAply.ContractID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year) 
+            var report = await _monthReportService.FirstOrDefaultAsync(r => r.ContractID == monthReportToAply.ContractID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year) 
                 ?? throw new ObjectNotFoundException($"Month report not found by key[ID = {monthReportToAply.ContractID}, Month = {monthReportToAply.Month}, Year = {monthReportToAply.Year}]");
-            var untakenTimeIfRemoveTheReport = await GetMonthReportsUntakenTimeAsync(report.ContractID, new[] { (report.ContractID, report.Year, report.Month) });
+            var untakenTimeIfRemoveTheReport = await GetUntakenTimeAsync(report.ContractID, new[] { (report.ContractID, report.Year, report.Month) });
 
             if (untakenTimeIfRemoveTheReport.TimeSum < monthReportToAply.TimeSum) 
                 throw new ArgumentException("untakenTimeIfRemoveTheReport.TimeSum > monthReportToAply.TimeSum");
@@ -193,11 +166,8 @@ namespace Logic.Services
             if (untakenTimeIfRemoveTheReport.PlasticPosesDemonstrationTime < monthReportToAply.PlasticPosesDemonstrationTime)
                 throw new ArgumentException("untakenTimeIfRemoveTheReport.PlasticPosesDemonstrationTime > monthReportToAply.PlasticPosesDemonstrationTime");
             if (untakenTimeIfRemoveTheReport.TestingEscortTime < monthReportToAply.TestingEscortTime)
-                throw new ArgumentException("untakenTimeIfRemoveTheReport.TestingEscortTime > monthReportToAply.TestingEscortTime"); 
-
-            _appDBContext.MonthReports.Remove(report);
-            _appDBContext.MonthReports.Add(monthReportToAply);
-            await _appDBContext.SaveChangesAsync();
+                throw new ArgumentException("untakenTimeIfRemoveTheReport.TestingEscortTime > monthReportToAply.TestingEscortTime");
+            await _monthReportService.UpdateAsync(monthReportToAply);
         }
 
         private static IEnumerable<MonthReport> GenerateMonthReportsForContract(Contract contract)
@@ -214,9 +184,9 @@ namespace Logic.Services
             return reports;
         }
 
-        public async Task<IEnumerable<Contract>> GetUserContracts(string UserName) => await _appDBContext.Contracts.Where(c => c.User.Name == UserName).ToListAsync();
+        public async Task<IEnumerable<Contract>> GetUserContracts(string UserName) => await DbSet.Where(c => c.User.Name == UserName).ToListAsync();
 
-        public static IEnumerable<ValidationResult> ValidateOnCreate(Contract contract)
+        private static IEnumerable<ValidationResult> ValidateOnCreate(Contract contract)
         {
             if (contract.ParentContractID != null)
             {
@@ -451,12 +421,12 @@ namespace Logic.Services
 
         public async Task<string?> GetOwnersLoginAsync(int contractID)
         {
-            return (await _appDBContext.Contracts.Include(c => c.User).FirstOrDefaultAsync(c => c.ID == contractID))?.User.Login ?? null;
+            return (await DbSet.Include(c => c.User).FirstOrDefaultAsync(c => c.ID == contractID))?.User.Login ?? null;
         }
 
-        public async Task<MonthReportsUntakenTimeModel> GetMonthReportsUntakenTimeAsync(int contractID, IEnumerable<(int contractID, int year, int month)> exceptValuesWithKeys)
+        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int contractID, int year, int month)> exceptValuesWithKeys)
         {
-            var contact = await GetContractAsync(contractID)
+            var contact = await DbSet.FirstOrDefaultAsync(p => p.ID == contractID)
                 ?? throw new KeyNotFoundException($"Contract wasn't found by ID = {contractID}");
             var clearedReports = (await GetMonthReportsAsync(contractID))
                 .Where(r => !exceptValuesWithKeys.Any(e => e.contractID == r.ContractID && e.year == r.Year && e.month == r.Year));
@@ -491,7 +461,7 @@ namespace Logic.Services
             if (periodEnd <= periodStart) throw new ArgumentException($"{nameof(periodEnd)} <= {nameof(periodStart)}");
             periodStart = new DateTime(periodStart.Year, periodStart.Month, 1);
             periodEnd = new DateTime(periodEnd.Year, periodEnd.Month, 1);
-            var reportsContractsIncluded = await _appDBContext.MonthReports.Include(m => m.Contract)
+            var reportsContractsIncluded = await _monthReportService.DBSet.Include(m => m.Contract)
                 .Where(p => (p.Year >= periodStart.Year && p.Month >= periodStart.Month) && (p.Year <= periodEnd.Year && p.Month <= periodEnd.Month))
                 .ToListAsync();
             var rootParentContracts = reportsContractsIncluded
@@ -529,6 +499,29 @@ namespace Logic.Services
             }
 
             return path;
+        }
+
+        public async Task UpdateAsync(Contract contract, CancellationToken token = default)
+        {
+            var sourceContract = await DbSet.FirstOrDefaultAsync(c => c.ID == contract.ID, token) ?? throw new ObjectNotFoundException($"Contract wasn't found with ID = {contract.ID}");
+            if (sourceContract.IsConfirmed)
+            {
+                throw new ArgumentException($"Contract(ID = {contract.ID}) is confirmed. No edition allowed");
+            }
+
+            var res = ValidateOnCreate(contract);
+            if (res.Any())
+            {
+                throw new ArgumentException(string.Join("\n", res));
+            }
+            if (sourceContract.ContractIdentifier != contract.ContractIdentifier && await DbSet.AnyAsync(c => c.ContractIdentifier == contract.ContractIdentifier, token))
+            {
+                throw new ArgumentException($"Contract identifier '{contract.ContractIdentifier}' is taken");
+            }
+
+            DbSet.Remove(sourceContract);
+            DbSet.Add(contract);
+            await SaveChangesAsync(token);
         }
     } 
 }

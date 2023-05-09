@@ -2,7 +2,7 @@
 
 namespace Database.Interfaces
 {
-    public interface IConfirmableByAdminObjectAbstract
+    public interface IConfirmableByAdminObject
     {
         public bool IsConfirmed { get; }
         public int? ConfirmedByUserID { get; set; }

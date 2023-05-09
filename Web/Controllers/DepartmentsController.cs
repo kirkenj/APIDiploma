@@ -31,19 +31,15 @@ namespace Diploma.Controllers
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> Post([FromBody] string newDepartmentsName)
         {
-            await _departmentService.Create(new Department { Name = newDepartmentsName });
+            await _departmentService.AddAsync(new Department { Name = newDepartmentsName });
             return Created(nameof(Post),newDepartmentsName);
         }
 
         [HttpPut("{id}")]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> Put(int id, [FromBody] string newName)
+        public async Task<IActionResult> Put(Department department)
         {
-            if (!(await _departmentService.TryEditAsync(id, newName)))
-            {
-                return BadRequest();
-            }
-
+            await _departmentService.UpdateAsync(department, CancellationToken.None);
             return Ok();
         }
 
@@ -51,7 +47,13 @@ namespace Diploma.Controllers
         [Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> Delete(int id)
         {
-            await _departmentService.DeleteAsync(id);
+            var valueToRemove = await _departmentService.FirstOrDefaultAsync(d => d.ID ==  id);
+            if (valueToRemove == null)
+            {
+                return BadRequest();
+            }
+
+            await _departmentService.DeleteAsync(valueToRemove);
             return Ok();
         }
 

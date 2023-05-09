@@ -14,12 +14,14 @@ namespace Web.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService; 
+        private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
 
-        public AccountController(IAccountService appDBContext1, IMapper mapper)
+        public AccountController(IAccountService appDBContext1, IMapper mapper, IRoleService roleService)
         {
             _accountService = appDBContext1 ?? throw new ArgumentNullException(nameof(appDBContext1));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _roleService = roleService;
         }
 
         [HttpGet(nameof(GetAll))]
@@ -34,21 +36,13 @@ namespace Web.Controllers
         public async Task<IActionResult> Get()
         {
             var login = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            return Ok(_mapper.Map<UserViewModel>(await _accountService.GetUserAsync(login)));
-        }
-
-        [HttpPost(nameof(SetRole))]
-        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> SetRole(int userId, int RoleID)
-        {
-            await _accountService.SetRoleAsync(userId, RoleID);
-            return Ok();
+            return Ok(_mapper.Map<UserViewModel>(await _accountService.FirstOrDefaultAsync(u => u.Login == login)));
         }
 
         [HttpPut]
         public async Task<IActionResult> Put(UserEditModel editModel)
         {
-            bool isAdmin = _accountService.IsAdmin(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != editModel.Login)
             {
@@ -56,14 +50,15 @@ namespace Web.Controllers
             }
 
             var updateData = _mapper.Map<User>(editModel);
-            await _accountService.UpdateUser(updateData);
+            updateData.RoleId = isAdmin ? updateData.RoleId : -1;
+            await _accountService.UpdateAsync(updateData);
             return Ok();
         }
 
         [HttpPut(nameof(UpdatePassword))]
         public async Task<IActionResult> UpdatePassword(string userLoginToUpdatePassword, [MinLength(6)][RegularExpression("^[a-zA-Z0-9]+$")] string newPassword)
         {
-            bool isAdmin = _accountService.IsAdmin(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != userLoginToUpdatePassword )
             {

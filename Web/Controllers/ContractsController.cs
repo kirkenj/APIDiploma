@@ -14,34 +14,42 @@ namespace Web.Controllers
     public class ContractsController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IRoleService _roleService;
         private readonly IContractService _contractService;
         private readonly IMapper _mapper;
 
-        public ContractsController(IMapper mapper, IAccountService accountService, IContractService contractService)
+        public ContractsController(IMapper mapper, IAccountService accountService, IContractService contractService, IRoleService roleService)
         {
             _contractService = contractService;
             _mapper = mapper;
             _accountService = accountService;
+            _roleService = roleService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get() 
+        public IActionResult Get() 
         {
-            string? userName = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            return Ok(_mapper.Map<List<ContractViewModel>>(await _contractService.GetUserContracts(userName)));
+            int userID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            return Ok(_mapper.Map<List<ContractViewModel>>(_contractService.GetRange(c => c.UserID == userID)));
         }
        
         [HttpGet("{contractID}")]
         public async Task<IActionResult> Get(int contractID) 
         {
-            bool isAdmin = _accountService.IsAdmin(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
             {
                 return BadRequest();
             }
 
-            var mappedContract = _mapper.Map<ContractFullViewModel>(await _contractService.GetContractAsync(contractID));
+            var contractToReturn = await _contractService.FirstOrDefaultAsync(c => c.ID == contractID);
+            if (contractToReturn is null)
+            {
+                return BadRequest();
+            }
+
+            var mappedContract = _mapper.Map<ContractFullViewModel>(contractToReturn);
             var mappedReports = _mapper.Map<List<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID));
             mappedContract.MonthReports = mappedReports;
             return Ok(mappedContract);
@@ -58,12 +66,12 @@ namespace Web.Controllers
         public async Task<IActionResult> Post(ContractCreateModel createModel)
         {
             var contractToAdd = _mapper.Map<Contract>(createModel);
-            if (!_accountService.IsAdmin(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
+            if (!_roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
             {
                 contractToAdd.UserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
             }
 
-            await _contractService.Add(contractToAdd);
+            await _contractService.AddAsync(contractToAdd);
             return Ok();
         }
 
@@ -71,20 +79,26 @@ namespace Web.Controllers
         public async Task<ActionResult> Put(ContractEditModel editModel)
         {
             var newContract = _mapper.Map<Contract>(editModel);
-            if (!_accountService.IsAdmin(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
+            if (!_roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
             {
                 newContract.UserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
             }
 
-            await _contractService.Edit(newContract);
+            await _contractService.UpdateAsync(newContract);
             return Ok();
         }
 
         [HttpDelete("{contractID}")]
         public async Task<IActionResult> Delete(int contractID)
         {
-            await _contractService.Delete(contractID);
-            return Ok(); 
+            var valueToRemove = await _contractService.FirstOrDefaultAsync(c => c.ID ==  contractID);
+            if (valueToRemove is null)
+            {
+                return BadRequest();
+            }
+
+            await _contractService.DeleteAsync(valueToRemove);
+            return Ok();
         }
 
         [HttpPost(nameof(Confirm) + "/{contractID}")]
@@ -98,7 +112,7 @@ namespace Web.Controllers
         [HttpGet(nameof(GetMonthReports) + "/{contractID}")]
         public async Task<IActionResult> GetMonthReports(int contractID)
         {
-            bool isAdmin = _accountService.IsAdmin(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
             {
@@ -111,20 +125,20 @@ namespace Web.Controllers
         [HttpGet(nameof(GetMonthReportsUntakenTime) + "/{contractID}")]
         public async Task<IActionResult> GetMonthReportsUntakenTime(int contractID)
         {
-            bool isAdmin = _accountService.IsAdmin(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
             {
                 return BadRequest();
             }
         
-            return Ok(await _contractService.GetMonthReportsUntakenTimeAsync(contractID, Enumerable.Empty<(int,int,int)>()));
+            return Ok(await _contractService.GetUntakenTimeAsync(contractID, Enumerable.Empty<(int,int,int)>()));
         }
 
         [HttpPut(nameof(EditMonthReport))]
         public async Task<IActionResult> EditMonthReport(EditMonthReportModel editModel)
         {
-            bool isAdmin = _accountService.IsAdmin(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(editModel.ContractID))
             {

@@ -1,5 +1,7 @@
-﻿using Database.Entities;
+﻿using Database;
+using Database.Entities;
 using Database.Interfaces;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Logic.Exceptions;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -8,49 +10,42 @@ namespace Logic.Services
 {
     public class DepartmentService : IDepartmentService
     {
-        private readonly IAppDBContext _appDBContext;
         
         public DepartmentService(IAppDBContext appDBContext)
         {
-            _appDBContext= appDBContext;
+            DbSet = appDBContext.Set<Department>();
+            SaveChangesAsync = appDBContext.SaveChangesAsync;
         }
 
-        public async Task Create(Department department)
+        public DbSet<Department> DbSet { get; private set; }
+        public Func<CancellationToken, Task<int>> SaveChangesAsync { get; private set; }
+
+        public async Task AddAsync(Department department, CancellationToken token)
         {
-            if (_appDBContext.Set<Department>().Any(d => d.Name== department.Name))
+            if (DbSet.Any(d => d.Name== department.Name))
             {
                 throw new ArgumentException("Name is taken");
             }
 
-            _appDBContext.Departments.Add(department);
-            await _appDBContext.SaveChangesAsync();
+            DbSet.Add(department);
+            await SaveChangesAsync(token);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task UpdateAsync(Department valueToAply, CancellationToken token = default)
         {
-            var item = await _appDBContext.Departments.FirstOrDefaultAsync(d => d.ID == id);
-            if (item is null) return;
-            _appDBContext.Departments.Remove(item);
-            await _appDBContext.SaveChangesAsync();
-        }
-
-        public async Task<Department?> FindByIDAsync(int id)=>await _appDBContext.Departments.FirstOrDefaultAsync(d => d.ID==id);
-
-        public async Task<Department?> FindByNameAsync(string name) => await _appDBContext.Departments.FirstOrDefaultAsync(d => d.Name == name);
-
-        public async Task<List<Department>> GetAllAsync() => await _appDBContext.Departments.ToListAsync();
-
-        public async Task<bool> TryEditAsync(int id, string newName)
-        {
-            var dep = await FindByIDAsync(id);
-            if (dep is null || await _appDBContext.Departments.AnyAsync(d => d.Name == newName))
+            var dep = await DbSet.FirstOrDefaultAsync(d => d.ID == valueToAply.ID) ?? throw new ObjectNotFoundException($"Department with ID = {valueToAply.ID} not found");
+            if (dep.Name == valueToAply.Name)
             {
-                return false;
+                return;
+            }
+            
+            if (dep is null || await DbSet.AnyAsync(d => d.Name == valueToAply.Name, token))
+            {
+                throw new Exception($"Department name '{valueToAply.Name}' is taken");
             }
 
-            dep.Name = newName;
-            await _appDBContext.SaveChangesAsync();
-            return true;
+            dep.Name = valueToAply.Name;
+            await SaveChangesAsync(token);
         }
     }
 }

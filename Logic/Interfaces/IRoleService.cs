@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Database.Entities;
 
 namespace Logic.Interfaces
 {
-    internal class IRoleService
+    public interface IRoleService : IDbAccessServise<Role>
     {
+        public Task<Role?> GetRoleAsync(int roleId);
+        public bool IsAdminRoleName(string roleName);
+        public bool IsAdminRoleID(int roleID);
     }
 }

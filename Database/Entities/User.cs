@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Database.Entities
 {
     [Table(nameof(User) + "s")]
-    public class User : IConfirmableByAdminObjectAbstract
+    public class User : IConfirmableByAdminObject
     {
         public int ID { get; set; }
         public string Name { get; set; } = null!;
