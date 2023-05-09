@@ -2,6 +2,7 @@
 using Database.Entities;
 using Database.Interfaces;
 using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using DocumentFormat.OpenXml.Office2016.Drawing.Command;
 using Logic.Exceptions;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ public class AccountService : IAccountService
 {
     private readonly IHashProvider _hashProvider;
     private readonly IRoleService _roleService;
+    public IAccountService iAccountService => this;
 
     public DbSet<User> DbSet { get; private set; }
 
@@ -71,5 +73,10 @@ public class AccountService : IAccountService
         }
 
         await SaveChangesAsync.Invoke(CancellationToken.None);
+    }
+
+    public Task OnObjectConfirmedAsync(User entity, CancellationToken token = default)
+    {
+        return Task.CompletedTask;
     }
 }

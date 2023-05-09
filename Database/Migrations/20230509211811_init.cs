@@ -62,7 +62,8 @@ namespace Database.Migrations
                     RoleID = table.Column<int>(type: "int", nullable: false),
                     Login = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    PasswordHash = table.Column<string>(type: "NVARCHAR(200)", maxLength: 200, nullable: false)
+                    PasswordHash = table.Column<string>(type: "NVARCHAR(200)", maxLength: 200, nullable: false),
+                    ConfirmedByUserID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -73,6 +74,11 @@ namespace Database.Migrations
                         principalTable: "Roles",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_User_Confirmed_By_User",
+                        column: x => x.ConfirmedByUserID,
+                        principalTable: "Users",
+                        principalColumn: "ID");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -88,7 +94,6 @@ namespace Database.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PeriodStart = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    ConfirmedByUserID = table.Column<int>(type: "int", nullable: true),
                     ParentContractID = table.Column<int>(type: "int", nullable: true),
                     LectionsMaxTime = table.Column<int>(type: "int", nullable: false),
                     PracticalClassesMaxTime = table.Column<int>(type: "int", nullable: false),
@@ -107,7 +112,8 @@ namespace Database.Migrations
                     GraduatesManagementMaxTime = table.Column<int>(type: "int", nullable: false),
                     GraduatesAcademicWorkMaxTime = table.Column<int>(type: "int", nullable: false),
                     PlasticPosesDemonstrationMaxTime = table.Column<int>(type: "int", nullable: false),
-                    TestingEscortMaxTime = table.Column<int>(type: "int", nullable: false)
+                    TestingEscortMaxTime = table.Column<int>(type: "int", nullable: false),
+                    ConfirmedByUserID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -185,6 +191,11 @@ namespace Database.Migrations
                     { 3, "Admin" }
                 });
 
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "ID", "ConfirmedByUserID", "Login", "Name", "PasswordHash", "Patronymic", "RoleID", "Surname" },
+                values: new object[] { 1, 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_ConfirmedByUserID",
                 table: "Contracts",
@@ -228,6 +239,11 @@ namespace Database.Migrations
                 table: "Roles",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_ConfirmedByUserID",
+                table: "Users",
+                column: "ConfirmedByUserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Login",

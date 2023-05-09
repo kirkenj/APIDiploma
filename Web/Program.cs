@@ -11,7 +11,6 @@ using static Web.Constants.IncludeModels;
 using Web.Models.JWTModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Database.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,11 +25,12 @@ var issuer = builder.Configuration.GetSection("JWTSettings:Issuer").Value ?? thr
 var audience = builder.Configuration.GetSection("JWTSettings:Audience").Value ?? throw new Exception("builder.Configuration.GetSection(\"JWTSettings:Audience\").Value is null");
 var signingKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(secretKey));
 var settings = new JWTSettings() { Audience = audience, Issuer = issuer, SecretKey = secretKey };
-builder.Services.AddSingleton<JWTSettings>(settings);
+builder.Services.AddSingleton(settings);
 
 
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33))));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33))));
+//builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33))));
 builder.Services.AddTransient<IAppDBContext, AppDbContext>();
 builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IDepartmentService, DepartmentService>();

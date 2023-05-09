@@ -44,7 +44,8 @@ namespace Web.Controllers
             {
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.NameKey, result.Login),
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.IDKey, result.ID.ToString()),
-                new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, (await _accountService.FirstOrDefaultAsync(r => r.ID == result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}")).Name)
+                new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, (await _roleService.FirstOrDefaultAsync(r => r.ID == result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}")).Name),
+                new Claim(Constants.IncludeModels.UserIdentitiesTools.IsConfirmedKey, result.IsConfirmed.ToString())
             };
 
             var signingKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));

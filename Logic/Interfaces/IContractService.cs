@@ -3,10 +3,9 @@ using Logic.Models.MonthReports;
 
 namespace Logic.Interfaces
 {
-    public interface IContractService : IDbAccessServise<Contract>
+    public interface IContractService : IDbAccessServise<Contract>, IConfirmService<Contract>
     {
         public Task<IEnumerable<Contract>> GetAll();
-        public Task ConfirmContractAsync(int contractID, string adminLogin, CancellationToken token = default);
         public Task<IEnumerable<MonthReport>> GetMonthReportsAsync(int contractID);
         public Task UpdateMonthReport(MonthReport monthReport);
         public Task<string?> GetOwnersLoginAsync(int contractID);

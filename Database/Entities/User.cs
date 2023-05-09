@@ -16,6 +16,7 @@ namespace Database.Entities
         public string Login { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public IEnumerable<Contract> ConfirmedContracts { get; set; } = null!;
+        public IEnumerable<User> ConfirmedUsers { get; set; } = null!;
         public bool IsConfirmed => ConfirmedByUserID != null;
         public int? ConfirmedByUserID { get; set; }
         public User? ConfirmedByUser { get; set; }

@@ -105,7 +105,7 @@ namespace Web.Controllers
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> Confirm(int contractID)
         {
-            await _contractService.ConfirmContractAsync(contractID, User.Identity?.Name ?? throw new UnauthorizedAccessException());
+            await _contractService.ConfirmAsync(contractID, User.Identity?.Name ?? throw new UnauthorizedAccessException());
             return Ok();
         }
 

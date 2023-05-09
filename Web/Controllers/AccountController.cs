@@ -36,7 +36,8 @@ namespace Web.Controllers
         public async Task<IActionResult> Get()
         {
             var login = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            return Ok(_mapper.Map<UserViewModel>(await _accountService.FirstOrDefaultAsync(u => u.Login == login)));
+            var mappedValue = _mapper.Map<UserViewModel>(await _accountService.FirstOrDefaultAsync(u => u.Login == login));
+            return Ok(mappedValue);
         }
 
         [HttpPut]
@@ -67,6 +68,12 @@ namespace Web.Controllers
 
             await _accountService.UpdatePasswordAsync(userLoginToUpdatePassword, newPassword);
             return Ok();
+        }
+
+        [HttpGet(nameof(GetRoles))]
+        public List<Role> GetRoles() 
+        {
+            return _roleService.GetRange(u => u.ID >= 0).ToList();
         }
     }
 }

@@ -24,7 +24,25 @@ namespace Logic.Services
             await SaveChangesAsync(cancellationToken);
         }
 
-        public Task<Role?> GetRoleAsync(int roleId) => DbSet.FirstOrDefaultAsync(r => r.ID == roleId);
+        public async Task<Role?> GetRoleAsync(int roleId)
+        {
+            if (roleId == IncludeModels.RolesNavigation.AdminRoleID) 
+            {
+                return new Role { ID = roleId, Name = IncludeModels.RolesNavigation.AdminRoleName };
+            }
+
+            if (roleId == IncludeModels.RolesNavigation.OrdinaryUserRoleID) 
+            {
+                return new Role { ID = roleId, Name = IncludeModels.RolesNavigation.OrdinaryUserRoleName };
+            }
+
+            if (roleId == IncludeModels.RolesNavigation.SuperAdminRoleID) 
+            {
+                return new Role { ID = roleId, Name = IncludeModels.RolesNavigation.SuperAdminRoleName };
+            }
+
+            return await DbSet.FirstOrDefaultAsync(r => r.ID == roleId);
+        }
 
         public bool IsAdminRoleID(int roleID)
         {

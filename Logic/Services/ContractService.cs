@@ -13,7 +13,7 @@ namespace Logic.Services
 {
     public class ContractService : IContractService
     {
-        private readonly IAccountService _accountService;
+        public IAccountService iAccountService { get; private set; }
         private readonly IDepartmentService _departmentService;
         private readonly IMonthReportService _monthReportService;
 
@@ -22,7 +22,7 @@ namespace Logic.Services
 
         public ContractService(IAppDBContext context, IAccountService accountService, IDepartmentService departmentService, IMonthReportService monthReportService)
         {
-            _accountService = accountService;
+            iAccountService = accountService;
             _departmentService = departmentService;
             _monthReportService = monthReportService;
             DbSet = context.Set<Contract>(); 
@@ -64,7 +64,7 @@ namespace Logic.Services
             await SaveChangesAsync(token);
         }
          
-        public async Task DeleteAsync(Contract contract)
+        public async Task DeleteAsync(Contract contract, CancellationToken token = default)
         {
             if (contract == null)
             {
@@ -75,32 +75,13 @@ namespace Logic.Services
             if (childContract != null)
             {
                 childContract.ParentContractID = null; 
-                await SaveChangesAsync(CancellationToken.None);
+                await SaveChangesAsync(token);
             }
 
             DbSet.Remove(contract);
-            await SaveChangesAsync(CancellationToken.None);
-        }
-
-        public async Task ConfirmContractAsync(int contractID, string adminLogin, CancellationToken token = default)
-        {
-            var user = await _accountService.FirstOrDefaultAsync(u => u.Login == adminLogin, token) ?? throw new ObjectNotFoundException($"User with login = '{adminLogin}' not found");
-            if (!_accountService.IsAdmin(user))
-            {
-                throw new NoAccessException();
-            }
-
-            var contract = await DbSet.FirstOrDefaultAsync(c => c.ID == contractID, token) ?? throw new ObjectNotFoundException($"Contract wasn't found by ID = {contractID}");
-            if (contract.IsConfirmed)
-            {
-                throw new ArgumentException("This contract is already confirmed");
-            }
-
-            contract.ConfirmedByUserID = user.ID;
-            contract.MonthReports = GenerateMonthReportsForContract(contract);
             await SaveChangesAsync(token);
         }
-      
+
         public async Task<IEnumerable<MonthReport>> GetMonthReportsAsync(int contractID)
         {
             var contract = await DbSet.Include(c=>c.MonthReports).FirstOrDefaultAsync(c => c.ID == contractID) 
@@ -521,6 +502,12 @@ namespace Logic.Services
 
             DbSet.Remove(sourceContract);
             DbSet.Add(contract);
+            await SaveChangesAsync(token);
+        }
+
+        public async Task OnObjectConfirmedAsync(Contract entity, CancellationToken token = default)
+        {
+            entity.MonthReports = GenerateMonthReportsForContract(entity);
             await SaveChangesAsync(token);
         }
     } 

@@ -25,7 +25,9 @@ namespace Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            
+            //optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -59,6 +61,12 @@ namespace Database
                 .HasForeignKey(e => e.RoleId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Roles_Users");
+                entity.Property(e => e.ConfirmedByUserID).HasColumnName("ConfirmedByUserID");
+                entity.HasOne(e => e.ConfirmedByUser)
+                .WithMany(e => e.ConfirmedUsers)
+                .HasForeignKey(e => e.ConfirmedByUserID)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_User_Confirmed_By_User");
             });
 
             modelBuilder.Entity<Contract>(entity =>
@@ -140,6 +148,8 @@ namespace Database
             modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.AdminRoleID, Name = IncludeModels.RolesNavigation.AdminRoleName});
             modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.SuperAdminRoleID, Name = IncludeModels.RolesNavigation.SuperAdminRoleName });
             modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.OrdinaryUserRoleID, Name = IncludeModels.RolesNavigation.OrdinaryUserRoleName });
+
+            modelBuilder.Entity<User>().HasData(new User() { ID = 1, Name = "admin", Surname = "admin", Patronymic = "admin", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, ConfirmedByUserID = 1, Login = "admin" });
         }
     }
 }

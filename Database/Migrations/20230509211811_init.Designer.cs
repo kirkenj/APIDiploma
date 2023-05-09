@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230501232124_init")]
+    [Migration("20230509211811_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -307,6 +307,10 @@ namespace Database.Migrations
                         .HasColumnName("ID")
                         .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("ConfirmedByUserID")
+                        .HasColumnType("int")
+                        .HasColumnName("ConfirmedByUserID");
+
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -343,12 +347,27 @@ namespace Database.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("ConfirmedByUserID");
+
                     b.HasIndex("Login")
                         .IsUnique();
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            ConfirmedByUserID = 1,
+                            Login = "admin",
+                            Name = "admin",
+                            PasswordHash = "!#/)zW��C�JJ��",
+                            Patronymic = "admin",
+                            RoleId = 1,
+                            Surname = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Database.Entities.Contract", b =>
@@ -401,12 +420,20 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.User", b =>
                 {
+                    b.HasOne("Database.Entities.User", "ConfirmedByUser")
+                        .WithMany("ConfirmedUsers")
+                        .HasForeignKey("ConfirmedByUserID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_User_Confirmed_By_User");
+
                     b.HasOne("Database.Entities.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Roles_Users");
+
+                    b.Navigation("ConfirmedByUser");
 
                     b.Navigation("Role");
                 });
@@ -431,6 +458,8 @@ namespace Database.Migrations
             modelBuilder.Entity("Database.Entities.User", b =>
                 {
                     b.Navigation("ConfirmedContracts");
+
+                    b.Navigation("ConfirmedUsers");
 
                     b.Navigation("Contracts");
                 });

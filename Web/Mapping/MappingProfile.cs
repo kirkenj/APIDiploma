@@ -184,7 +184,6 @@ namespace API.Mapping
             .ForMember(dest => dest.IsConfirmed, opt => opt.MapFrom(src => src.IsConfirmed))
             .ForMember(dest => dest.Surname, opt => opt.MapFrom(src => src.Surname))
             .ForMember(dest => dest.Patronymic, opt => opt.MapFrom(src => src.Patronymic))
-            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Name))
             .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.RoleId))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login));
             

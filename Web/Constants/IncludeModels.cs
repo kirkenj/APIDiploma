@@ -13,6 +13,9 @@ public static class IncludeModels
         
         public const string NameKey = ClaimTypes.Name;
         public static string GetUserNameClaimValue(ClaimsPrincipal User) => User.Claims.First(u => u.Type == NameKey).Value;
+        
+        public const string IsConfirmedKey = "IsConfirmed";
+        public static string GetUserIsConfirmedClaimValue(ClaimsPrincipal User) => User.Claims.First(u => u.Type == IsConfirmedKey).Value;
     }
 
     public static class PolicyNavigation
