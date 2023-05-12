@@ -26,5 +26,11 @@ namespace Logic.Services
             DbSet.Add(valueToAply);
             await SaveChangesAsync(token);
         }
+
+        public async Task AddAsync(MonthReport entity, CancellationToken token = default)
+        {
+            await DbSet.AddAsync(entity, token);
+            await SaveChangesAsync(token);
+        }
     }
 }

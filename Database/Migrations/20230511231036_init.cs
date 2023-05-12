@@ -18,6 +18,36 @@ namespace Database.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "AcademicDegrees",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AcademicDegrees", x => x.ID);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "ContractTypes",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContractTypes", x => x.ID);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Departments",
                 columns: table => new
                 {
@@ -44,6 +74,46 @@ namespace Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.ID);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "AcademicDegreePriceAssignations",
+                columns: table => new
+                {
+                    AssignationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ObjectIdentifier = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<double>(type: "double", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AcademicDegreePriceAssignations", x => new { x.AssignationDate, x.ObjectIdentifier });
+                    table.ForeignKey(
+                        name: "FK_AcademicDegree_AcademicDegreeValueAssignation",
+                        column: x => x.ObjectIdentifier,
+                        principalTable: "AcademicDegrees",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "ContractTypePriceAssignations",
+                columns: table => new
+                {
+                    AssignationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ObjectIdentifier = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<double>(type: "double", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContractTypePriceAssignations", x => new { x.AssignationDate, x.ObjectIdentifier });
+                    table.ForeignKey(
+                        name: "FK_ContractType_ContractTypeValueAssignation",
+                        column: x => x.ObjectIdentifier,
+                        principalTable: "ContractTypes",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -90,6 +160,7 @@ namespace Database.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     UserID = table.Column<int>(type: "int", nullable: false),
                     DepartmentID = table.Column<int>(type: "int", nullable: false),
+                    ContractTypeID = table.Column<int>(type: "int", nullable: false),
                     ContractIdentifier = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PeriodStart = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -124,6 +195,11 @@ namespace Database.Migrations
                         principalTable: "Users",
                         principalColumn: "ID");
                     table.ForeignKey(
+                        name: "FK_Contract_ContractType",
+                        column: x => x.ContractTypeID,
+                        principalTable: "ContractTypes",
+                        principalColumn: "ID");
+                    table.ForeignKey(
                         name: "FK_Contracts_Departments",
                         column: x => x.DepartmentID,
                         principalTable: "Departments",
@@ -140,6 +216,32 @@ namespace Database.Migrations
                         column: x => x.ParentContractID,
                         principalTable: "Contracts",
                         principalColumn: "ID");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "UserAcademicDegreeAssignations",
+                columns: table => new
+                {
+                    AssignationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ObjectIdentifier = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserAcademicDegreeAssignations", x => new { x.AssignationDate, x.ObjectIdentifier });
+                    table.ForeignKey(
+                        name: "FK_UserAcademicDegreeAssignations_AcademicDegrees_Value",
+                        column: x => x.Value,
+                        principalTable: "AcademicDegrees",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_User_UserAcademicDegreeAssignation",
+                        column: x => x.ObjectIdentifier,
+                        principalTable: "Users",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -182,6 +284,33 @@ namespace Database.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.InsertData(
+                table: "AcademicDegrees",
+                columns: new[] { "ID", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Doctor" },
+                    { 2, "Professor" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ContractTypes",
+                columns: new[] { "ID", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Ordinary" },
+                    { 2, "Advanced" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Departments",
+                columns: new[] { "ID", "Name" },
+                values: new object[,]
+                {
+                    { 1, "FITR" },
+                    { 2, "FTUG" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "ID", "Name" },
                 values: new object[,]
@@ -192,9 +321,43 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "AcademicDegreePriceAssignations",
+                columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
+                values: new object[,]
+                {
+                    { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(718), 1, 12.0 },
+                    { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(763), 2, 10.0 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ContractTypePriceAssignations",
+                columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
+                values: new object[,]
+                {
+                    { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(861), 1, 12.0 },
+                    { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(889), 2, 10.0 }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "ID", "ConfirmedByUserID", "Login", "Name", "PasswordHash", "Patronymic", "RoleID", "Surname" },
                 values: new object[] { 1, 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin" });
+
+            migrationBuilder.InsertData(
+                table: "UserAcademicDegreeAssignations",
+                columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
+                values: new object[] { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(959), 1, 1 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AcademicDegreePriceAssignations_ObjectIdentifier",
+                table: "AcademicDegreePriceAssignations",
+                column: "ObjectIdentifier");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AcademicDegrees_Name",
+                table: "AcademicDegrees",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_ConfirmedByUserID",
@@ -206,6 +369,11 @@ namespace Database.Migrations
                 table: "Contracts",
                 column: "ContractIdentifier",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Contracts_ContractTypeID",
+                table: "Contracts",
+                column: "ContractTypeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_DepartmentID",
@@ -224,6 +392,17 @@ namespace Database.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ContractTypePriceAssignations_ObjectIdentifier",
+                table: "ContractTypePriceAssignations",
+                column: "ObjectIdentifier");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContractTypes_Name",
+                table: "ContractTypes",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Departments_Name",
                 table: "Departments",
                 column: "Name",
@@ -239,6 +418,16 @@ namespace Database.Migrations
                 table: "Roles",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserAcademicDegreeAssignations_ObjectIdentifier",
+                table: "UserAcademicDegreeAssignations",
+                column: "ObjectIdentifier");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserAcademicDegreeAssignations_Value",
+                table: "UserAcademicDegreeAssignations",
+                column: "Value");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_ConfirmedByUserID",
@@ -261,13 +450,28 @@ namespace Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AcademicDegreePriceAssignations");
+
+            migrationBuilder.DropTable(
+                name: "ContractTypePriceAssignations");
+
+            migrationBuilder.DropTable(
                 name: "MonthReports");
+
+            migrationBuilder.DropTable(
+                name: "UserAcademicDegreeAssignations");
 
             migrationBuilder.DropTable(
                 name: "Contracts");
 
             migrationBuilder.DropTable(
+                name: "AcademicDegrees");
+
+            migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "ContractTypes");
 
             migrationBuilder.DropTable(
                 name: "Departments");

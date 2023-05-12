@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Web.Models.JWTModels;
 using Microsoft.IdentityModel.Tokens;
 using Web.Models.Authorize;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace Web.Controllers
 {
@@ -40,11 +41,13 @@ namespace Web.Controllers
             var result = await _accountService.FirstOrDefaultAsync(u => u.Login == loginModel.Login && u.PasswordHash == loginModel.Password);
             if (result is null) return BadRequest("Invalid login or password");
             
+            var role = await _roleService.FirstOrDefaultAsync(r => r.ID == result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}");
+
             var claims = new List<Claim>
             {
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.NameKey, result.Login),
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.IDKey, result.ID.ToString()),
-                new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, (await _roleService.FirstOrDefaultAsync(r => r.ID == result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}")).Name),
+                new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, role.Name),
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.IsConfirmedKey, result.IsConfirmed.ToString())
             };
 

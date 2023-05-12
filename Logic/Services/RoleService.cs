@@ -20,7 +20,7 @@ namespace Logic.Services
         public async Task AddAsync(Role valueToAdd, CancellationToken cancellationToken = default) 
         {
             if (await DbSet.AnyAsync(r => r.Name == valueToAdd.Name, cancellationToken)) throw new Exception($"Role name is taken {valueToAdd.Name}");
-            DbSet.Add(valueToAdd);
+            await DbSet.AddAsync(valueToAdd, cancellationToken);
             await SaveChangesAsync(cancellationToken);
         }
 

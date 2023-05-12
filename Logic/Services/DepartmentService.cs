@@ -22,7 +22,7 @@ namespace Logic.Services
 
         public async Task AddAsync(Department department, CancellationToken token)
         {
-            if (DbSet.Any(d => d.Name== department.Name))
+            if (await DbSet.AnyAsync(d => d.Name== department.Name, token))
             {
                 throw new ArgumentException("Name is taken");
             }
@@ -33,18 +33,18 @@ namespace Logic.Services
 
         public async Task UpdateAsync(Department valueToAply, CancellationToken token = default)
         {
-            var dep = await DbSet.FirstOrDefaultAsync(d => d.ID == valueToAply.ID) ?? throw new ObjectNotFoundException($"Department with ID = {valueToAply.ID} not found");
-            if (dep.Name == valueToAply.Name)
+            var valueToModify = await DbSet.FirstOrDefaultAsync(d => d.ID == valueToAply.ID, cancellationToken: token) ?? throw new ObjectNotFoundException($"Department with ID = {valueToAply.ID} not found");
+            if (valueToModify.Name == valueToAply.Name)
             {
                 return;
             }
             
-            if (dep is null || await DbSet.AnyAsync(d => d.Name == valueToAply.Name, token))
+            if (await DbSet.AnyAsync(d => d.Name == valueToAply.Name, token))
             {
                 throw new Exception($"Department name '{valueToAply.Name}' is taken");
             }
 
-            dep.Name = valueToAply.Name;
+            valueToModify.Name = valueToAply.Name;
             await SaveChangesAsync(token);
         }
     }

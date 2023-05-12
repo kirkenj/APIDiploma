@@ -1,8 +1,5 @@
-﻿using Data.Constants;
-using Database.Entities;
+﻿using Database.Entities;
 using Database.Interfaces;
-using DocumentFormat.OpenXml.Drawing.Spreadsheet;
-using DocumentFormat.OpenXml.Office2016.Drawing.Command;
 using Logic.Exceptions;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -16,14 +13,15 @@ public class AccountService : IAccountService
     public IAccountService iAccountService => this;
 
     public DbSet<User> DbSet { get; private set; }
-
     public Func<CancellationToken, Task<int>> SaveChangesAsync {get; private set;}
+    public DbSet<UserAcademicDegreeAssignation> AssignationsDBSet { get; set; }
 
     public AccountService(IAppDBContext context, IHashProvider hashProvider, IRoleService roleService)
     {
         _hashProvider = hashProvider;
         _roleService = roleService;
         DbSet = context.Set<User>();
+        AssignationsDBSet = context.Set<UserAcademicDegreeAssignation>();
         SaveChangesAsync = context.SaveChangesAsync;
     }
 

@@ -20,6 +20,74 @@ namespace Database.Migrations
                 .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("Database.Entities.AcademicDegree", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("ID")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Name");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("AcademicDegrees");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Name = "Doctor"
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Name = "Professor"
+                        });
+                });
+
+            modelBuilder.Entity("Database.Entities.AcademicDegreePriceAssignation", b =>
+                {
+                    b.Property<DateTime>("AssignationDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("AssignationDate");
+
+                    b.Property<int>("ObjectIdentifier")
+                        .HasColumnType("int")
+                        .HasColumnName("ObjectIdentifier");
+
+                    b.Property<double>("Value")
+                        .HasColumnType("double")
+                        .HasColumnName("Value");
+
+                    b.HasKey("AssignationDate", "ObjectIdentifier");
+
+                    b.HasIndex("ObjectIdentifier");
+
+                    b.ToTable("AcademicDegreePriceAssignations");
+
+                    b.HasData(
+                        new
+                        {
+                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(718),
+                            ObjectIdentifier = 1,
+                            Value = 12.0
+                        },
+                        new
+                        {
+                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(763),
+                            ObjectIdentifier = 2,
+                            Value = 10.0
+                        });
+                });
+
             modelBuilder.Entity("Database.Entities.Contract", b =>
                 {
                     b.Property<int>("ID")
@@ -40,6 +108,9 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)")
                         .HasColumnName("ContractIdentifier");
+
+                    b.Property<int>("ContractTypeID")
+                        .HasColumnType("int");
 
                     b.Property<int>("CourseProjectsMaxTime")
                         .HasColumnType("int")
@@ -135,6 +206,8 @@ namespace Database.Migrations
                     b.HasIndex("ContractIdentifier")
                         .IsUnique();
 
+                    b.HasIndex("ContractTypeID");
+
                     b.HasIndex("DepartmentID");
 
                     b.HasIndex("ParentContractID")
@@ -143,6 +216,74 @@ namespace Database.Migrations
                     b.HasIndex("UserID");
 
                     b.ToTable("Contracts");
+                });
+
+            modelBuilder.Entity("Database.Entities.ContractType", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("ID")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("Name");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ContractTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Name = "Ordinary"
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Name = "Advanced"
+                        });
+                });
+
+            modelBuilder.Entity("Database.Entities.ContractTypePriceAssignation", b =>
+                {
+                    b.Property<DateTime>("AssignationDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("AssignationDate");
+
+                    b.Property<int>("ObjectIdentifier")
+                        .HasColumnType("int")
+                        .HasColumnName("ObjectIdentifier");
+
+                    b.Property<double>("Value")
+                        .HasColumnType("double")
+                        .HasColumnName("Value");
+
+                    b.HasKey("AssignationDate", "ObjectIdentifier");
+
+                    b.HasIndex("ObjectIdentifier");
+
+                    b.ToTable("ContractTypePriceAssignations");
+
+                    b.HasData(
+                        new
+                        {
+                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(861),
+                            ObjectIdentifier = 1,
+                            Value = 12.0
+                        },
+                        new
+                        {
+                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(889),
+                            ObjectIdentifier = 2,
+                            Value = 10.0
+                        });
                 });
 
             modelBuilder.Entity("Database.Entities.Department", b =>
@@ -164,6 +305,18 @@ namespace Database.Migrations
                         .IsUnique();
 
                     b.ToTable("Departments");
+
+                    b.HasData(
+                        new
+                        {
+                            ID = 1,
+                            Name = "FITR"
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Name = "FTUG"
+                        });
                 });
 
             modelBuilder.Entity("Database.Entities.MonthReport", b =>
@@ -281,11 +434,6 @@ namespace Database.Migrations
                     b.HasData(
                         new
                         {
-                            ID = 3,
-                            Name = "Admin"
-                        },
-                        new
-                        {
                             ID = 1,
                             Name = "SuperAdmin"
                         },
@@ -293,6 +441,11 @@ namespace Database.Migrations
                         {
                             ID = 2,
                             Name = "User"
+                        },
+                        new
+                        {
+                            ID = 3,
+                            Name = "Admin"
                         });
                 });
 
@@ -367,6 +520,49 @@ namespace Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignation", b =>
+                {
+                    b.Property<DateTime>("AssignationDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("AssignationDate");
+
+                    b.Property<int>("ObjectIdentifier")
+                        .HasColumnType("int")
+                        .HasColumnName("ObjectIdentifier");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("int")
+                        .HasColumnName("Value");
+
+                    b.HasKey("AssignationDate", "ObjectIdentifier");
+
+                    b.HasIndex("ObjectIdentifier");
+
+                    b.HasIndex("Value");
+
+                    b.ToTable("UserAcademicDegreeAssignations");
+
+                    b.HasData(
+                        new
+                        {
+                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(959),
+                            ObjectIdentifier = 1,
+                            Value = 1
+                        });
+                });
+
+            modelBuilder.Entity("Database.Entities.AcademicDegreePriceAssignation", b =>
+                {
+                    b.HasOne("Database.Entities.AcademicDegree", "ObjectRef")
+                        .WithMany("Assignations")
+                        .HasForeignKey("ObjectIdentifier")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AcademicDegree_AcademicDegreeValueAssignation");
+
+                    b.Navigation("ObjectRef");
+                });
+
             modelBuilder.Entity("Database.Entities.Contract", b =>
                 {
                     b.HasOne("Database.Entities.User", "ConfirmedByUser")
@@ -374,6 +570,13 @@ namespace Database.Migrations
                         .HasForeignKey("ConfirmedByUserID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_Contract_Confirmed_By_User");
+
+                    b.HasOne("Database.Entities.ContractType", "ContractType")
+                        .WithMany("Contracts")
+                        .HasForeignKey("ContractTypeID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_Contract_ContractType");
 
                     b.HasOne("Database.Entities.Department", "Department")
                         .WithMany("Contracts")
@@ -397,11 +600,25 @@ namespace Database.Migrations
 
                     b.Navigation("ConfirmedByUser");
 
+                    b.Navigation("ContractType");
+
                     b.Navigation("Department");
 
                     b.Navigation("ParentContract");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Database.Entities.ContractTypePriceAssignation", b =>
+                {
+                    b.HasOne("Database.Entities.ContractType", "ObjectRef")
+                        .WithMany("Assignations")
+                        .HasForeignKey("ObjectIdentifier")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ContractType_ContractTypeValueAssignation");
+
+                    b.Navigation("ObjectRef");
                 });
 
             modelBuilder.Entity("Database.Entities.MonthReport", b =>
@@ -435,11 +652,45 @@ namespace Database.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignation", b =>
+                {
+                    b.HasOne("Database.Entities.User", "ObjectRef")
+                        .WithMany("Assignations")
+                        .HasForeignKey("ObjectIdentifier")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_User_UserAcademicDegreeAssignation");
+
+                    b.HasOne("Database.Entities.AcademicDegree", "ValueRef")
+                        .WithMany("UserAssignations")
+                        .HasForeignKey("Value")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ObjectRef");
+
+                    b.Navigation("ValueRef");
+                });
+
+            modelBuilder.Entity("Database.Entities.AcademicDegree", b =>
+                {
+                    b.Navigation("Assignations");
+
+                    b.Navigation("UserAssignations");
+                });
+
             modelBuilder.Entity("Database.Entities.Contract", b =>
                 {
                     b.Navigation("ChildContract");
 
                     b.Navigation("MonthReports");
+                });
+
+            modelBuilder.Entity("Database.Entities.ContractType", b =>
+                {
+                    b.Navigation("Assignations");
+
+                    b.Navigation("Contracts");
                 });
 
             modelBuilder.Entity("Database.Entities.Department", b =>
@@ -454,6 +705,8 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.User", b =>
                 {
+                    b.Navigation("Assignations");
+
                     b.Navigation("ConfirmedContracts");
 
                     b.Navigation("ConfirmedUsers");

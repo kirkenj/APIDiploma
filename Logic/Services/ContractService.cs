@@ -6,8 +6,6 @@ using Logic.Models.MonthReports;
 using Microsoft.EntityFrameworkCore;
 using ClosedXML.Excel;
 using System.ComponentModel.DataAnnotations;
-using DocumentFormat.OpenXml.InkML;
-using Database;
 
 namespace Logic.Services
 {
@@ -42,6 +40,7 @@ namespace Logic.Services
                 contract.PeriodEnd = contract.ParentContract.PeriodEnd;
                 contract.PeriodStart = contract.ParentContract.PeriodStart;
                 contract.DepartmentID = contract.ParentContract.DepartmentID;
+                contract.ContractTypeID = contract.ParentContract.ContractTypeID;
             }
 
             if (await _departmentService.FirstOrDefaultAsync(d => d.ID == contract.DepartmentID, token) == null)

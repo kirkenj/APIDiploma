@@ -7,11 +7,6 @@ namespace Database
 {
     public class AppDbContext : DbContext, IAppDBContext
     {
-        public virtual DbSet<Contract> Contracts { get; set; } = null!;
-        public virtual DbSet<Role> Roles { get; set; } = null!;
-        public virtual DbSet<User> Users { get; set; } = null!;
-        public virtual DbSet<MonthReport> MonthReports { get; set; } = null!;
-        public virtual DbSet<Department> Departments { get; set; } = null!;
 
         public AppDbContext()
         {
@@ -27,8 +22,8 @@ namespace Database
         {
             
             //optionsBuilder.UseMySql("server=icrafts.beget.tech;user=icrafts_test;password=prB%cnJ5;database=icrafts_test;", new MySqlServerVersion(new Version(8,0,33)));
-            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
-            //optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            //optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,6 +40,56 @@ namespace Database
                 entity.Property(x => x.ID).HasColumnName("ID").UseMySqlIdentityColumn();
                 entity.Property(e => e.Name).HasColumnName("Name");
                 entity.HasIndex(e => e.Name).IsUnique();
+            });
+
+            modelBuilder.Entity<ContractTypePriceAssignation>(entity =>
+            {
+                entity.Property(x => x.ObjectIdentifier).HasColumnName("ObjectIdentifier");
+                entity.Property(e => e.Value).HasColumnName("Value");
+                entity.Property(e => e.AssignationDate).HasColumnName("AssignationDate");
+                entity.HasKey(e => new { e.AssignationDate, e.ObjectIdentifier });
+            });
+
+            modelBuilder.Entity<AcademicDegreePriceAssignation>(entity =>
+            {
+                entity.Property(x => x.ObjectIdentifier).HasColumnName("ObjectIdentifier");
+                entity.Property(e => e.Value).HasColumnName("Value");
+                entity.Property(e => e.AssignationDate).HasColumnName("AssignationDate"); 
+                entity.HasKey(e => new { e.AssignationDate, e.ObjectIdentifier });
+
+            });
+
+            modelBuilder.Entity<UserAcademicDegreeAssignation>(entity =>
+            {
+                entity.Property(x => x.ObjectIdentifier).HasColumnName("ObjectIdentifier");
+                entity.Property(e => e.Value).HasColumnName("Value");
+                entity.Property(e => e.AssignationDate).HasColumnName("AssignationDate");
+                entity.HasKey(e => new { e.AssignationDate, e.ObjectIdentifier });
+                entity.HasOne(e => e.ValueRef).WithMany(e => e.UserAssignations).HasForeignKey(e => e.Value);
+            });
+
+            modelBuilder.Entity<ContractType>(entity =>
+            {
+                entity.Property(x => x.ID).HasColumnName("ID").UseMySqlIdentityColumn();
+                entity.Property(e => e.Name).HasColumnName("Name");
+                entity.HasIndex(e => e.Name).IsUnique();
+                entity.HasMany(e => e.Assignations)
+                .WithOne(a => a.ObjectRef)
+                .HasForeignKey(a => a.ObjectIdentifier)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_ContractType_ContractTypeValueAssignation");
+            });
+
+            modelBuilder.Entity<AcademicDegree>(entity =>
+            {
+                entity.Property(x => x.ID).HasColumnName("ID").UseMySqlIdentityColumn();
+                entity.Property(e => e.Name).HasColumnName("Name");
+                entity.HasIndex(e => e.Name).IsUnique();
+                entity.HasMany(e => e.Assignations)
+                .WithOne(a => a.ObjectRef)
+                .HasForeignKey(a => a.ObjectIdentifier)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_AcademicDegree_AcademicDegreeValueAssignation");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -68,6 +113,11 @@ namespace Database
                 .HasForeignKey(e => e.ConfirmedByUserID)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_User_Confirmed_By_User");
+                entity.HasMany(e => e.Assignations)
+                .WithOne(a => a.ObjectRef)
+                .HasForeignKey(a => a.ObjectIdentifier)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_User_UserAcademicDegreeAssignation");
             });
 
             modelBuilder.Entity<Contract>(entity =>
@@ -101,6 +151,11 @@ namespace Database
                 .HasForeignKey(u => u.DepartmentID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Contracts_Departments");
+                entity.HasOne(e => e.ContractType)
+                .WithMany(a => a.Contracts)
+                .HasForeignKey(a => a.ContractTypeID)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Contract_ContractType");
                 entity.Property(e => e.LectionsMaxTime).HasColumnName("LectionsMaxTime");
                 entity.Property(e => e.PracticalClassesMaxTime).HasColumnName("PracticalClassesMaxTime");
                 entity.Property(e => e.LaboratoryClassesMaxTime).HasColumnName("LaboratoryClassesMaxTime");
@@ -146,11 +201,28 @@ namespace Database
                 entity.Property(e => e.TestingEscortTime).HasColumnName("TestingEscortTime");
             });
 
-            modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.AdminRoleID, Name = IncludeModels.RolesNavigation.AdminRoleName});
             modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.SuperAdminRoleID, Name = IncludeModels.RolesNavigation.SuperAdminRoleName });
             modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.OrdinaryUserRoleID, Name = IncludeModels.RolesNavigation.OrdinaryUserRoleName });
+            modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.AdminRoleID, Name = IncludeModels.RolesNavigation.AdminRoleName});
+
+            modelBuilder.Entity<AcademicDegree>().HasData(new AcademicDegree { ID = 1, Name = "Doctor" });
+            modelBuilder.Entity<AcademicDegree>().HasData(new AcademicDegree { ID = 2, Name = "Professor" });
+
+            modelBuilder.Entity<AcademicDegreePriceAssignation>().HasData(new AcademicDegreePriceAssignation { ObjectIdentifier = 1, AssignationDate = DateTime.Now, Value = 12 });
+            modelBuilder.Entity<AcademicDegreePriceAssignation>().HasData(new AcademicDegreePriceAssignation { ObjectIdentifier = 2, AssignationDate = DateTime.Now, Value = 10 });
+
+            modelBuilder.Entity<ContractType>().HasData(new ContractType { ID = 1, Name = "Ordinary" });
+            modelBuilder.Entity<ContractType>().HasData(new ContractType { ID = 2, Name = "Advanced" });
+
+            modelBuilder.Entity<ContractTypePriceAssignation>().HasData(new ContractTypePriceAssignation { ObjectIdentifier = 1, AssignationDate = DateTime.Now, Value = 12 });
+            modelBuilder.Entity<ContractTypePriceAssignation>().HasData(new ContractTypePriceAssignation { ObjectIdentifier = 2, AssignationDate = DateTime.Now, Value = 10 });
 
             modelBuilder.Entity<User>().HasData(new User() { ID = 1, Name = "admin", Surname = "admin", Patronymic = "admin", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, ConfirmedByUserID = 1, Login = "admin" });
+        
+            modelBuilder.Entity<UserAcademicDegreeAssignation>().HasData(new UserAcademicDegreeAssignation { ObjectIdentifier = 1, AssignationDate = DateTime.Now, Value = 1 });
+            
+            modelBuilder.Entity<Department>().HasData(new Department { ID = 1, Name = "FITR" });
+            modelBuilder.Entity<Department>().HasData(new Department { ID = 2, Name = "FTUG" });
         }
     }
 }

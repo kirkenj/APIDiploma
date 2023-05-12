@@ -2,7 +2,7 @@
 
 namespace Logic.Interfaces
 {
-    public interface IAccountService : IDbAccessServise<User>, IConfirmService<User>
+    public interface IAccountService : IDbAccessServise<User>, IConfirmService<User>, IPeriodicValueService<User,UserAcademicDegreeAssignation, int,  int, User>
     {
         public bool IsAdmin(User user);
         public Task<IEnumerable<User>> GetUsersAsync();

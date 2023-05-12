@@ -4,14 +4,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Database.Entities
 {
     [Table(nameof(Contract)+"s")]
-    public class Contract : IConfirmableByAdminObject
+    public class Contract : IConfirmableByAdminObject, IIdObject<int>
     {
         public int ID { get; set; }
         public User User { get; set; } = null!;
         public int UserID { get; set; }
         public int DepartmentID { get; set; }
+        public int ContractTypeID { get; set; }
         public string ContractIdentifier { get; set; } = null!;
         public Department Department { get; set; } = null!;
+        public ContractType ContractType { get; set; } = null!;
         public DateTime PeriodStart { get; set; } = DateTime.Now;
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
         public IEnumerable<MonthReport> MonthReports { get; set; } = null!;

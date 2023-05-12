@@ -1,8 +1,12 @@
-﻿using Database.Entities;
+﻿using AutoMapper;
+using Database.Entities;
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using Web.Constants;
+using Web.Models.Departments;
+using Web.RequestModels.Account;
 
 namespace Diploma.Controllers
 {
@@ -10,19 +14,19 @@ namespace Diploma.Controllers
     [ApiController]
     public class DepartmentsController : ControllerBase
     {
+        private readonly IMapper _mapper;
         private readonly IDepartmentService _departmentService;
-        private readonly IContractService _contractService;
 
-        public DepartmentsController(IDepartmentService departmentService, IContractService contractService)
+        public DepartmentsController(IDepartmentService departmentService, IMapper mapper)
         {
             _departmentService = departmentService;
-            _contractService = contractService;
+            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _departmentService.GetAllAsync());
+            return Ok(_mapper.Map<List<DepartmentViewModel>>(await _departmentService.GetAllAsync()));
         }
 
         [HttpPost]
@@ -33,11 +37,11 @@ namespace Diploma.Controllers
             return Created(nameof(Post),newDepartmentsName);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> Put(Department department)
+        public async Task<IActionResult> Put(DepartmentViewModel department)
         {
-            await _departmentService.UpdateAsync(department, CancellationToken.None);
+            await _departmentService.UpdateAsync(_mapper.Map<Department>(department), CancellationToken.None);
             return Ok();
         }
 
@@ -55,13 +59,13 @@ namespace Diploma.Controllers
             return Ok();
         }
 
-        [HttpGet(nameof(GetMonthReportsReportAsExcel))]
-        public FileResult GetMonthReportsReportAsExcel()
-        {
-            var result = _contractService.GetReportsForReportsOnPeriodInExcelAsync(DateTime.MinValue, DateTime.MaxValue);
-            var bytes = System.IO.File.ReadAllBytes(result);
-            System.IO.File.Delete(result);
-            return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");
-        }
+        //[HttpGet(nameof(GetMonthReportsReportAsExcel))]
+        //public FileResult GetMonthReportsReportAsExcel()
+        //{
+        //    var result = _contractService.GetReportsForReportsOnPeriodInExcelAsync(DateTime.MinValue, DateTime.MaxValue);
+        //    var bytes = System.IO.File.ReadAllBytes(result);
+        //    System.IO.File.Delete(result);
+        //    return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");
+        //}
     }
 }

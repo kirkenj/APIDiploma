@@ -31,14 +31,15 @@ builder.Services.AddSingleton(settings);
 
 
 //builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql("server=icrafts.beget.tech;user=icrafts_test;password=prB%cnJ5;database=icrafts_test;", new MySqlServerVersion(new Version(8, 0, 33))));
-//builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33))));
-builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33))));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33))));
+//builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33))));
 builder.Services.AddTransient<IAppDBContext, AppDbContext>();
 builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IDepartmentService, DepartmentService>();
 builder.Services.AddTransient<IContractService, ContractService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IMonthReportService, MonthReportService>();
+builder.Services.AddTransient<IAcademicDegreeService, AcademicDegreeService>();
 builder.Services.AddTransient<IHashProvider, HashProvider>((a) => new HashProvider(HashAlgorithm.Create("MD5") ?? throw new ArgumentException("Hash algorithm not found"), System.Text.Encoding.UTF8));
 
 //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

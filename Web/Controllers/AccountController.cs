@@ -6,11 +6,13 @@ using Web.Constants;
 using Web.RequestModels.Account;
 using Database.Entities;
 using System.ComponentModel.DataAnnotations;
+using Logic.Services;
 
 namespace Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService; 
@@ -70,10 +72,19 @@ namespace Web.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpGet(nameof(GetRoles))]
-        public List<Role> GetRoles() 
+        public IActionResult GetRoles() 
         {
-            return _roleService.GetRange(u => u.ID >= 0).ToList();
+            return Ok(_roleService.GetRange(u => u.ID >= 0).ToList());
+        }
+
+        [HttpPost(nameof(Confirm) + "/{userID}")]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> Confirm(int userID)
+        {
+            await _accountService.ConfirmAsync(userID, User.Identity?.Name ?? throw new UnauthorizedAccessException());
+            return Ok();
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Database.Entities;
+using Web.Models.AcademicDegrees;
+using Web.Models.Departments;
 using Web.RequestModels.Account;
 using Web.RequestModels.Authorize;
 using Web.RequestModels.Contracts;
@@ -191,7 +193,28 @@ namespace API.Mapping
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Surname, opt => opt.MapFrom(src => src.Surname))
             .ForMember(dest => dest.Patronymic, opt => opt.MapFrom(src => src.Patronymic))
+            .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.RoleID))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login));
+            #endregion
+
+            #region Department
+            CreateMap<DepartmentViewModel, Department>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID));
+
+            CreateMap<Department, DepartmentViewModel>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID));
+            #endregion
+
+            #region AcademicDegree
+            CreateMap<AcademicDegree, AcademicDegreeViewModel>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID));
+
+            CreateMap<AcademicDegreeViewModel, AcademicDegree>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID));
             #endregion
         }
     }
