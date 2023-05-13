@@ -9,7 +9,7 @@ namespace Logic.Services
 {
     public class AcademicDegreeService : IAcademicDegreeService
     {
-        public DbSet<AcademicDegreePriceAssignation> AssignationsDBSet { get; private set; }
+        public DbSet<AcademicDegreePriceAssignation> AssignmentsDBSet { get; private set; }
         public Func<CancellationToken, Task<int>> SaveChangesAsync { get; private set; }
         public DbSet<AcademicDegree> DbSet { get; private set;}
 
@@ -26,7 +26,7 @@ namespace Logic.Services
 
         public AcademicDegreeService(IAppDBContext appDBContext)
         {
-            AssignationsDBSet = appDBContext.Set<AcademicDegreePriceAssignation>();
+            AssignmentsDBSet = appDBContext.Set<AcademicDegreePriceAssignation>();
             DbSet = appDBContext.Set<AcademicDegree>();
             SaveChangesAsync = appDBContext.SaveChangesAsync;
         }

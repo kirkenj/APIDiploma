@@ -8,7 +8,7 @@ namespace Database.Entities
     {
         public int ID { get; set; }
         public string Name { get; set; } = null!;
-        public IEnumerable<AcademicDegreePriceAssignation> Assignations { get; set; } = null!;
-        public IEnumerable<UserAcademicDegreeAssignation> UserAssignations { get; set; } = null!;
+        public IEnumerable<AcademicDegreePriceAssignation> Assignments { get; set; } = null!;
+        public IEnumerable<UserAcademicDegreeAssignament> UserAssignations { get; set; } = null!;
     }
 }

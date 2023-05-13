@@ -10,19 +10,21 @@ public class AccountService : IAccountService
 {
     private readonly IHashProvider _hashProvider;
     private readonly IRoleService _roleService;
+    private readonly IAcademicDegreeService _academicDegreeService;
     public IAccountService iAccountService => this;
 
     public DbSet<User> DbSet { get; private set; }
     public Func<CancellationToken, Task<int>> SaveChangesAsync {get; private set;}
-    public DbSet<UserAcademicDegreeAssignation> AssignationsDBSet { get; set; }
+    public DbSet<UserAcademicDegreeAssignament> AssignmentsDBSet { get; set; }
 
-    public AccountService(IAppDBContext context, IHashProvider hashProvider, IRoleService roleService)
+    public AccountService(IAppDBContext context, IHashProvider hashProvider, IRoleService roleService, IAcademicDegreeService academicDegreeService)
     {
         _hashProvider = hashProvider;
         _roleService = roleService;
         DbSet = context.Set<User>();
-        AssignationsDBSet = context.Set<UserAcademicDegreeAssignation>();
+        AssignmentsDBSet = context.Set<UserAcademicDegreeAssignament>();
         SaveChangesAsync = context.SaveChangesAsync;
+        _academicDegreeService = academicDegreeService;
     }
 
     public virtual async Task AddAsync(User userToAdd, CancellationToken token = default)
@@ -76,5 +78,48 @@ public class AccountService : IAccountService
     public Task OnObjectConfirmedAsync(User entity, CancellationToken token = default)
     {
         return Task.CompletedTask;
+    }
+
+    public virtual async Task AddAssignmentAsync(UserAcademicDegreeAssignament assignation, CancellationToken token = default)
+    {
+        if (!await DbSet.AnyAsync(e => e.ID.Equals(assignation.ObjectIdentifier), token))
+        {
+            throw new ObjectNotFoundException($"{assignation.GetType().Name} with ID = {assignation.ObjectIdentifier} not found");
+        }
+
+        if (await _academicDegreeService.FirstOrDefaultAsync(d => d.ID == assignation.Value, token) is null)
+        {
+            throw new ObjectNotFoundException($"{typeof(AcademicDegree).Name} not found with ID = {assignation.Value}");
+        }
+
+        assignation.AssignmentDate = new DateTime(assignation.AssignmentDate.Year, assignation.AssignmentDate.Month, 1, 0, 0, 0);
+        if (await AssignmentsDBSet.AnyAsync(a => a.AssignmentDate == assignation.AssignmentDate && assignation.ObjectIdentifier.Equals(a.ObjectIdentifier), token))
+        {
+            throw new ArgumentException($"{assignation.GetType().Name} with key [AssignationDate = {assignation.AssignmentDate}, ObjectIdentifier = {assignation.ObjectIdentifier}] already exists");
+        }
+        await AssignmentsDBSet.AddAsync(assignation, token);
+        await SaveChangesAsync(token);
+    }
+
+    public virtual async Task EditAssignmentAsync(int id, DateTime assignationActiveDate, int newValue, DateTime? newAssignationDate, CancellationToken token = default)
+    {
+        var assignation = await GetAssignmentOnDate(assignationActiveDate, id, token) ?? throw new ObjectNotFoundException($"{typeof(UserAcademicDegreeAssignament).Name} not found with key [activeDate = {assignationActiveDate}, ObjectID = {id}]");
+        if (await _academicDegreeService.FirstOrDefaultAsync(d => d.ID == assignation.Value, token) is null)
+        {
+            throw new ObjectNotFoundException($"{typeof(AcademicDegree).Name} not found with ID = {assignation.Value}");
+        }
+
+        assignation.Value = newValue;
+        if (newAssignationDate.HasValue)
+        {
+            assignation.AssignmentDate = new DateTime(newAssignationDate.Value.Year, newAssignationDate.Value.Month, 1, 0, 0, 0);
+        }
+
+        await SaveChangesAsync(token);
+    }
+
+    public async Task<UserAcademicDegreeAssignament?> GetAssignmentOnDate(DateTime date, int objectIDToFindPerVal, CancellationToken token = default)
+    {
+        return await AssignmentsDBSet.OrderByDescending(a => a.AssignmentDate).FirstOrDefaultAsync(a => a.AssignmentDate <= date && a.ObjectIdentifier.Equals(objectIDToFindPerVal), token);
     }
 }

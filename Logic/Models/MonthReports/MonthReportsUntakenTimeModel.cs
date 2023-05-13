@@ -4,26 +4,26 @@
     {
         public int ContractID { get; set; }
         public IEnumerable<(int contractID, int year, int month)> ExceptForReportsWithKey { get; set; } = new List<(int, int, int)> ();
-        public int LectionsTime { get; set; } = 0;
-        public int PracticalClassesTime { get; set; } = 0;
-        public int LaboratoryClassesTime { get; set; } = 0;
-        public int ConsultationsTime { get; set; } = 0;
-        public int OtherTeachingClassesTime { get; set; } = 0;
-        public int CreditsTime { get; set; } = 0;
-        public int ExamsTime { get; set; } = 0;
-        public int CourseProjectsTime { get; set; } = 0;
-        public int InterviewsTime { get; set; } = 0;
-        public int TestsAndReferatsTime { get; set; } = 0;
-        public int InternshipsTime { get; set; } = 0;
-        public int DiplomasTime { get; set; } = 0;
-        public int DiplomasReviewsTime { get; set; } = 0;
-        public int SECTime { get; set; } = 0;
-        public int GraduatesManagementTime { get; set; } = 0;
-        public int GraduatesAcademicWorkTime { get; set; } = 0;
-        public int PlasticPosesDemonstrationTime { get; set; } = 0;
-        public int TestingEscortTime { get; set; } = 0;
+        public double LectionsTime { get; set; } = 0;
+        public double PracticalClassesTime { get; set; } = 0;
+        public double LaboratoryClassesTime { get; set; } = 0;
+        public double ConsultationsTime { get; set; } = 0;
+        public double OtherTeachingClassesTime { get; set; } = 0;
+        public double CreditsTime { get; set; } = 0;
+        public double ExamsTime { get; set; } = 0;
+        public double CourseProjectsTime { get; set; } = 0;
+        public double InterviewsTime { get; set; } = 0;
+        public double TestsAndReferatsTime { get; set; } = 0;
+        public double InternshipsTime { get; set; } = 0;
+        public double DiplomasTime { get; set; } = 0;
+        public double DiplomasReviewsTime { get; set; } = 0;
+        public double SECTime { get; set; } = 0;
+        public double GraduatesManagementTime { get; set; } = 0;
+        public double GraduatesAcademicWorkTime { get; set; } = 0;
+        public double PlasticPosesDemonstrationTime { get; set; } = 0;
+        public double TestingEscortTime { get; set; } = 0;
 
-        public int TimeSum =>
+        public double TimeSum =>
          TestingEscortTime
          + PlasticPosesDemonstrationTime
          + GraduatesAcademicWorkTime

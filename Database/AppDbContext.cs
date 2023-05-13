@@ -42,29 +42,29 @@ namespace Database
                 entity.HasIndex(e => e.Name).IsUnique();
             });
 
-            modelBuilder.Entity<ContractTypePriceAssignation>(entity =>
+            modelBuilder.Entity<ContractTypePriceAssignment>(entity =>
             {
                 entity.Property(x => x.ObjectIdentifier).HasColumnName("ObjectIdentifier");
                 entity.Property(e => e.Value).HasColumnName("Value");
-                entity.Property(e => e.AssignationDate).HasColumnName("AssignationDate");
-                entity.HasKey(e => new { e.AssignationDate, e.ObjectIdentifier });
+                entity.Property(e => e.AssignmentDate).HasColumnName("AssignationDate");
+                entity.HasKey(e => new { e.AssignmentDate, e.ObjectIdentifier });
             });
 
             modelBuilder.Entity<AcademicDegreePriceAssignation>(entity =>
             {
                 entity.Property(x => x.ObjectIdentifier).HasColumnName("ObjectIdentifier");
                 entity.Property(e => e.Value).HasColumnName("Value");
-                entity.Property(e => e.AssignationDate).HasColumnName("AssignationDate"); 
-                entity.HasKey(e => new { e.AssignationDate, e.ObjectIdentifier });
+                entity.Property(e => e.AssignmentDate).HasColumnName("AssignationDate"); 
+                entity.HasKey(e => new { e.AssignmentDate, e.ObjectIdentifier });
 
             });
 
-            modelBuilder.Entity<UserAcademicDegreeAssignation>(entity =>
+            modelBuilder.Entity<UserAcademicDegreeAssignament>(entity =>
             {
                 entity.Property(x => x.ObjectIdentifier).HasColumnName("ObjectIdentifier");
                 entity.Property(e => e.Value).HasColumnName("Value");
-                entity.Property(e => e.AssignationDate).HasColumnName("AssignationDate");
-                entity.HasKey(e => new { e.AssignationDate, e.ObjectIdentifier });
+                entity.Property(e => e.AssignmentDate).HasColumnName("AssignationDate");
+                entity.HasKey(e => new { e.AssignmentDate, e.ObjectIdentifier });
                 entity.HasOne(e => e.ValueRef).WithMany(e => e.UserAssignations).HasForeignKey(e => e.Value);
             });
 
@@ -73,7 +73,7 @@ namespace Database
                 entity.Property(x => x.ID).HasColumnName("ID").UseMySqlIdentityColumn();
                 entity.Property(e => e.Name).HasColumnName("Name");
                 entity.HasIndex(e => e.Name).IsUnique();
-                entity.HasMany(e => e.Assignations)
+                entity.HasMany(e => e.Assignments)
                 .WithOne(a => a.ObjectRef)
                 .HasForeignKey(a => a.ObjectIdentifier)
                 .OnDelete(DeleteBehavior.Cascade)
@@ -85,7 +85,7 @@ namespace Database
                 entity.Property(x => x.ID).HasColumnName("ID").UseMySqlIdentityColumn();
                 entity.Property(e => e.Name).HasColumnName("Name");
                 entity.HasIndex(e => e.Name).IsUnique();
-                entity.HasMany(e => e.Assignations)
+                entity.HasMany(e => e.Assignments)
                 .WithOne(a => a.ObjectRef)
                 .HasForeignKey(a => a.ObjectIdentifier)
                 .OnDelete(DeleteBehavior.Cascade)
@@ -113,7 +113,7 @@ namespace Database
                 .HasForeignKey(e => e.ConfirmedByUserID)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_User_Confirmed_By_User");
-                entity.HasMany(e => e.Assignations)
+                entity.HasMany(e => e.Assignments)
                 .WithOne(a => a.ObjectRef)
                 .HasForeignKey(a => a.ObjectIdentifier)
                 .OnDelete(DeleteBehavior.Cascade)
@@ -208,18 +208,18 @@ namespace Database
             modelBuilder.Entity<AcademicDegree>().HasData(new AcademicDegree { ID = 1, Name = "Doctor" });
             modelBuilder.Entity<AcademicDegree>().HasData(new AcademicDegree { ID = 2, Name = "Professor" });
 
-            modelBuilder.Entity<AcademicDegreePriceAssignation>().HasData(new AcademicDegreePriceAssignation { ObjectIdentifier = 1, AssignationDate = DateTime.Now, Value = 12 });
-            modelBuilder.Entity<AcademicDegreePriceAssignation>().HasData(new AcademicDegreePriceAssignation { ObjectIdentifier = 2, AssignationDate = DateTime.Now, Value = 10 });
+            modelBuilder.Entity<AcademicDegreePriceAssignation>().HasData(new AcademicDegreePriceAssignation { ObjectIdentifier = 1, AssignmentDate = new DateTime(2023, 5, 1), Value = 12 });
+            modelBuilder.Entity<AcademicDegreePriceAssignation>().HasData(new AcademicDegreePriceAssignation { ObjectIdentifier = 2, AssignmentDate = new DateTime(2023, 5, 1), Value = 10 });
 
             modelBuilder.Entity<ContractType>().HasData(new ContractType { ID = 1, Name = "Ordinary" });
             modelBuilder.Entity<ContractType>().HasData(new ContractType { ID = 2, Name = "Advanced" });
 
-            modelBuilder.Entity<ContractTypePriceAssignation>().HasData(new ContractTypePriceAssignation { ObjectIdentifier = 1, AssignationDate = DateTime.Now, Value = 12 });
-            modelBuilder.Entity<ContractTypePriceAssignation>().HasData(new ContractTypePriceAssignation { ObjectIdentifier = 2, AssignationDate = DateTime.Now, Value = 10 });
+            modelBuilder.Entity<ContractTypePriceAssignment>().HasData(new ContractTypePriceAssignment { ObjectIdentifier = 1, AssignmentDate = new DateTime(2023, 5, 1), Value = 12 });
+            modelBuilder.Entity<ContractTypePriceAssignment>().HasData(new ContractTypePriceAssignment { ObjectIdentifier = 2, AssignmentDate = new DateTime(2023, 5, 1), Value = 10 });
 
             modelBuilder.Entity<User>().HasData(new User() { ID = 1, Name = "admin", Surname = "admin", Patronymic = "admin", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, ConfirmedByUserID = 1, Login = "admin" });
         
-            modelBuilder.Entity<UserAcademicDegreeAssignation>().HasData(new UserAcademicDegreeAssignation { ObjectIdentifier = 1, AssignationDate = DateTime.Now, Value = 1 });
+            modelBuilder.Entity<UserAcademicDegreeAssignament>().HasData(new UserAcademicDegreeAssignament { ObjectIdentifier = 1, AssignmentDate = new DateTime(2023, 5, 1), Value = 1 });
             
             modelBuilder.Entity<Department>().HasData(new Department { ID = 1, Name = "FITR" });
             modelBuilder.Entity<Department>().HasData(new Department { ID = 2, Name = "FTUG" });

@@ -465,22 +465,6 @@ namespace Logic.Services
             });
         }
 
-        public string GetReportsForReportsOnPeriodInExcelAsync(DateTime periodStart, DateTime periodEnd)
-        {
-            var path = $"D:\\{Guid.NewGuid()}.xlsx";
-            using (var workbook = new XLWorkbook())
-            {
-                var worksheet = workbook.Worksheets.Add("Sample Sheet");
-                worksheet.Cell("A1").Value = 1;
-                worksheet.Cell("A2").Value = 2;
-                worksheet.Cell("A3").Value = 3;
-                worksheet.Cell("A4").FormulaA1 = "=SUM(A1:A3)";
-                workbook.SaveAs(path);
-            }
-
-            return path;
-        }
-
         public async Task UpdateAsync(Contract contract, CancellationToken token = default)
         {
             var sourceContract = await DbSet.FirstOrDefaultAsync(c => c.ID == contract.ID, token) ?? throw new ObjectNotFoundException($"Contract wasn't found with ID = {contract.ID}");

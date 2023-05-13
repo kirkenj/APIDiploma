@@ -13,6 +13,8 @@ namespace Web.RequestModels.Contracts
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
         [Required]
         public string ContractIdentifier { get; set; } = null!;
+        [Required]
+        public int ContractTypeID { get; set; }
         [Range(0, int.MaxValue)]
         public int LectionsMaxTime { get; set; } = 0;
         [Range(0, int.MaxValue)]

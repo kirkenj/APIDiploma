@@ -3,49 +3,48 @@ using Database.Entities;
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Web.Models.AcademicDegrees;
+using Web.Models.ContractType;
 
 namespace Diploma.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AcademicDegreeController : ControllerBase
+    public class ContractTypeController : ControllerBase
     {
-        private readonly IAcademicDegreeService _academicDegreeService;
+        private readonly IContractTypeService _academicDegreeService;
         private readonly IMapper _mapper;
-        private readonly string assignationsName;
 
-        public AcademicDegreeController(IAcademicDegreeService departmentService, IMapper mapper)
+        public ContractTypeController(IContractTypeService contractTypeService, IMapper mapper)
         {
-            assignationsName = typeof(AcademicDegreePriceAssignation).Name;
-            _academicDegreeService = departmentService;
+            _academicDegreeService = contractTypeService;
             _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(_mapper.Map<List<AcademicDegreeViewModel>>(await _academicDegreeService.GetAllAsync()));
+            return Ok(_mapper.Map<List<ContractTypeViewModel>>(await _academicDegreeService.GetAllAsync()));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var ret = await _academicDegreeService.FirstOrDefaultAsync(d => d.ID == id);
-            return ret is null? NotFound() : Ok(_mapper.Map<AcademicDegreeViewModel>(ret));
+            return ret is null? NotFound() : Ok(_mapper.Map<ContractTypeViewModel>(ret));
         }
 
         [HttpPost]
         //[Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> Post([FromBody] string newDegreeName)
+        public async Task<IActionResult> Post([FromBody] string newName)
         {
-            await _academicDegreeService.AddAsync(new AcademicDegree { Name = newDegreeName });
-            return Created(nameof(Post), newDegreeName);
+            await _academicDegreeService.AddAsync(new ContractType { Name = newName });
+            return Created(nameof(Post), newName);
         }
 
         [HttpPut]
         //[Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> Put(AcademicDegreeViewModel academicDegree)
+        public async Task<IActionResult> Put(ContractTypeViewModel academicDegree)
         {
-            await _academicDegreeService.UpdateAsync(_mapper.Map<AcademicDegree>(academicDegree), CancellationToken.None);
+            await _academicDegreeService.UpdateAsync(_mapper.Map<ContractType>(academicDegree), CancellationToken.None);
             return Ok();
         }
 
@@ -99,13 +98,13 @@ namespace Diploma.Controllers
         //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> PostPriceAssignment(int id, DateTime assignationActiveDate, double Value, CancellationToken token = default)
         {
-            var newAssignation = new AcademicDegreePriceAssignation { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = id };
+            var newAssignation = new ContractTypePriceAssignment { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = id };
             await _academicDegreeService.AddAssignmentAsync(newAssignation, token);
             return Ok();
         }
 
         [HttpDelete("{id}/PriceAssignment")]
-        public async Task<IActionResult> DeltePriceAssignment(int id, DateTime assignationActiveDate, CancellationToken token = default)
+        public async Task<IActionResult> DeletePriceAssignment(int id, DateTime assignationActiveDate, CancellationToken token = default)
         {
             await _academicDegreeService.RemoveAssignmentAsync(id, assignationActiveDate, token);
             return Ok();

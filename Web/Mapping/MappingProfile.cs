@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Database.Entities;
 using Web.Models.AcademicDegrees;
+using Web.Models.ContractType;
 using Web.Models.Departments;
 using Web.RequestModels.Account;
 using Web.RequestModels.Authorize;
@@ -19,6 +20,7 @@ namespace API.Mapping
             .ForMember(dest => dest.PeriodStart, opt => opt.MapFrom(src => src.PeriodStart))
             .ForMember(dest => dest.PeriodEnd, opt => opt.MapFrom(src => src.PeriodEnd))
             .ForMember(dest => dest.DepartmentID, opt => opt.MapFrom(src => src.DepartmentID))
+            .ForMember(dest => dest.ContractTypeID, opt => opt.MapFrom(src => src.ContractTypeID))
             .ForMember(dest => dest.ParentContractID, opt => opt.MapFrom(src => src.ParentContractID))
             .ForMember(dest => dest.TestingEscortMaxTime, opt => opt.MapFrom(src => src.TestingEscortMaxTime))
             .ForMember(dest => dest.PlasticPosesDemonstrationMaxTime, opt => opt.MapFrom(src => src.PlasticPosesDemonstrationMaxTime))
@@ -46,6 +48,7 @@ namespace API.Mapping
             .ForMember(dest => dest.PeriodStart, opt => opt.MapFrom(src => src.PeriodStart))
             .ForMember(dest => dest.PeriodEnd, opt => opt.MapFrom(src => src.PeriodEnd))
             .ForMember(dest => dest.DepartmentID, opt => opt.MapFrom(src => src.DepartmentID))
+            .ForMember(dest => dest.ContractTypeID, opt => opt.MapFrom(src => src.ContractTypeID))
             .ForMember(dest => dest.ParentContractID, opt => opt.MapFrom(src => src.ParentContractID))
             .ForMember(dest => dest.TestingEscortMaxTime, opt => opt.MapFrom(src => src.TestingEscortMaxTime))
             .ForMember(dest => dest.PlasticPosesDemonstrationMaxTime, opt => opt.MapFrom(src => src.PlasticPosesDemonstrationMaxTime))
@@ -73,6 +76,7 @@ namespace API.Mapping
             .ForMember(dest => dest.ContractIdentifier, opt => opt.MapFrom(src => src.ContractIdentifier))
             .ForMember(dest => dest.DepartmentID, opt => opt.MapFrom(src => src.DepartmentID))
             .ForMember(dest => dest.ParentContractID, opt => opt.MapFrom(src => src.ParentContractID))
+            .ForMember(dest => dest.ContractTypeID, opt => opt.MapFrom(src => src.ContractTypeID))
             .ForMember(dest => dest.PeriodStart, opt => opt.MapFrom(src => src.PeriodStart))
             .ForMember(dest => dest.PeriodEnd, opt => opt.MapFrom(src => src.PeriodEnd))
             .ForMember(dest => dest.IsConfirmed, opt => opt.MapFrom(src => src.IsConfirmed))
@@ -100,6 +104,7 @@ namespace API.Mapping
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserID))
             .ForMember(dest => dest.ContractIdentifier, opt => opt.MapFrom(src => src.ContractIdentifier))
             .ForMember(dest => dest.DepartmentID, opt => opt.MapFrom(src => src.DepartmentID))
+            .ForMember(dest => dest.ContractTypeID, opt => opt.MapFrom(src => src.ContractTypeID))
             .ForMember(dest => dest.ParentContractID, opt => opt.MapFrom(src => src.ParentContractID))
             .ForMember(dest => dest.PeriodStart, opt => opt.MapFrom(src => src.PeriodStart))
             .ForMember(dest => dest.PeriodEnd, opt => opt.MapFrom(src => src.PeriodEnd))
@@ -213,6 +218,16 @@ namespace API.Mapping
             .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID));
 
             CreateMap<AcademicDegreeViewModel, AcademicDegree>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID));
+            #endregion
+
+            #region ContractType
+            CreateMap<ContractType, ContractTypeViewModel>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID));
+
+            CreateMap<ContractTypeViewModel, ContractType>()
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID));
             #endregion

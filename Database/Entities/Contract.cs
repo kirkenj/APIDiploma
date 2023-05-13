@@ -20,29 +20,29 @@ namespace Database.Entities
         public int? ParentContractID { get; set; } = null;
         public Contract? ParentContract { get; set; } = null;
         public Contract? ChildContract { get; set; } = null;
-        public int LectionsMaxTime { get; set; } = 0;
-        public int PracticalClassesMaxTime { get; set; } = 0;
-        public int LaboratoryClassesMaxTime { get; set; } = 0;
-        public int ConsultationsMaxTime { get; set; } = 0;
-        public int OtherTeachingClassesMaxTime { get; set; } = 0;
-        public int CreditsMaxTime { get; set; } = 0;
-        public int ExamsMaxTime { get; set; } = 0;
-        public int CourseProjectsMaxTime { get; set; } = 0;
-        public int InterviewsMaxTime { get; set; } = 0;
-        public int TestsAndReferatsMaxTime { get; set; } = 0;
-        public int InternshipsMaxTime { get; set; } = 0;
-        public int DiplomasMaxTime { get; set; } = 0;
-        public int DiplomasReviewsMaxTime { get; set; } = 0;
-        public int SECMaxTime { get; set; } = 0;
-        public int GraduatesManagementMaxTime { get; set; } = 0;
-        public int GraduatesAcademicWorkMaxTime { get; set; } = 0;
-        public int PlasticPosesDemonstrationMaxTime { get; set; } = 0;
-        public int TestingEscortMaxTime { get; set; } = 0;
+        public double LectionsMaxTime { get; set; } = 0;
+        public double PracticalClassesMaxTime { get; set; } = 0;
+        public double LaboratoryClassesMaxTime { get; set; } = 0;
+        public double ConsultationsMaxTime { get; set; } = 0;
+        public double OtherTeachingClassesMaxTime { get; set; } = 0;
+        public double CreditsMaxTime { get; set; } = 0;
+        public double ExamsMaxTime { get; set; } = 0;
+        public double CourseProjectsMaxTime { get; set; } = 0;
+        public double InterviewsMaxTime { get; set; } = 0;
+        public double TestsAndReferatsMaxTime { get; set; } = 0;
+        public double InternshipsMaxTime { get; set; } = 0;
+        public double DiplomasMaxTime { get; set; } = 0;
+        public double DiplomasReviewsMaxTime { get; set; } = 0;
+        public double SECMaxTime { get; set; } = 0;
+        public double GraduatesManagementMaxTime { get; set; } = 0;
+        public double GraduatesAcademicWorkMaxTime { get; set; } = 0;
+        public double PlasticPosesDemonstrationMaxTime { get; set; } = 0;
+        public double TestingEscortMaxTime { get; set; } = 0;
         public bool IsConfirmed => ConfirmedByUserID != null;
         public int? ConfirmedByUserID { get; set; }
         public User? ConfirmedByUser { get; set; }
 
-        public int TimeSum =>
+        public double TimeSum =>
             TestingEscortMaxTime
             + PlasticPosesDemonstrationMaxTime
             + GraduatesAcademicWorkMaxTime

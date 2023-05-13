@@ -17,6 +17,8 @@ namespace Web.RequestModels.Contracts
 
         [Required]
         public string ContractIdentifier { get; set; } = null!; [Range(0, int.MaxValue)]
+        [Required]
+        public int ContractTypeID { get; set; }
         public int LectionsMaxTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
         public int PracticalClassesMaxTime { get; set; } = 0;

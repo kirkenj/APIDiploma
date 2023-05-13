@@ -12,6 +12,7 @@ namespace Web.RequestModels.Contracts
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
         public bool IsConfirmed { get; set; } = false;
         public string ContractIdentifier { get; set; } = null!;
+        public int ContractTypeID { get; set; }
         public IEnumerable<MonthReportViewModel> MonthReports { get; set; } = null!;
         public int LectionsMaxTime { get; set; } = 0;
         public int PracticalClassesMaxTime { get; set; } = 0;

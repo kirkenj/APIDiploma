@@ -58,14 +58,5 @@ namespace Diploma.Controllers
             await _departmentService.DeleteAsync(valueToRemove);
             return Ok();
         }
-
-        //[HttpGet(nameof(GetMonthReportsReportAsExcel))]
-        //public FileResult GetMonthReportsReportAsExcel()
-        //{
-        //    var result = _contractService.GetReportsForReportsOnPeriodInExcelAsync(DateTime.MinValue, DateTime.MaxValue);
-        //    var bytes = System.IO.File.ReadAllBytes(result);
-        //    System.IO.File.Delete(result);
-        //    return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");
-        //}
     }
 }

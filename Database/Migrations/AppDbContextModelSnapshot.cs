@@ -55,7 +55,7 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.AcademicDegreePriceAssignation", b =>
                 {
-                    b.Property<DateTime>("AssignationDate")
+                    b.Property<DateTime>("AssignmentDate")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("AssignationDate");
 
@@ -67,7 +67,7 @@ namespace Database.Migrations
                         .HasColumnType("double")
                         .HasColumnName("Value");
 
-                    b.HasKey("AssignationDate", "ObjectIdentifier");
+                    b.HasKey("AssignmentDate", "ObjectIdentifier");
 
                     b.HasIndex("ObjectIdentifier");
 
@@ -76,13 +76,13 @@ namespace Database.Migrations
                     b.HasData(
                         new
                         {
-                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(718),
+                            AssignmentDate = new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ObjectIdentifier = 1,
                             Value = 12.0
                         },
                         new
                         {
-                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(763),
+                            AssignmentDate = new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ObjectIdentifier = 2,
                             Value = 10.0
                         });
@@ -100,8 +100,8 @@ namespace Database.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ConfirmedByUserID");
 
-                    b.Property<int>("ConsultationsMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("ConsultationsMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("ConsultationsMaxTime");
 
                     b.Property<string>("ContractIdentifier")
@@ -112,55 +112,55 @@ namespace Database.Migrations
                     b.Property<int>("ContractTypeID")
                         .HasColumnType("int");
 
-                    b.Property<int>("CourseProjectsMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("CourseProjectsMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("CourseProjectsMaxTime");
 
-                    b.Property<int>("CreditsMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("CreditsMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("CreditsMaxTime");
 
                     b.Property<int>("DepartmentID")
                         .HasColumnType("int");
 
-                    b.Property<int>("DiplomasMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("DiplomasMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("DiplomasMaxTime");
 
-                    b.Property<int>("DiplomasReviewsMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("DiplomasReviewsMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("DiplomasReviewsMaxTime");
 
-                    b.Property<int>("ExamsMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("ExamsMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("ExamsMaxTime");
 
-                    b.Property<int>("GraduatesAcademicWorkMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("GraduatesAcademicWorkMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("GraduatesAcademicWorkMaxTime");
 
-                    b.Property<int>("GraduatesManagementMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("GraduatesManagementMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("GraduatesManagementMaxTime");
 
-                    b.Property<int>("InternshipsMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("InternshipsMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("InternshipsMaxTime");
 
-                    b.Property<int>("InterviewsMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("InterviewsMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("InterviewsMaxTime");
 
-                    b.Property<int>("LaboratoryClassesMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("LaboratoryClassesMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("LaboratoryClassesMaxTime");
 
-                    b.Property<int>("LectionsMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("LectionsMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("LectionsMaxTime");
 
-                    b.Property<int>("OtherTeachingClassesMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("OtherTeachingClassesMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("OtherTeachingClassesMaxTime");
 
                     b.Property<int?>("ParentContractID")
@@ -175,24 +175,24 @@ namespace Database.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("PeriodStart");
 
-                    b.Property<int>("PlasticPosesDemonstrationMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("PlasticPosesDemonstrationMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("PlasticPosesDemonstrationMaxTime");
 
-                    b.Property<int>("PracticalClassesMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("PracticalClassesMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("PracticalClassesMaxTime");
 
-                    b.Property<int>("SECMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("SECMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("SECMaxTime");
 
-                    b.Property<int>("TestingEscortMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("TestingEscortMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("TestingEscortMaxTime");
 
-                    b.Property<int>("TestsAndReferatsMaxTime")
-                        .HasColumnType("int")
+                    b.Property<double>("TestsAndReferatsMaxTime")
+                        .HasColumnType("double")
                         .HasColumnName("TestsAndReferatsMaxTime");
 
                     b.Property<int>("UserID")
@@ -251,9 +251,9 @@ namespace Database.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Database.Entities.ContractTypePriceAssignation", b =>
+            modelBuilder.Entity("Database.Entities.ContractTypePriceAssignment", b =>
                 {
-                    b.Property<DateTime>("AssignationDate")
+                    b.Property<DateTime>("AssignmentDate")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("AssignationDate");
 
@@ -265,22 +265,22 @@ namespace Database.Migrations
                         .HasColumnType("double")
                         .HasColumnName("Value");
 
-                    b.HasKey("AssignationDate", "ObjectIdentifier");
+                    b.HasKey("AssignmentDate", "ObjectIdentifier");
 
                     b.HasIndex("ObjectIdentifier");
 
-                    b.ToTable("ContractTypePriceAssignations");
+                    b.ToTable("ContractTypePriceAssignments");
 
                     b.HasData(
                         new
                         {
-                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(861),
+                            AssignmentDate = new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ObjectIdentifier = 1,
                             Value = 12.0
                         },
                         new
                         {
-                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(889),
+                            AssignmentDate = new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ObjectIdentifier = 2,
                             Value = 10.0
                         });
@@ -332,76 +332,76 @@ namespace Database.Migrations
                     b.Property<int>("ContractID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ConsultationsTime")
-                        .HasColumnType("int")
+                    b.Property<double>("ConsultationsTime")
+                        .HasColumnType("double")
                         .HasColumnName("ConsultationsTime");
 
-                    b.Property<int>("CourseProjectsTime")
-                        .HasColumnType("int")
+                    b.Property<double>("CourseProjectsTime")
+                        .HasColumnType("double")
                         .HasColumnName("CourseProjectsTime");
 
-                    b.Property<int>("CreditsTime")
-                        .HasColumnType("int")
+                    b.Property<double>("CreditsTime")
+                        .HasColumnType("double")
                         .HasColumnName("CreditsTime");
 
-                    b.Property<int>("DiplomasReviewsTime")
-                        .HasColumnType("int")
+                    b.Property<double>("DiplomasReviewsTime")
+                        .HasColumnType("double")
                         .HasColumnName("DiplomasReviewsTime");
 
-                    b.Property<int>("DiplomasTime")
-                        .HasColumnType("int")
+                    b.Property<double>("DiplomasTime")
+                        .HasColumnType("double")
                         .HasColumnName("DiplomasTime");
 
-                    b.Property<int>("ExamsTime")
-                        .HasColumnType("int")
+                    b.Property<double>("ExamsTime")
+                        .HasColumnType("double")
                         .HasColumnName("ExamsTime");
 
-                    b.Property<int>("GraduatesAcademicWorkTime")
-                        .HasColumnType("int")
+                    b.Property<double>("GraduatesAcademicWorkTime")
+                        .HasColumnType("double")
                         .HasColumnName("GraduatesAcademicWorkTime");
 
-                    b.Property<int>("GraduatesManagementTime")
-                        .HasColumnType("int")
+                    b.Property<double>("GraduatesManagementTime")
+                        .HasColumnType("double")
                         .HasColumnName("GraduatesManagementTime");
 
-                    b.Property<int>("InternshipsTime")
-                        .HasColumnType("int")
+                    b.Property<double>("InternshipsTime")
+                        .HasColumnType("double")
                         .HasColumnName("InternshipsTime");
 
-                    b.Property<int>("InterviewsTime")
-                        .HasColumnType("int")
+                    b.Property<double>("InterviewsTime")
+                        .HasColumnType("double")
                         .HasColumnName("InterviewsTime");
 
-                    b.Property<int>("LaboratoryClassesTime")
-                        .HasColumnType("int")
+                    b.Property<double>("LaboratoryClassesTime")
+                        .HasColumnType("double")
                         .HasColumnName("LaboratoryClassesTime");
 
-                    b.Property<int>("LectionsTime")
-                        .HasColumnType("int")
+                    b.Property<double>("LectionsTime")
+                        .HasColumnType("double")
                         .HasColumnName("LectionsTime");
 
-                    b.Property<int>("OtherTeachingClassesTime")
-                        .HasColumnType("int")
+                    b.Property<double>("OtherTeachingClassesTime")
+                        .HasColumnType("double")
                         .HasColumnName("OtherTeachingClassesTime");
 
-                    b.Property<int>("PlasticPosesDemonstrationTime")
-                        .HasColumnType("int")
+                    b.Property<double>("PlasticPosesDemonstrationTime")
+                        .HasColumnType("double")
                         .HasColumnName("PlasticPosesDemonstrationTime");
 
-                    b.Property<int>("PracticalClassesTime")
-                        .HasColumnType("int")
+                    b.Property<double>("PracticalClassesTime")
+                        .HasColumnType("double")
                         .HasColumnName("PracticalClassesTime");
 
-                    b.Property<int>("SECTime")
-                        .HasColumnType("int")
+                    b.Property<double>("SECTime")
+                        .HasColumnType("double")
                         .HasColumnName("SECTime");
 
-                    b.Property<int>("TestingEscortTime")
-                        .HasColumnType("int")
+                    b.Property<double>("TestingEscortTime")
+                        .HasColumnType("double")
                         .HasColumnName("TestingEscortTime");
 
-                    b.Property<int>("TestsAndReferatsTime")
-                        .HasColumnType("int")
+                    b.Property<double>("TestsAndReferatsTime")
+                        .HasColumnType("double")
                         .HasColumnName("TestsAndReferatsTime");
 
                     b.HasKey("Month", "Year", "ContractID");
@@ -520,9 +520,9 @@ namespace Database.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignation", b =>
+            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignament", b =>
                 {
-                    b.Property<DateTime>("AssignationDate")
+                    b.Property<DateTime>("AssignmentDate")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("AssignationDate");
 
@@ -534,18 +534,18 @@ namespace Database.Migrations
                         .HasColumnType("int")
                         .HasColumnName("Value");
 
-                    b.HasKey("AssignationDate", "ObjectIdentifier");
+                    b.HasKey("AssignmentDate", "ObjectIdentifier");
 
                     b.HasIndex("ObjectIdentifier");
 
                     b.HasIndex("Value");
 
-                    b.ToTable("UserAcademicDegreeAssignations");
+                    b.ToTable("UserAcademicDegreeAssignaments");
 
                     b.HasData(
                         new
                         {
-                            AssignationDate = new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(959),
+                            AssignmentDate = new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             ObjectIdentifier = 1,
                             Value = 1
                         });
@@ -554,7 +554,7 @@ namespace Database.Migrations
             modelBuilder.Entity("Database.Entities.AcademicDegreePriceAssignation", b =>
                 {
                     b.HasOne("Database.Entities.AcademicDegree", "ObjectRef")
-                        .WithMany("Assignations")
+                        .WithMany("Assignments")
                         .HasForeignKey("ObjectIdentifier")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -609,10 +609,10 @@ namespace Database.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Database.Entities.ContractTypePriceAssignation", b =>
+            modelBuilder.Entity("Database.Entities.ContractTypePriceAssignment", b =>
                 {
                     b.HasOne("Database.Entities.ContractType", "ObjectRef")
-                        .WithMany("Assignations")
+                        .WithMany("Assignments")
                         .HasForeignKey("ObjectIdentifier")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -652,10 +652,10 @@ namespace Database.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignation", b =>
+            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignament", b =>
                 {
                     b.HasOne("Database.Entities.User", "ObjectRef")
-                        .WithMany("Assignations")
+                        .WithMany("Assignments")
                         .HasForeignKey("ObjectIdentifier")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -674,7 +674,7 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.AcademicDegree", b =>
                 {
-                    b.Navigation("Assignations");
+                    b.Navigation("Assignments");
 
                     b.Navigation("UserAssignations");
                 });
@@ -688,7 +688,7 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.ContractType", b =>
                 {
-                    b.Navigation("Assignations");
+                    b.Navigation("Assignments");
 
                     b.Navigation("Contracts");
                 });
@@ -705,7 +705,7 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.User", b =>
                 {
-                    b.Navigation("Assignations");
+                    b.Navigation("Assignments");
 
                     b.Navigation("ConfirmedContracts");
 

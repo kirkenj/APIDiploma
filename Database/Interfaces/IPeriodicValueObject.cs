@@ -1,11 +1,11 @@
 ﻿namespace Database.Interfaces
 {
-    public interface IPeriodicValueObject<TAssignationType, TAssignationIDType, TAssignationValueType, TTypeBeingAssigned> : IIdObject<TAssignationIDType> 
-        where TAssignationType : IPeriodicValueAssignation<TAssignationValueType, TAssignationIDType, TTypeBeingAssigned>
-        where TAssignationIDType : struct
-        where TAssignationValueType : struct
-        where TTypeBeingAssigned : IIdObject<TAssignationIDType>
+    public interface IPeriodicValueObject<TAssignmentType, TAssignmentDType, TAssignmentValueType, TTypeBeingAssigned> : IIdObject<TAssignmentDType> 
+        where TAssignmentType : IPeriodicValueAssignment<TAssignmentValueType, TAssignmentDType, TTypeBeingAssigned>
+        where TAssignmentDType : struct
+        where TAssignmentValueType : struct
+        where TTypeBeingAssigned : IIdObject<TAssignmentDType>
     {
-        public IEnumerable<TAssignationType> Assignations { get; set; }
+        protected internal IEnumerable<TAssignmentType> Assignments { get; set; }
     }
 }

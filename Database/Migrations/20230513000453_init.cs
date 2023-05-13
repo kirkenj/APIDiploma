@@ -98,7 +98,7 @@ namespace Database.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "ContractTypePriceAssignations",
+                name: "ContractTypePriceAssignments",
                 columns: table => new
                 {
                     AssignationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -107,7 +107,7 @@ namespace Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ContractTypePriceAssignations", x => new { x.AssignationDate, x.ObjectIdentifier });
+                    table.PrimaryKey("PK_ContractTypePriceAssignments", x => new { x.AssignationDate, x.ObjectIdentifier });
                     table.ForeignKey(
                         name: "FK_ContractType_ContractTypeValueAssignation",
                         column: x => x.ObjectIdentifier,
@@ -166,24 +166,24 @@ namespace Database.Migrations
                     PeriodStart = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ParentContractID = table.Column<int>(type: "int", nullable: true),
-                    LectionsMaxTime = table.Column<int>(type: "int", nullable: false),
-                    PracticalClassesMaxTime = table.Column<int>(type: "int", nullable: false),
-                    LaboratoryClassesMaxTime = table.Column<int>(type: "int", nullable: false),
-                    ConsultationsMaxTime = table.Column<int>(type: "int", nullable: false),
-                    OtherTeachingClassesMaxTime = table.Column<int>(type: "int", nullable: false),
-                    CreditsMaxTime = table.Column<int>(type: "int", nullable: false),
-                    ExamsMaxTime = table.Column<int>(type: "int", nullable: false),
-                    CourseProjectsMaxTime = table.Column<int>(type: "int", nullable: false),
-                    InterviewsMaxTime = table.Column<int>(type: "int", nullable: false),
-                    TestsAndReferatsMaxTime = table.Column<int>(type: "int", nullable: false),
-                    InternshipsMaxTime = table.Column<int>(type: "int", nullable: false),
-                    DiplomasMaxTime = table.Column<int>(type: "int", nullable: false),
-                    DiplomasReviewsMaxTime = table.Column<int>(type: "int", nullable: false),
-                    SECMaxTime = table.Column<int>(type: "int", nullable: false),
-                    GraduatesManagementMaxTime = table.Column<int>(type: "int", nullable: false),
-                    GraduatesAcademicWorkMaxTime = table.Column<int>(type: "int", nullable: false),
-                    PlasticPosesDemonstrationMaxTime = table.Column<int>(type: "int", nullable: false),
-                    TestingEscortMaxTime = table.Column<int>(type: "int", nullable: false),
+                    LectionsMaxTime = table.Column<double>(type: "double", nullable: false),
+                    PracticalClassesMaxTime = table.Column<double>(type: "double", nullable: false),
+                    LaboratoryClassesMaxTime = table.Column<double>(type: "double", nullable: false),
+                    ConsultationsMaxTime = table.Column<double>(type: "double", nullable: false),
+                    OtherTeachingClassesMaxTime = table.Column<double>(type: "double", nullable: false),
+                    CreditsMaxTime = table.Column<double>(type: "double", nullable: false),
+                    ExamsMaxTime = table.Column<double>(type: "double", nullable: false),
+                    CourseProjectsMaxTime = table.Column<double>(type: "double", nullable: false),
+                    InterviewsMaxTime = table.Column<double>(type: "double", nullable: false),
+                    TestsAndReferatsMaxTime = table.Column<double>(type: "double", nullable: false),
+                    InternshipsMaxTime = table.Column<double>(type: "double", nullable: false),
+                    DiplomasMaxTime = table.Column<double>(type: "double", nullable: false),
+                    DiplomasReviewsMaxTime = table.Column<double>(type: "double", nullable: false),
+                    SECMaxTime = table.Column<double>(type: "double", nullable: false),
+                    GraduatesManagementMaxTime = table.Column<double>(type: "double", nullable: false),
+                    GraduatesAcademicWorkMaxTime = table.Column<double>(type: "double", nullable: false),
+                    PlasticPosesDemonstrationMaxTime = table.Column<double>(type: "double", nullable: false),
+                    TestingEscortMaxTime = table.Column<double>(type: "double", nullable: false),
                     ConfirmedByUserID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -220,7 +220,7 @@ namespace Database.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "UserAcademicDegreeAssignations",
+                name: "UserAcademicDegreeAssignaments",
                 columns: table => new
                 {
                     AssignationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -229,9 +229,9 @@ namespace Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserAcademicDegreeAssignations", x => new { x.AssignationDate, x.ObjectIdentifier });
+                    table.PrimaryKey("PK_UserAcademicDegreeAssignaments", x => new { x.AssignationDate, x.ObjectIdentifier });
                     table.ForeignKey(
-                        name: "FK_UserAcademicDegreeAssignations_AcademicDegrees_Value",
+                        name: "FK_UserAcademicDegreeAssignaments_AcademicDegrees_Value",
                         column: x => x.Value,
                         principalTable: "AcademicDegrees",
                         principalColumn: "ID",
@@ -252,24 +252,24 @@ namespace Database.Migrations
                     ContractID = table.Column<int>(type: "int", nullable: false),
                     Month = table.Column<int>(type: "int", nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
-                    LectionsTime = table.Column<int>(type: "int", nullable: false),
-                    PracticalClassesTime = table.Column<int>(type: "int", nullable: false),
-                    LaboratoryClassesTime = table.Column<int>(type: "int", nullable: false),
-                    ConsultationsTime = table.Column<int>(type: "int", nullable: false),
-                    OtherTeachingClassesTime = table.Column<int>(type: "int", nullable: false),
-                    CreditsTime = table.Column<int>(type: "int", nullable: false),
-                    ExamsTime = table.Column<int>(type: "int", nullable: false),
-                    CourseProjectsTime = table.Column<int>(type: "int", nullable: false),
-                    InterviewsTime = table.Column<int>(type: "int", nullable: false),
-                    TestsAndReferatsTime = table.Column<int>(type: "int", nullable: false),
-                    InternshipsTime = table.Column<int>(type: "int", nullable: false),
-                    DiplomasTime = table.Column<int>(type: "int", nullable: false),
-                    DiplomasReviewsTime = table.Column<int>(type: "int", nullable: false),
-                    SECTime = table.Column<int>(type: "int", nullable: false),
-                    GraduatesManagementTime = table.Column<int>(type: "int", nullable: false),
-                    GraduatesAcademicWorkTime = table.Column<int>(type: "int", nullable: false),
-                    PlasticPosesDemonstrationTime = table.Column<int>(type: "int", nullable: false),
-                    TestingEscortTime = table.Column<int>(type: "int", nullable: false)
+                    LectionsTime = table.Column<double>(type: "double", nullable: false),
+                    PracticalClassesTime = table.Column<double>(type: "double", nullable: false),
+                    LaboratoryClassesTime = table.Column<double>(type: "double", nullable: false),
+                    ConsultationsTime = table.Column<double>(type: "double", nullable: false),
+                    OtherTeachingClassesTime = table.Column<double>(type: "double", nullable: false),
+                    CreditsTime = table.Column<double>(type: "double", nullable: false),
+                    ExamsTime = table.Column<double>(type: "double", nullable: false),
+                    CourseProjectsTime = table.Column<double>(type: "double", nullable: false),
+                    InterviewsTime = table.Column<double>(type: "double", nullable: false),
+                    TestsAndReferatsTime = table.Column<double>(type: "double", nullable: false),
+                    InternshipsTime = table.Column<double>(type: "double", nullable: false),
+                    DiplomasTime = table.Column<double>(type: "double", nullable: false),
+                    DiplomasReviewsTime = table.Column<double>(type: "double", nullable: false),
+                    SECTime = table.Column<double>(type: "double", nullable: false),
+                    GraduatesManagementTime = table.Column<double>(type: "double", nullable: false),
+                    GraduatesAcademicWorkTime = table.Column<double>(type: "double", nullable: false),
+                    PlasticPosesDemonstrationTime = table.Column<double>(type: "double", nullable: false),
+                    TestingEscortTime = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -325,17 +325,17 @@ namespace Database.Migrations
                 columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
                 values: new object[,]
                 {
-                    { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(718), 1, 12.0 },
-                    { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(763), 2, 10.0 }
+                    { new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 12.0 },
+                    { new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 10.0 }
                 });
 
             migrationBuilder.InsertData(
-                table: "ContractTypePriceAssignations",
+                table: "ContractTypePriceAssignments",
                 columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
                 values: new object[,]
                 {
-                    { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(861), 1, 12.0 },
-                    { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(889), 2, 10.0 }
+                    { new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 12.0 },
+                    { new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, 10.0 }
                 });
 
             migrationBuilder.InsertData(
@@ -344,9 +344,9 @@ namespace Database.Migrations
                 values: new object[] { 1, 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin" });
 
             migrationBuilder.InsertData(
-                table: "UserAcademicDegreeAssignations",
+                table: "UserAcademicDegreeAssignaments",
                 columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
-                values: new object[] { new DateTime(2023, 5, 12, 2, 10, 36, 68, DateTimeKind.Local).AddTicks(959), 1, 1 });
+                values: new object[] { new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AcademicDegreePriceAssignations_ObjectIdentifier",
@@ -392,8 +392,8 @@ namespace Database.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ContractTypePriceAssignations_ObjectIdentifier",
-                table: "ContractTypePriceAssignations",
+                name: "IX_ContractTypePriceAssignments_ObjectIdentifier",
+                table: "ContractTypePriceAssignments",
                 column: "ObjectIdentifier");
 
             migrationBuilder.CreateIndex(
@@ -420,13 +420,13 @@ namespace Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAcademicDegreeAssignations_ObjectIdentifier",
-                table: "UserAcademicDegreeAssignations",
+                name: "IX_UserAcademicDegreeAssignaments_ObjectIdentifier",
+                table: "UserAcademicDegreeAssignaments",
                 column: "ObjectIdentifier");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAcademicDegreeAssignations_Value",
-                table: "UserAcademicDegreeAssignations",
+                name: "IX_UserAcademicDegreeAssignaments_Value",
+                table: "UserAcademicDegreeAssignaments",
                 column: "Value");
 
             migrationBuilder.CreateIndex(
@@ -453,13 +453,13 @@ namespace Database.Migrations
                 name: "AcademicDegreePriceAssignations");
 
             migrationBuilder.DropTable(
-                name: "ContractTypePriceAssignations");
+                name: "ContractTypePriceAssignments");
 
             migrationBuilder.DropTable(
                 name: "MonthReports");
 
             migrationBuilder.DropTable(
-                name: "UserAcademicDegreeAssignations");
+                name: "UserAcademicDegreeAssignaments");
 
             migrationBuilder.DropTable(
                 name: "Contracts");

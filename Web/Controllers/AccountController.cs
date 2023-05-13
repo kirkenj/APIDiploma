@@ -86,5 +86,53 @@ namespace Web.Controllers
             await _accountService.ConfirmAsync(userID, User.Identity?.Name ?? throw new UnauthorizedAccessException());
             return Ok();
         }
+
+        #region DegreeAssignment
+        [HttpGet("DegreeAssignment")]
+        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
+        public async Task<IActionResult> GetDegreeAssignment()
+        {
+            return Ok(await _accountService.GetAllAssignmentsAsync());
+        }
+
+        [HttpGet("{id}/DegreeAssignment")]
+        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
+        public async Task<IActionResult> GetDegreeAssignment(int id)
+        {
+            return Ok(await _accountService.GetAssignmentForObject(id));
+        }
+
+        [HttpGet("{id}/DegreeAssignment/{date}")]
+        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
+        public async Task<IActionResult> GetDegreeAssignment(int id, DateTime date)
+        {
+            var ret = await _accountService.GetAssignmentOnDate(date, id);
+            return ret is null ? BadRequest("No data found") : Ok(ret);
+        }
+
+        [HttpPut("{id}/DegreeAssignment")]
+        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
+        public async Task<IActionResult> PutDegreeAssignment(int id, DateTime assignationActiveDate, int newValue, DateTime? newAssignationDate)
+        {
+            await _accountService.EditAssignmentAsync(id, assignationActiveDate, newValue, newAssignationDate, CancellationToken.None);
+            return Ok();
+        }
+
+        [HttpPost("{id}/DegreeAssignment")]
+        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
+        public async Task<IActionResult> PostDegreeAssignment(int id, DateTime assignationActiveDate, int Value, CancellationToken token = default)
+        {
+            var newAssignation = new UserAcademicDegreeAssignament { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = id };
+            await _accountService.AddAssignmentAsync(newAssignation, token);
+            return Ok();
+        }
+
+        [HttpDelete("{id}/DegreeAssignment")]
+        public async Task<IActionResult> DeletePriceAssignment(int id, DateTime assignationActiveDate, CancellationToken token = default)
+        {
+            await _accountService.RemoveAssignmentAsync(id, assignationActiveDate, token);
+            return Ok();
+        }
+        #endregion
     }
 }
