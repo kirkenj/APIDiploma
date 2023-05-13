@@ -48,7 +48,6 @@ namespace Web.Controllers
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.NameKey, result.Login),
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.IDKey, result.ID.ToString()),
                 new Claim(Constants.IncludeModels.UserIdentitiesTools.RoleKey, role.Name),
-                new Claim(Constants.IncludeModels.UserIdentitiesTools.IsConfirmedKey, result.IsConfirmed.ToString())
             };
 
             var signingKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));

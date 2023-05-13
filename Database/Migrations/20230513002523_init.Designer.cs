@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230513000453_init")]
+    [Migration("20230513002523_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -460,10 +460,6 @@ namespace Database.Migrations
                         .HasColumnName("ID")
                         .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("ConfirmedByUserID")
-                        .HasColumnType("int")
-                        .HasColumnName("ConfirmedByUserID");
-
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -498,14 +494,17 @@ namespace Database.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("Surname");
 
-                    b.HasKey("ID");
+                    b.Property<int?>("UserID")
+                        .HasColumnType("int");
 
-                    b.HasIndex("ConfirmedByUserID");
+                    b.HasKey("ID");
 
                     b.HasIndex("Login")
                         .IsUnique();
 
                     b.HasIndex("RoleId");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("Users");
 
@@ -513,7 +512,6 @@ namespace Database.Migrations
                         new
                         {
                             ID = 1,
-                            ConfirmedByUserID = 1,
                             Login = "admin",
                             Name = "admin",
                             PasswordHash = "!#/)zW��C�JJ��",
@@ -637,12 +635,6 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.User", b =>
                 {
-                    b.HasOne("Database.Entities.User", "ConfirmedByUser")
-                        .WithMany("ConfirmedUsers")
-                        .HasForeignKey("ConfirmedByUserID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .HasConstraintName("FK_User_Confirmed_By_User");
-
                     b.HasOne("Database.Entities.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
@@ -650,7 +642,9 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Roles_Users");
 
-                    b.Navigation("ConfirmedByUser");
+                    b.HasOne("Database.Entities.User", null)
+                        .WithMany("ConfirmedUsers")
+                        .HasForeignKey("UserID");
 
                     b.Navigation("Role");
                 });

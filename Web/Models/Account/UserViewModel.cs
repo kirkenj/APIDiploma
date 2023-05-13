@@ -8,6 +8,5 @@
         public string Patronymic { get; set; } = null!;
         public int RoleId { get; set; }
         public string Login { get; set; } = null!;
-        public bool IsConfirmed{ get; set; } = false;
     }
 }

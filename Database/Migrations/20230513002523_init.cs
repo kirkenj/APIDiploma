@@ -133,7 +133,7 @@ namespace Database.Migrations
                     Login = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PasswordHash = table.Column<string>(type: "NVARCHAR(200)", maxLength: 200, nullable: false),
-                    ConfirmedByUserID = table.Column<int>(type: "int", nullable: true)
+                    UserID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -145,8 +145,8 @@ namespace Database.Migrations
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_User_Confirmed_By_User",
-                        column: x => x.ConfirmedByUserID,
+                        name: "FK_Users_Users_UserID",
+                        column: x => x.UserID,
                         principalTable: "Users",
                         principalColumn: "ID");
                 })
@@ -340,8 +340,8 @@ namespace Database.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "ID", "ConfirmedByUserID", "Login", "Name", "PasswordHash", "Patronymic", "RoleID", "Surname" },
-                values: new object[] { 1, 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin" });
+                columns: new[] { "ID", "Login", "Name", "PasswordHash", "Patronymic", "RoleID", "Surname", "UserID" },
+                values: new object[] { 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin", null });
 
             migrationBuilder.InsertData(
                 table: "UserAcademicDegreeAssignaments",
@@ -430,11 +430,6 @@ namespace Database.Migrations
                 column: "Value");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_ConfirmedByUserID",
-                table: "Users",
-                column: "ConfirmedByUserID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Users_Login",
                 table: "Users",
                 column: "Login",
@@ -444,6 +439,11 @@ namespace Database.Migrations
                 name: "IX_Users_RoleID",
                 table: "Users",
                 column: "RoleID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_UserID",
+                table: "Users",
+                column: "UserID");
         }
 
         /// <inheritdoc />

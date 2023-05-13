@@ -107,12 +107,6 @@ namespace Database
                 .HasForeignKey(e => e.RoleId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Roles_Users");
-                entity.Property(e => e.ConfirmedByUserID).HasColumnName("ConfirmedByUserID");
-                entity.HasOne(e => e.ConfirmedByUser)
-                .WithMany(e => e.ConfirmedUsers)
-                .HasForeignKey(e => e.ConfirmedByUserID)
-                .OnDelete(DeleteBehavior.NoAction)
-                .HasConstraintName("FK_User_Confirmed_By_User");
                 entity.HasMany(e => e.Assignments)
                 .WithOne(a => a.ObjectRef)
                 .HasForeignKey(a => a.ObjectIdentifier)
@@ -217,7 +211,7 @@ namespace Database
             modelBuilder.Entity<ContractTypePriceAssignment>().HasData(new ContractTypePriceAssignment { ObjectIdentifier = 1, AssignmentDate = new DateTime(2023, 5, 1), Value = 12 });
             modelBuilder.Entity<ContractTypePriceAssignment>().HasData(new ContractTypePriceAssignment { ObjectIdentifier = 2, AssignmentDate = new DateTime(2023, 5, 1), Value = 10 });
 
-            modelBuilder.Entity<User>().HasData(new User() { ID = 1, Name = "admin", Surname = "admin", Patronymic = "admin", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, ConfirmedByUserID = 1, Login = "admin" });
+            modelBuilder.Entity<User>().HasData(new User() { ID = 1, Name = "admin", Surname = "admin", Patronymic = "admin", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, Login = "admin" });
         
             modelBuilder.Entity<UserAcademicDegreeAssignament>().HasData(new UserAcademicDegreeAssignament { ObjectIdentifier = 1, AssignmentDate = new DateTime(2023, 5, 1), Value = 1 });
             

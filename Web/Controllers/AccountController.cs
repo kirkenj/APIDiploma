@@ -79,14 +79,6 @@ namespace Web.Controllers
             return Ok(_roleService.GetRange(u => u.ID >= 0).ToList());
         }
 
-        [HttpPost(nameof(Confirm) + "/{userID}")]
-        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> Confirm(int userID)
-        {
-            await _accountService.ConfirmAsync(userID, User.Identity?.Name ?? throw new UnauthorizedAccessException());
-            return Ok();
-        }
-
         #region DegreeAssignment
         [HttpGet("DegreeAssignment")]
         //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Database.Entities
 {
     [Table(nameof(User) + "s")]
-    public class User : IConfirmableByAdminObject, IIdObject<int>, IPeriodicValueObject<UserAcademicDegreeAssignament, int, int, User>
+    public class User : IIdObject<int>, IPeriodicValueObject<UserAcademicDegreeAssignament, int, int, User>
     {
         public int ID { get; set; }
         public string Name { get; set; } = null!;
@@ -17,9 +17,6 @@ namespace Database.Entities
         public string PasswordHash { get; set; } = null!;
         public IEnumerable<Contract> ConfirmedContracts { get; set; } = null!;
         public IEnumerable<User> ConfirmedUsers { get; set; } = null!;
-        public bool IsConfirmed => ConfirmedByUserID != null;
-        public int? ConfirmedByUserID { get; set; }
-        public User? ConfirmedByUser { get; set; }
         public IEnumerable<UserAcademicDegreeAssignament> Assignments { get; set; } = null!;
     }
 }
