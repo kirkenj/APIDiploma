@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230513002523_init")]
-    partial class init
+    [Migration("20230513221808_monthreportsModified")]
+    partial class monthreportsModified
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -335,6 +335,10 @@ namespace Database.Migrations
                     b.Property<int>("ContractID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BlockedByUserID")
+                        .HasColumnType("int")
+                        .HasColumnName("BlockedByUserID");
+
                     b.Property<double>("ConsultationsTime")
                         .HasColumnType("double")
                         .HasColumnName("ConsultationsTime");
@@ -408,6 +412,8 @@ namespace Database.Migrations
                         .HasColumnName("TestsAndReferatsTime");
 
                     b.HasKey("Month", "Year", "ContractID");
+
+                    b.HasIndex("BlockedByUserID");
 
                     b.HasIndex("ContractID");
 
@@ -494,17 +500,12 @@ namespace Database.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("Surname");
 
-                    b.Property<int?>("UserID")
-                        .HasColumnType("int");
-
                     b.HasKey("ID");
 
                     b.HasIndex("Login")
                         .IsUnique();
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("UserID");
 
                     b.ToTable("Users");
 
@@ -624,11 +625,20 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.MonthReport", b =>
                 {
+                    b.HasOne("Database.Entities.User", "BlockedByUser")
+                        .WithMany("BlockedReports")
+                        .HasForeignKey("BlockedByUserID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_MonthReport_Blocked_By_User");
+
                     b.HasOne("Database.Entities.Contract", "Contract")
                         .WithMany("MonthReports")
                         .HasForeignKey("ContractID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BlockedByUser");
 
                     b.Navigation("Contract");
                 });
@@ -641,10 +651,6 @@ namespace Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_Roles_Users");
-
-                    b.HasOne("Database.Entities.User", null)
-                        .WithMany("ConfirmedUsers")
-                        .HasForeignKey("UserID");
 
                     b.Navigation("Role");
                 });
@@ -704,9 +710,9 @@ namespace Database.Migrations
                 {
                     b.Navigation("Assignments");
 
-                    b.Navigation("ConfirmedContracts");
+                    b.Navigation("BlockedReports");
 
-                    b.Navigation("ConfirmedUsers");
+                    b.Navigation("ConfirmedContracts");
 
                     b.Navigation("Contracts");
                 });

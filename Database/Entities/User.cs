@@ -16,7 +16,7 @@ namespace Database.Entities
         public string Login { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public IEnumerable<Contract> ConfirmedContracts { get; set; } = null!;
-        public IEnumerable<User> ConfirmedUsers { get; set; } = null!;
+        public IEnumerable<MonthReport> BlockedReports { get; set; } = null!;
         public IEnumerable<UserAcademicDegreeAssignament> Assignments { get; set; } = null!;
     }
 }

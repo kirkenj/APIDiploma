@@ -6,7 +6,7 @@ namespace Logic.Interfaces
 {
     public interface IConfirmService<TEntity> : IDbAccessServise<TEntity> where TEntity : class, IConfirmableByAdminObject
     {
-        internal IAccountService iAccountService { get; }
+        internal IAccountService _accountService { get; }
 
         public virtual async Task ConfirmAsync(int itemID, string adminLogin, CancellationToken token = default)
         {
@@ -17,15 +17,15 @@ namespace Logic.Interfaces
                 throw new ArgumentException("This contract is already confirmed");
             }
 
-            var user = await iAccountService.FirstOrDefaultAsync(u => u.Login == adminLogin, token) ?? throw new ObjectNotFoundException($"User with login = '{adminLogin}' not found");
-            if (!iAccountService.IsAdmin(user))
+            var user = await _accountService.FirstOrDefaultAsync(u => u.Login == adminLogin, token) ?? throw new ObjectNotFoundException($"User with login = '{adminLogin}' not found");
+            if (!_accountService.IsAdmin(user))
             {
                 throw new NoAccessException();
             }
 
             contract.ConfirmedByUserID = user.ID;
-            await SaveChangesAsync(token);
             await OnObjectConfirmedAsync(contract, token);
+            await SaveChangesAsync(token);
         }
 
         public Task OnObjectConfirmedAsync(TEntity entity, CancellationToken token = default);

@@ -9,15 +9,13 @@ namespace Database.Entities
         public int ID { get; set; }
         public User User { get; set; } = null!;
         public int UserID { get; set; }
-        public int DepartmentID { get; set; }
-        public int ContractTypeID { get; set; }
+        public int? DepartmentID { get; set; }
+        public int? ContractTypeID { get; set; }
         public string ContractIdentifier { get; set; } = null!;
-        public Department Department { get; set; } = null!;
-        public ContractType ContractType { get; set; } = null!;
-        public DateTime PeriodStart { get; set; } = DateTime.Now;
-        public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
-        public IEnumerable<MonthReport> MonthReports { get; set; } = null!;
-        public int? ParentContractID { get; set; } = null;
+        public Department? Department { get; set; } = null!;
+        public ContractType? ContractType { get; set; } = null!;
+        public DateTime PeriodStart { get; set; }
+        public DateTime? PeriodEnd { get; set; }
         public Contract? ParentContract { get; set; } = null;
         public Contract? ChildContract { get; set; } = null;
         public double LectionsMaxTime { get; set; } = 0;
@@ -39,8 +37,12 @@ namespace Database.Entities
         public double PlasticPosesDemonstrationMaxTime { get; set; } = 0;
         public double TestingEscortMaxTime { get; set; } = 0;
         public bool IsConfirmed => ConfirmedByUserID != null;
+        public int? parentContractID { get; set; }
+        public Contract? parentConract { get; set; }
         public int? ConfirmedByUserID { get; set; }
         public User? ConfirmedByUser { get; set; }
+        internal int ContractLinkinhPartID { get; set; }
+        internal ContractLinkingPart? ContractLinkingPart { get; set; }
 
         public double TimeSum =>
             TestingEscortMaxTime

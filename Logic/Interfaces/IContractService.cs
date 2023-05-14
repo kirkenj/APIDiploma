@@ -11,5 +11,6 @@ namespace Logic.Interfaces
         public Task<string?> GetOwnersLoginAsync(int contractID);
         public Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int contractID,int year,int month)> exceptValuesWithKeys); 
         public Task<IEnumerable<(List<KeyValuePair<int, string>> relatedContractsIDs, List<MonthReport> monthReports)>> GetReportsForReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd);
+        public Task<IEnumerable<Contract>> GetRelatedContracts(Contract contract, CancellationToken token = default);
     }
 }

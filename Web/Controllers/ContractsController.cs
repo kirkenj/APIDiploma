@@ -159,6 +159,24 @@ namespace Web.Controllers
             return Ok(result.Select(r => new { groupIDs = r.relatedContractsIDs, reports = _mapper.Map<List<MonthReportViewModel>>(r.monthReports) }));
         }
 
-        
+        [HttpGet("GRC")]
+        public async Task<IEnumerable<ContractViewModel>> GetRelatedContracts(int id)
+        {
+            var c = await _contractService.FirstOrDefaultAsync(c => c.ID == id);
+            if (c is null)
+            {
+                return new List<ContractViewModel>();
+            }
+
+            return _mapper.Map<List<ContractViewModel>>(await _contractService.GetRelatedContracts(c));
+        }
+
+        [HttpPost(nameof(BlockReport))]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> BlockReport(int contractID, int year, int month)
+        {
+            throw new NotImplementedException();
+            return Ok();
+        }
     }
 }

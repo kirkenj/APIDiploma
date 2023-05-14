@@ -193,6 +193,12 @@ namespace Database
                 entity.Property(e => e.GraduatesAcademicWorkTime).HasColumnName("GraduatesAcademicWorkTime");
                 entity.Property(e => e.PlasticPosesDemonstrationTime).HasColumnName("PlasticPosesDemonstrationTime");
                 entity.Property(e => e.TestingEscortTime).HasColumnName("TestingEscortTime");
+                entity.Property(e => e.BlockedByUserID).IsRequired(false).HasColumnName("BlockedByUserID");
+                entity.HasOne(e => e.BlockedByUser)
+                .WithMany(e => e.BlockedReports)
+                .HasForeignKey(e => e.BlockedByUserID)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_MonthReport_Blocked_By_User");
             });
 
             modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.SuperAdminRoleID, Name = IncludeModels.RolesNavigation.SuperAdminRoleName });

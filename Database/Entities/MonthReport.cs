@@ -28,6 +28,9 @@ namespace Database.Entities
         public double GraduatesAcademicWorkTime { get; set; } = 0;
         public double PlasticPosesDemonstrationTime { get; set; } = 0;
         public double TestingEscortTime { get; set; } = 0;
+        public int? BlockedByUserID { get; set; } = null;
+        public User BlockedByUser { get; set; } = null!;
+        public bool IsBlocked => BlockedByUserID != null;
         public double TimeSum =>
             TestingEscortTime
             + PlasticPosesDemonstrationTime

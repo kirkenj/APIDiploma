@@ -132,8 +132,7 @@ namespace Database.Migrations
                     RoleID = table.Column<int>(type: "int", nullable: false),
                     Login = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    PasswordHash = table.Column<string>(type: "NVARCHAR(200)", maxLength: 200, nullable: false),
-                    UserID = table.Column<int>(type: "int", nullable: true)
+                    PasswordHash = table.Column<string>(type: "NVARCHAR(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -144,11 +143,6 @@ namespace Database.Migrations
                         principalTable: "Roles",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Users_Users_UserID",
-                        column: x => x.UserID,
-                        principalTable: "Users",
-                        principalColumn: "ID");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -269,11 +263,17 @@ namespace Database.Migrations
                     GraduatesManagementTime = table.Column<double>(type: "double", nullable: false),
                     GraduatesAcademicWorkTime = table.Column<double>(type: "double", nullable: false),
                     PlasticPosesDemonstrationTime = table.Column<double>(type: "double", nullable: false),
-                    TestingEscortTime = table.Column<double>(type: "double", nullable: false)
+                    TestingEscortTime = table.Column<double>(type: "double", nullable: false),
+                    BlockedByUserID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MonthReports", x => new { x.Month, x.Year, x.ContractID });
+                    table.ForeignKey(
+                        name: "FK_MonthReport_Blocked_By_User",
+                        column: x => x.BlockedByUserID,
+                        principalTable: "Users",
+                        principalColumn: "ID");
                     table.ForeignKey(
                         name: "FK_MonthReports_Contracts_ContractID",
                         column: x => x.ContractID,
@@ -340,8 +340,8 @@ namespace Database.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "ID", "Login", "Name", "PasswordHash", "Patronymic", "RoleID", "Surname", "UserID" },
-                values: new object[] { 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin", null });
+                columns: new[] { "ID", "Login", "Name", "PasswordHash", "Patronymic", "RoleID", "Surname" },
+                values: new object[] { 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin" });
 
             migrationBuilder.InsertData(
                 table: "UserAcademicDegreeAssignaments",
@@ -409,6 +409,11 @@ namespace Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_MonthReports_BlockedByUserID",
+                table: "MonthReports",
+                column: "BlockedByUserID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MonthReports_ContractID",
                 table: "MonthReports",
                 column: "ContractID");
@@ -439,11 +444,6 @@ namespace Database.Migrations
                 name: "IX_Users_RoleID",
                 table: "Users",
                 column: "RoleID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_UserID",
-                table: "Users",
-                column: "UserID");
         }
 
         /// <inheritdoc />
