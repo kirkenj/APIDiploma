@@ -1,4 +1,5 @@
 ﻿using Database.Entities;
+using Logic.Interfaces.Common;
 using Logic.Models.MonthReports;
 
 namespace Logic.Interfaces
@@ -9,8 +10,8 @@ namespace Logic.Interfaces
         public Task<IEnumerable<MonthReport>> GetMonthReportsAsync(int contractID);
         public Task UpdateMonthReport(MonthReport monthReport);
         public Task<string?> GetOwnersLoginAsync(int contractID);
-        public Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int contractID,int year,int month)> exceptValuesWithKeys); 
-        public Task<IEnumerable<(List<KeyValuePair<int, string>> relatedContractsIDs, List<MonthReport> monthReports)>> GetReportsForReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd);
-        public Task<IEnumerable<Contract>> GetRelatedContracts(Contract contract, CancellationToken token = default);
+        public Task<IEnumerable<Contract>> GetRelatedContracts(Contract contract, CancellationToken token = default); 
+        public Task<MonthReportsUntakenTimeModel> GetUntakenTimeOnDateAsync(int contractID, DateTime date, IEnumerable<(int year, int month)> exceptValuesWithKeys);
+        public Task<IEnumerable<(List<KeyValuePair<int, string>> relatedContractsIDs, List<MonthReport> monthReports)>> GetReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd);
     }
 }

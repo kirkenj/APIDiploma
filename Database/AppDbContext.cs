@@ -92,6 +92,12 @@ namespace Database
                 .HasConstraintName("FK_AcademicDegree_AcademicDegreeValueAssignation");
             });
 
+            modelBuilder.Entity<ContractLinkingPart>(entity =>
+            {
+                entity.Property(x => x.ID).HasColumnName("ID").UseMySqlIdentityColumn();
+                entity.Property(x => x.SourceContractID).HasColumnName("SourceContractID");
+            });
+
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(e => new { e.Login }).IsUnique();
@@ -122,9 +128,16 @@ namespace Database
                 entity.HasIndex(e => e.ParentContractID).IsUnique();
                 entity.Property(e => e.ContractIdentifier).HasColumnName("ContractIdentifier");
                 entity.HasIndex(e => e.ContractIdentifier).IsUnique();
+                entity.Property(e => e.AssignmentDate).HasColumnName("AssignmentDate");
                 entity.Property(e => e.PeriodStart).HasColumnName("PeriodStart");
                 entity.Property(e => e.PeriodEnd).HasColumnName("PeriodEnd");
                 entity.Property(e => e.ConfirmedByUserID).HasColumnName("ConfirmedByUserID");
+                entity.Property(e => e.LinkingPartID).HasColumnName("LinkingPartID");
+                entity.HasOne(e => e.LinkingPart)
+                .WithMany(a => a.Assignments)
+                .HasForeignKey(a => a.LinkingPartID)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Contract_LinkingPart");
                 entity.HasOne(e => e.ConfirmedByUser)
                 .WithMany(e => e.ConfirmedContracts)
                 .HasForeignKey(e => e.ConfirmedByUserID)
@@ -134,7 +147,12 @@ namespace Database
                 .WithOne(e => e.ChildContract)
                 .HasForeignKey<Contract>(e => e.ParentContractID)
                 .OnDelete(DeleteBehavior.NoAction)
-                .HasConstraintName("FK_Contrcat_Contract");
+                .HasConstraintName("FK_Contrcat_Contract_Parent");;
+                entity.HasOne(e => e.ChildContract)
+                .WithOne(e => e.ParentContract)
+                .HasForeignKey<Contract>(e => e.ChildContractID)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Contrcat_Contract_Child");
                 entity.HasOne(e => e.User)
                 .WithMany(u => u.Contracts)
                 .HasForeignKey(u => u.UserID)
@@ -174,7 +192,7 @@ namespace Database
             {
                 entity.Property(e => e.Month).HasColumnName("Month");
                 entity.Property(e => e.Year).HasColumnName("Year");
-                entity.HasKey(e => new { e.Month, e.Year, e.ContractID });
+                entity.HasKey(e => new { e.Month, e.Year, e.LinkingPartID });
                 entity.Property(e => e.LectionsTime).HasColumnName("LectionsTime");
                 entity.Property(e => e.PracticalClassesTime).HasColumnName("PracticalClassesTime");
                 entity.Property(e => e.LaboratoryClassesTime).HasColumnName("LaboratoryClassesTime");

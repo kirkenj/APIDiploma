@@ -33,6 +33,19 @@ namespace Database.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ContractLinkingParts",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContractLinkingParts", x => x.ID);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "ContractTypes",
                 columns: table => new
                 {
@@ -158,8 +171,13 @@ namespace Database.Migrations
                     ContractIdentifier = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PeriodStart = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     ParentContractID = table.Column<int>(type: "int", nullable: true),
+                    ChildContractID = table.Column<int>(type: "int", nullable: true),
+                    ConfirmedByUserID = table.Column<int>(type: "int", nullable: true),
+                    LinkingPartID = table.Column<int>(type: "int", nullable: false),
+                    AssignmentDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Value = table.Column<int>(type: "int", nullable: false),
                     LectionsMaxTime = table.Column<double>(type: "double", nullable: false),
                     PracticalClassesMaxTime = table.Column<double>(type: "double", nullable: false),
                     LaboratoryClassesMaxTime = table.Column<double>(type: "double", nullable: false),
@@ -177,8 +195,7 @@ namespace Database.Migrations
                     GraduatesManagementMaxTime = table.Column<double>(type: "double", nullable: false),
                     GraduatesAcademicWorkMaxTime = table.Column<double>(type: "double", nullable: false),
                     PlasticPosesDemonstrationMaxTime = table.Column<double>(type: "double", nullable: false),
-                    TestingEscortMaxTime = table.Column<double>(type: "double", nullable: false),
-                    ConfirmedByUserID = table.Column<int>(type: "int", nullable: true)
+                    TestingEscortMaxTime = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -194,6 +211,11 @@ namespace Database.Migrations
                         principalTable: "ContractTypes",
                         principalColumn: "ID");
                     table.ForeignKey(
+                        name: "FK_Contract_LinkingPart",
+                        column: x => x.LinkingPartID,
+                        principalTable: "ContractLinkingParts",
+                        principalColumn: "ID");
+                    table.ForeignKey(
                         name: "FK_Contracts_Departments",
                         column: x => x.DepartmentID,
                         principalTable: "Departments",
@@ -206,10 +228,54 @@ namespace Database.Migrations
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Contrcat_Contract",
-                        column: x => x.ParentContractID,
+                        name: "FK_Contrcat_Contract_Child",
+                        column: x => x.ChildContractID,
                         principalTable: "Contracts",
                         principalColumn: "ID");
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "MonthReports",
+                columns: table => new
+                {
+                    LinkingPartID = table.Column<int>(type: "int", nullable: false),
+                    Month = table.Column<int>(type: "int", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    LectionsTime = table.Column<double>(type: "double", nullable: false),
+                    PracticalClassesTime = table.Column<double>(type: "double", nullable: false),
+                    LaboratoryClassesTime = table.Column<double>(type: "double", nullable: false),
+                    ConsultationsTime = table.Column<double>(type: "double", nullable: false),
+                    OtherTeachingClassesTime = table.Column<double>(type: "double", nullable: false),
+                    CreditsTime = table.Column<double>(type: "double", nullable: false),
+                    ExamsTime = table.Column<double>(type: "double", nullable: false),
+                    CourseProjectsTime = table.Column<double>(type: "double", nullable: false),
+                    InterviewsTime = table.Column<double>(type: "double", nullable: false),
+                    TestsAndReferatsTime = table.Column<double>(type: "double", nullable: false),
+                    InternshipsTime = table.Column<double>(type: "double", nullable: false),
+                    DiplomasTime = table.Column<double>(type: "double", nullable: false),
+                    DiplomasReviewsTime = table.Column<double>(type: "double", nullable: false),
+                    SECTime = table.Column<double>(type: "double", nullable: false),
+                    GraduatesManagementTime = table.Column<double>(type: "double", nullable: false),
+                    GraduatesAcademicWorkTime = table.Column<double>(type: "double", nullable: false),
+                    PlasticPosesDemonstrationTime = table.Column<double>(type: "double", nullable: false),
+                    TestingEscortTime = table.Column<double>(type: "double", nullable: false),
+                    BlockedByUserID = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MonthReports", x => new { x.Month, x.Year, x.LinkingPartID });
+                    table.ForeignKey(
+                        name: "FK_MonthReport_Blocked_By_User",
+                        column: x => x.BlockedByUserID,
+                        principalTable: "Users",
+                        principalColumn: "ID");
+                    table.ForeignKey(
+                        name: "FK_MonthReports_ContractLinkingParts_LinkingPartID",
+                        column: x => x.LinkingPartID,
+                        principalTable: "ContractLinkingParts",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -234,50 +300,6 @@ namespace Database.Migrations
                         name: "FK_User_UserAcademicDegreeAssignation",
                         column: x => x.ObjectIdentifier,
                         principalTable: "Users",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "MonthReports",
-                columns: table => new
-                {
-                    ContractID = table.Column<int>(type: "int", nullable: false),
-                    Month = table.Column<int>(type: "int", nullable: false),
-                    Year = table.Column<int>(type: "int", nullable: false),
-                    LectionsTime = table.Column<double>(type: "double", nullable: false),
-                    PracticalClassesTime = table.Column<double>(type: "double", nullable: false),
-                    LaboratoryClassesTime = table.Column<double>(type: "double", nullable: false),
-                    ConsultationsTime = table.Column<double>(type: "double", nullable: false),
-                    OtherTeachingClassesTime = table.Column<double>(type: "double", nullable: false),
-                    CreditsTime = table.Column<double>(type: "double", nullable: false),
-                    ExamsTime = table.Column<double>(type: "double", nullable: false),
-                    CourseProjectsTime = table.Column<double>(type: "double", nullable: false),
-                    InterviewsTime = table.Column<double>(type: "double", nullable: false),
-                    TestsAndReferatsTime = table.Column<double>(type: "double", nullable: false),
-                    InternshipsTime = table.Column<double>(type: "double", nullable: false),
-                    DiplomasTime = table.Column<double>(type: "double", nullable: false),
-                    DiplomasReviewsTime = table.Column<double>(type: "double", nullable: false),
-                    SECTime = table.Column<double>(type: "double", nullable: false),
-                    GraduatesManagementTime = table.Column<double>(type: "double", nullable: false),
-                    GraduatesAcademicWorkTime = table.Column<double>(type: "double", nullable: false),
-                    PlasticPosesDemonstrationTime = table.Column<double>(type: "double", nullable: false),
-                    TestingEscortTime = table.Column<double>(type: "double", nullable: false),
-                    BlockedByUserID = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MonthReports", x => new { x.Month, x.Year, x.ContractID });
-                    table.ForeignKey(
-                        name: "FK_MonthReport_Blocked_By_User",
-                        column: x => x.BlockedByUserID,
-                        principalTable: "Users",
-                        principalColumn: "ID");
-                    table.ForeignKey(
-                        name: "FK_MonthReports_Contracts_ContractID",
-                        column: x => x.ContractID,
-                        principalTable: "Contracts",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -360,6 +382,12 @@ namespace Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Contracts_ChildContractID",
+                table: "Contracts",
+                column: "ChildContractID",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Contracts_ConfirmedByUserID",
                 table: "Contracts",
                 column: "ConfirmedByUserID");
@@ -379,6 +407,11 @@ namespace Database.Migrations
                 name: "IX_Contracts_DepartmentID",
                 table: "Contracts",
                 column: "DepartmentID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Contracts_LinkingPartID",
+                table: "Contracts",
+                column: "LinkingPartID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_ParentContractID",
@@ -414,9 +447,9 @@ namespace Database.Migrations
                 column: "BlockedByUserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MonthReports_ContractID",
+                name: "IX_MonthReports_LinkingPartID",
                 table: "MonthReports",
-                column: "ContractID");
+                column: "LinkingPartID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Roles_Name",
@@ -453,6 +486,9 @@ namespace Database.Migrations
                 name: "AcademicDegreePriceAssignations");
 
             migrationBuilder.DropTable(
+                name: "Contracts");
+
+            migrationBuilder.DropTable(
                 name: "ContractTypePriceAssignments");
 
             migrationBuilder.DropTable(
@@ -462,19 +498,19 @@ namespace Database.Migrations
                 name: "UserAcademicDegreeAssignaments");
 
             migrationBuilder.DropTable(
-                name: "Contracts");
+                name: "Departments");
+
+            migrationBuilder.DropTable(
+                name: "ContractTypes");
+
+            migrationBuilder.DropTable(
+                name: "ContractLinkingParts");
 
             migrationBuilder.DropTable(
                 name: "AcademicDegrees");
 
             migrationBuilder.DropTable(
                 name: "Users");
-
-            migrationBuilder.DropTable(
-                name: "ContractTypes");
-
-            migrationBuilder.DropTable(
-                name: "Departments");
 
             migrationBuilder.DropTable(
                 name: "Roles");

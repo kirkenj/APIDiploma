@@ -38,6 +38,7 @@ builder.Services.AddTransient<IAccountService, AccountService>();
 builder.Services.AddTransient<IDepartmentService, DepartmentService>();
 builder.Services.AddTransient<IContractService, ContractService>();
 builder.Services.AddTransient<IContractTypeService, ContractTypeService>();
+builder.Services.AddTransient<IContractLinkingPartService, ContractLinkingPartService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IMonthReportService, MonthReportService>();
 builder.Services.AddTransient<IAcademicDegreeService, AcademicDegreeService>();

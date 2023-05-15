@@ -91,7 +91,7 @@ namespace Web.Controllers
         //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> GetDegreeAssignment(int id)
         {
-            return Ok(await _accountService.GetAssignmentForObject(id));
+            return Ok(await _accountService.GetAssignmentsForObject(id));
         }
 
         [HttpGet("{id}/DegreeAssignment/{date}")]

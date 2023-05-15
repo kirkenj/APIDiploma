@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230513215409_init")]
-    partial class init
+    [Migration("20230515170527_lprtUpdate")]
+    partial class lprtUpdate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -99,6 +99,13 @@ namespace Database.Migrations
                         .HasColumnName("ID")
                         .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<DateTime>("AssignmentDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("AssignmentDate");
+
+                    b.Property<int?>("ChildContractID")
+                        .HasColumnType("int");
+
                     b.Property<int?>("ConfirmedByUserID")
                         .HasColumnType("int")
                         .HasColumnName("ConfirmedByUserID");
@@ -162,6 +169,10 @@ namespace Database.Migrations
                         .HasColumnType("double")
                         .HasColumnName("LectionsMaxTime");
 
+                    b.Property<int?>("LinkingPartID")
+                        .HasColumnType("int")
+                        .HasColumnName("LinkingPartID");
+
                     b.Property<double>("OtherTeachingClassesMaxTime")
                         .HasColumnType("double")
                         .HasColumnName("OtherTeachingClassesMaxTime");
@@ -170,7 +181,7 @@ namespace Database.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ParentContractID");
 
-                    b.Property<DateTime>("PeriodEnd")
+                    b.Property<DateTime?>("PeriodEnd")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("PeriodEnd");
 
@@ -202,7 +213,13 @@ namespace Database.Migrations
                         .HasColumnType("int")
                         .HasColumnName("UserID");
 
+                    b.Property<int>("Value")
+                        .HasColumnType("int");
+
                     b.HasKey("ID");
+
+                    b.HasIndex("ChildContractID")
+                        .IsUnique();
 
                     b.HasIndex("ConfirmedByUserID");
 
@@ -213,12 +230,33 @@ namespace Database.Migrations
 
                     b.HasIndex("DepartmentID");
 
+                    b.HasIndex("LinkingPartID");
+
                     b.HasIndex("ParentContractID")
                         .IsUnique();
 
                     b.HasIndex("UserID");
 
                     b.ToTable("Contracts");
+                });
+
+            modelBuilder.Entity("Database.Entities.ContractLinkingPart", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("ID")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("SourceContractID")
+                        .HasColumnType("int")
+                        .HasColumnName("SourceContractID");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("SourceContractID");
+
+                    b.ToTable("ContractLinkingParts");
                 });
 
             modelBuilder.Entity("Database.Entities.ContractType", b =>
@@ -332,12 +370,12 @@ namespace Database.Migrations
                         .HasColumnType("int")
                         .HasColumnName("Year");
 
-                    b.Property<int>("ContractID")
+                    b.Property<int>("LinkingPartID")
                         .HasColumnType("int");
 
                     b.Property<int?>("BlockedByUserID")
-                        .IsRequired()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("BlockedByUserID");
 
                     b.Property<double>("ConsultationsTime")
                         .HasColumnType("double")
@@ -411,11 +449,11 @@ namespace Database.Migrations
                         .HasColumnType("double")
                         .HasColumnName("TestsAndReferatsTime");
 
-                    b.HasKey("Month", "Year", "ContractID");
+                    b.HasKey("Month", "Year", "LinkingPartID");
 
                     b.HasIndex("BlockedByUserID");
 
-                    b.HasIndex("ContractID");
+                    b.HasIndex("LinkingPartID");
 
                     b.ToTable("MonthReports");
                 });
@@ -567,6 +605,12 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.Contract", b =>
                 {
+                    b.HasOne("Database.Entities.Contract", "ChildContract")
+                        .WithOne("ParentContract")
+                        .HasForeignKey("Database.Entities.Contract", "ChildContractID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_Contrcat_Contract_Child");
+
                     b.HasOne("Database.Entities.User", "ConfirmedByUser")
                         .WithMany("ConfirmedContracts")
                         .HasForeignKey("ConfirmedByUserID")
@@ -587,11 +631,11 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Contracts_Departments");
 
-                    b.HasOne("Database.Entities.Contract", "ParentContract")
-                        .WithOne("ChildContract")
-                        .HasForeignKey("Database.Entities.Contract", "ParentContractID")
+                    b.HasOne("Database.Entities.ContractLinkingPart", "LinkingPartt")
+                        .WithMany("Assignments")
+                        .HasForeignKey("LinkingPartID")
                         .OnDelete(DeleteBehavior.NoAction)
-                        .HasConstraintName("FK_Contrcat_Contract");
+                        .HasConstraintName("FK_Contract_LinkingPart");
 
                     b.HasOne("Database.Entities.User", "User")
                         .WithMany("Contracts")
@@ -600,15 +644,28 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Contracts_Users");
 
+                    b.Navigation("ChildContract");
+
                     b.Navigation("ConfirmedByUser");
 
                     b.Navigation("ContractType");
 
                     b.Navigation("Department");
 
-                    b.Navigation("ParentContract");
+                    b.Navigation("LinkingPartt");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Database.Entities.ContractLinkingPart", b =>
+                {
+                    b.HasOne("Database.Entities.Contract", "SourceContract")
+                        .WithMany()
+                        .HasForeignKey("SourceContractID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SourceContract");
                 });
 
             modelBuilder.Entity("Database.Entities.ContractTypePriceAssignment", b =>
@@ -632,15 +689,15 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_MonthReport_Blocked_By_User");
 
-                    b.HasOne("Database.Entities.Contract", "Contract")
+                    b.HasOne("Database.Entities.ContractLinkingPart", "LinkingPart")
                         .WithMany("MonthReports")
-                        .HasForeignKey("ContractID")
+                        .HasForeignKey("LinkingPartID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("BlockedByUser");
 
-                    b.Navigation("Contract");
+                    b.Navigation("LinkingPart");
                 });
 
             modelBuilder.Entity("Database.Entities.User", b =>
@@ -684,7 +741,12 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.Contract", b =>
                 {
-                    b.Navigation("ChildContract");
+                    b.Navigation("ParentContract");
+                });
+
+            modelBuilder.Entity("Database.Entities.ContractLinkingPart", b =>
+                {
+                    b.Navigation("Assignments");
 
                     b.Navigation("MonthReports");
                 });

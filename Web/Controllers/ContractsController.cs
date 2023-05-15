@@ -119,7 +119,7 @@ namespace Web.Controllers
                 return BadRequest();
             }
 
-            return Ok(_mapper.Map<List<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID)));
+            return Ok(_mapper.Map<IEnumerable<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID)));
         }
 
         [HttpGet(nameof(GetMonthReportsUntakenTime) + "/{contractID}")]
@@ -132,7 +132,8 @@ namespace Web.Controllers
                 return BadRequest();
             }
         
-            return Ok(await _contractService.GetUntakenTimeAsync(contractID, Enumerable.Empty<(int,int,int)>()));
+            return Ok();
+            //return Ok(await _contractService.GetUntakenTimeAsync(contractID, Enumerable.Empty<(int,int)>()));
         }
 
         [HttpPut(nameof(EditMonthReport))]
@@ -155,20 +156,8 @@ namespace Web.Controllers
         public async Task<IActionResult> GetMonthReportsReport(DateTime periodStart, DateTime periodEnd)
         {
             if (periodEnd <= periodStart) return BadRequest("periodEnd <= periodStart");
-            var result = await _contractService.GetReportsForReportsOnPeriodAsync(periodStart, periodEnd);
+            var result = await _contractService.GetReportsOnPeriodAsync(periodStart, periodEnd);
             return Ok(result.Select(r => new { groupIDs = r.relatedContractsIDs, reports = _mapper.Map<List<MonthReportViewModel>>(r.monthReports) }));
-        }
-
-        [HttpGet("GRC")]
-        public async Task<IEnumerable<ContractViewModel>> GetRelatedContracts(int id)
-        {
-            var c = await _contractService.FirstOrDefaultAsync(c => c.ID == id);
-            if (c is null)
-            {
-                return new List<ContractViewModel>();
-            }
-
-            return _mapper.Map<List<ContractViewModel>>(await _contractService.GetRelatedContracts(c));
         }
 
         [HttpPost(nameof(BlockReport))]

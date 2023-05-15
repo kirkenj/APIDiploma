@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230515164312_contractsUpdate")]
+    partial class contractsUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -241,17 +244,9 @@ namespace Database.Migrations
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("ID")
-                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("SourceContractID")
-                        .HasColumnType("int")
-                        .HasColumnName("SourceContractID");
+                        .HasColumnType("int");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("SourceContractID");
 
                     b.ToTable("ContractLinkingParts");
                 });
@@ -652,17 +647,6 @@ namespace Database.Migrations
                     b.Navigation("LinkingPartt");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Database.Entities.ContractLinkingPart", b =>
-                {
-                    b.HasOne("Database.Entities.Contract", "SourceContract")
-                        .WithMany()
-                        .HasForeignKey("SourceContractID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SourceContract");
                 });
 
             modelBuilder.Entity("Database.Entities.ContractTypePriceAssignment", b =>

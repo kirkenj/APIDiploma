@@ -1,4 +1,5 @@
 ﻿using Database.Entities;
+using Logic.Interfaces.Common;
 
 namespace Logic.Interfaces
 {

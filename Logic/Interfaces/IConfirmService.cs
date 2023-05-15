@@ -1,5 +1,6 @@
 ﻿using Database.Interfaces;
 using Logic.Exceptions;
+using Logic.Interfaces.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Interfaces

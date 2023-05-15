@@ -1,8 +1,9 @@
 ﻿using Database.Entities;
+using Logic.Interfaces.Common;
 
 namespace Logic.Interfaces
 {
-    public interface IAcademicDegreeService : IDbAccessServise<AcademicDegree>, IPeriodicValueService<AcademicDegree, AcademicDegreePriceAssignation, int, double, AcademicDegree>
+    public interface IAcademicDegreeService : IDbAccessServise<AcademicDegree>, IPeriodicValueServiceWithEdit<AcademicDegree, AcademicDegreePriceAssignation, int, double, AcademicDegree>
     {
     }
 }

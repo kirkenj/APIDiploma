@@ -5,14 +5,14 @@
 namespace Database.Migrations
 {
     /// <inheritdoc />
-    public partial class monthreportsModified : Migration
+    public partial class contractsUpdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<int>(
-                name: "BlockedByUserID",
-                table: "MonthReports",
+                name: "LinkingPartID",
+                table: "Contracts",
                 type: "int",
                 nullable: true,
                 oldClrType: typeof(int),
@@ -23,8 +23,8 @@ namespace Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<int>(
-                name: "BlockedByUserID",
-                table: "MonthReports",
+                name: "LinkingPartID",
+                table: "Contracts",
                 type: "int",
                 nullable: false,
                 defaultValue: 0,

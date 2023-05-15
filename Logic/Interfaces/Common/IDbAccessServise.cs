@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Logic.Interfaces
+namespace Logic.Interfaces.Common
 {
     public interface IDbAccessServise<TEntity> where TEntity : class
     {

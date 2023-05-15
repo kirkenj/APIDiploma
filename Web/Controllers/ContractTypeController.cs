@@ -75,7 +75,7 @@ namespace Diploma.Controllers
         //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> GetPriceAssignments(int id)
         {
-            return Ok(await _academicDegreeService.GetAssignmentForObject(id));
+            return Ok(await _academicDegreeService.GetAssignmentsForObject(id));
         }
 
         [HttpGet("{id}/PriceAssignment/{date}")]

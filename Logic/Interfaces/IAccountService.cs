@@ -1,8 +1,9 @@
 ﻿using Database.Entities;
+using Logic.Interfaces.Common;
 
 namespace Logic.Interfaces
 {
-    public interface IAccountService : IDbAccessServise<User>, IPeriodicValueService<User,UserAcademicDegreeAssignament, int,  int, User>
+    public interface IAccountService : IDbAccessServise<User>, IPeriodicValueServiceWithEdit<User,UserAcademicDegreeAssignament, int,  int, User>
     {
         public bool IsAdmin(User user);
         public Task<IEnumerable<User>> GetUsersAsync();

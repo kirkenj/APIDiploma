@@ -131,7 +131,7 @@ namespace API.Mapping
 
             #region MonthReport
             CreateMap<MonthReport, MonthReportViewModel>()
-            .ForMember(dest => dest.ContractID, opt => opt.MapFrom(src => src.ContractID))
+            .ForMember(dest => dest.ContractID, opt => opt.MapFrom(src => src.LinkingPartID))
             .ForMember(dest => dest.Year, opt => opt.MapFrom(src => src.Year))
             .ForMember(dest => dest.Month, opt => opt.MapFrom(src => src.Month))
             .ForMember(dest => dest.TestingEscortTime, opt => opt.MapFrom(src => src.TestingEscortTime))
@@ -154,7 +154,7 @@ namespace API.Mapping
             .ForMember(dest => dest.SECTime, opt => opt.MapFrom(src => src.SECTime));
             
             CreateMap<EditMonthReportModel, MonthReport > ()
-            .ForMember(dest => dest.ContractID, opt => opt.MapFrom(src => src.ContractID))
+            .ForMember(dest => dest.LinkingPartID, opt => opt.MapFrom(src => src.ContractID))
             .ForMember(dest => dest.Year, opt => opt.MapFrom(src => src.Year))
             .ForMember(dest => dest.Month, opt => opt.MapFrom(src => src.Month))
             .ForMember(dest => dest.TestingEscortTime, opt => opt.MapFrom(src => src.TestingEscortTime))
