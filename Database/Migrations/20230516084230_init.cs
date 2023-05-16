@@ -37,7 +37,8 @@ namespace Database.Migrations
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    SourceContractID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -177,7 +178,6 @@ namespace Database.Migrations
                     ConfirmedByUserID = table.Column<int>(type: "int", nullable: true),
                     LinkingPartID = table.Column<int>(type: "int", nullable: false),
                     AssignmentDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Value = table.Column<int>(type: "int", nullable: false),
                     LectionsMaxTime = table.Column<double>(type: "double", nullable: false),
                     PracticalClassesMaxTime = table.Column<double>(type: "double", nullable: false),
                     LaboratoryClassesMaxTime = table.Column<double>(type: "double", nullable: false),

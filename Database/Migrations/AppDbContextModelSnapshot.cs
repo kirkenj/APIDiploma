@@ -167,6 +167,7 @@ namespace Database.Migrations
                         .HasColumnName("LectionsMaxTime");
 
                     b.Property<int?>("LinkingPartID")
+                        .IsRequired()
                         .HasColumnType("int")
                         .HasColumnName("LinkingPartID");
 
@@ -210,9 +211,6 @@ namespace Database.Migrations
                         .HasColumnType("int")
                         .HasColumnName("UserID");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
-
                     b.HasKey("ID");
 
                     b.HasIndex("ChildContractID")
@@ -250,8 +248,6 @@ namespace Database.Migrations
                         .HasColumnName("SourceContractID");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("SourceContractID");
 
                     b.ToTable("ContractLinkingParts");
                 });
@@ -628,10 +624,11 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Contracts_Departments");
 
-                    b.HasOne("Database.Entities.ContractLinkingPart", "LinkingPartt")
+                    b.HasOne("Database.Entities.ContractLinkingPart", "LinkingPart")
                         .WithMany("Assignments")
                         .HasForeignKey("LinkingPartID")
                         .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
                         .HasConstraintName("FK_Contract_LinkingPart");
 
                     b.HasOne("Database.Entities.User", "User")
@@ -649,20 +646,9 @@ namespace Database.Migrations
 
                     b.Navigation("Department");
 
-                    b.Navigation("LinkingPartt");
+                    b.Navigation("LinkingPart");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Database.Entities.ContractLinkingPart", b =>
-                {
-                    b.HasOne("Database.Entities.Contract", "SourceContract")
-                        .WithMany()
-                        .HasForeignKey("SourceContractID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SourceContract");
                 });
 
             modelBuilder.Entity("Database.Entities.ContractTypePriceAssignment", b =>

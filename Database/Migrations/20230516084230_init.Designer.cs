@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230515134052_init")]
+    [Migration("20230516084230_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -169,7 +169,8 @@ namespace Database.Migrations
                         .HasColumnType("double")
                         .HasColumnName("LectionsMaxTime");
 
-                    b.Property<int>("ObjectIdentifier")
+                    b.Property<int?>("LinkingPartID")
+                        .IsRequired()
                         .HasColumnType("int")
                         .HasColumnName("LinkingPartID");
 
@@ -213,9 +214,6 @@ namespace Database.Migrations
                         .HasColumnType("int")
                         .HasColumnName("UserID");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
-
                     b.HasKey("ID");
 
                     b.HasIndex("ChildContractID")
@@ -230,7 +228,7 @@ namespace Database.Migrations
 
                     b.HasIndex("DepartmentID");
 
-                    b.HasIndex("ObjectIdentifier");
+                    b.HasIndex("LinkingPartID");
 
                     b.HasIndex("ParentContractID")
                         .IsUnique();
@@ -244,7 +242,13 @@ namespace Database.Migrations
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("ID")
+                        .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("SourceContractID")
+                        .HasColumnType("int")
+                        .HasColumnName("SourceContractID");
 
                     b.HasKey("ID");
 
@@ -623,9 +627,9 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Contracts_Departments");
 
-                    b.HasOne("Database.Entities.ContractLinkingPart", "ObjectRef")
+                    b.HasOne("Database.Entities.ContractLinkingPart", "LinkingPart")
                         .WithMany("Assignments")
-                        .HasForeignKey("ObjectIdentifier")
+                        .HasForeignKey("LinkingPartID")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired()
                         .HasConstraintName("FK_Contract_LinkingPart");
@@ -645,7 +649,7 @@ namespace Database.Migrations
 
                     b.Navigation("Department");
 
-                    b.Navigation("ObjectRef");
+                    b.Navigation("LinkingPart");
 
                     b.Navigation("User");
                 });
