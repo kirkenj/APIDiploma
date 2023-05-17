@@ -20,17 +20,18 @@ namespace Logic.Services
 
         public async Task UpdateAsync(MonthReport valueToAply, CancellationToken token = default)
         {
-            var valueToUpdate = await DbSet.FirstOrDefaultAsync(m => m.LinkingPartID == valueToAply.LinkingPartID && m.Year == valueToAply.Month && m.Month == valueToAply.Month, cancellationToken: token)
+            var valueToUpdate = await DbSet.FirstOrDefaultAsync(m => m.LinkingPartID == valueToAply.LinkingPartID && m.Year == valueToAply.Year && m.Month == valueToAply.Month, cancellationToken: token)
                 ?? throw new ObjectNotFoundException($"Month report not found by key [m.LinkingPartID == {valueToAply.LinkingPartID}, Year == {valueToAply.Month}, m.Month = {valueToAply.Month}]");
             DbSet.Remove(valueToUpdate);
             DbSet.Add(valueToAply);
             await SaveChangesAsync(token);
         }
 
-        public async Task AddAsync(MonthReport entity, CancellationToken token = default)
+        public async Task AddAsync(MonthReport entity, bool SaveChanges = true, CancellationToken token = default)
         {
             await DbSet.AddAsync(entity, token);
-            await SaveChangesAsync(token);
+            if (SaveChanges)
+                await SaveChangesAsync(token);
         }
     }
 }

@@ -1,9 +1,8 @@
 ﻿using Database.Interfaces;
 using Logic.Exceptions;
-using Logic.Interfaces.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace Logic.Interfaces
+namespace Logic.Interfaces.Common
 {
     public interface IConfirmService<TEntity> : IDbAccessServise<TEntity> where TEntity : class, IConfirmableByAdminObject
     {
@@ -25,10 +24,10 @@ namespace Logic.Interfaces
             }
 
             contract.ConfirmedByUserID = user.ID;
-            await OnObjectConfirmedAsync(contract, token);
+            await OnObjectAboutToBeConfirmedAsync(contract, token);
             await SaveChangesAsync(token);
         }
 
-        public Task OnObjectConfirmedAsync(TEntity entity, CancellationToken token = default);
+        public Task OnObjectAboutToBeConfirmedAsync(TEntity entity, CancellationToken token = default);
     }
 }

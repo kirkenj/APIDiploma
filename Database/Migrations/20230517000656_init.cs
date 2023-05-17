@@ -174,9 +174,8 @@ namespace Database.Migrations
                     PeriodStart = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     ParentContractID = table.Column<int>(type: "int", nullable: true),
-                    ChildContractID = table.Column<int>(type: "int", nullable: true),
                     ConfirmedByUserID = table.Column<int>(type: "int", nullable: true),
-                    LinkingPartID = table.Column<int>(type: "int", nullable: false),
+                    LinkingPartID = table.Column<int>(type: "int", nullable: true),
                     AssignmentDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     LectionsMaxTime = table.Column<double>(type: "double", nullable: false),
                     PracticalClassesMaxTime = table.Column<double>(type: "double", nullable: false),
@@ -228,10 +227,11 @@ namespace Database.Migrations
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Contrcat_Contract_Child",
-                        column: x => x.ChildContractID,
+                        name: "FK_Contrcat_Contract_Parent",
+                        column: x => x.ParentContractID,
                         principalTable: "Contracts",
-                        principalColumn: "ID");
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -382,12 +382,6 @@ namespace Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Contracts_ChildContractID",
-                table: "Contracts",
-                column: "ChildContractID",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Contracts_ConfirmedByUserID",
                 table: "Contracts",
                 column: "ConfirmedByUserID");
@@ -416,8 +410,7 @@ namespace Database.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_ParentContractID",
                 table: "Contracts",
-                column: "ParentContractID",
-                unique: true);
+                column: "ParentContractID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Contracts_UserID",

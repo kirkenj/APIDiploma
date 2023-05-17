@@ -21,7 +21,7 @@ namespace Logic.Services
         public DbSet<ContractType> DbSet { get; private set; }
         public Func<CancellationToken, Task<int>> SaveChangesAsync { get; private set; }
 
-        public async Task AddAsync(ContractType objectToAdd, CancellationToken token)
+        public async Task AddAsync(ContractType objectToAdd, bool SaveChanges = true, CancellationToken token = default)
         {
             if (await DbSet.AnyAsync(d => d.Name== objectToAdd.Name, token))
             {
@@ -29,7 +29,8 @@ namespace Logic.Services
             }
 
             DbSet.Add(objectToAdd);
-            await SaveChangesAsync(token);
+            if (SaveChanges)
+                await SaveChangesAsync(token);
         }
 
         public async Task UpdateAsync(ContractType valueToAply, CancellationToken token = default)

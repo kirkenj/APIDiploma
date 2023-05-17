@@ -15,16 +15,15 @@ namespace Database.Entities
         public Department? Department { get; set; } = null!;
         public ContractType? ContractType { get; set; } = null!;
         public DateTime PeriodStart { get; set; }
-        public DateTime? PeriodEnd { get; set; }
+        public DateTime PeriodEnd { get; set; }
         public bool IsConfirmed => ConfirmedByUserID != null;
         public int? ParentContractID { get; set; }
         public Contract? ParentContract { get; set; } = null;
-        public int? ChildContractID { get; set; }
-        public Contract? ChildContract { get; set; } = null;
+        public IEnumerable<Contract> ChildContracts { get; set; } = null!;
         public int? ConfirmedByUserID { get; set; }
         public User? ConfirmedByUser { get; set; }
         public int? LinkingPartID { get; set; }
-        public ContractLinkingPart LinkingPart { get; set; } = null!;
+        public ContractLinkingPart? LinkingPart { get; set; } = null!;
         public DateTime AssignmentDate { get; set; }
 
         #region TablePart

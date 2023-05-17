@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using DocumentFormat.OpenXml.Vml.Spreadsheet;
+using System.Security.Claims;
 namespace Web.Constants;
 
 public static class IncludeModels
@@ -6,16 +7,13 @@ public static class IncludeModels
     public static class UserIdentitiesTools
     {
         public const string IDKey = "ID";
-        public static int GetUserIDClaimValue(ClaimsPrincipal User) => int.Parse(User.Claims.First(u => u.Type == IDKey).Value);
-    
+        public static int GetUserIDClaimValue(ClaimsPrincipal User) => int.Parse(User.Claims.FirstOrDefault(u => u.Type == IDKey)?.Value?? throw new UnauthorizedAccessException());
+
         public const string RoleKey = ClaimTypes.Role;
-        public static string GetUserRoleClaimValue(ClaimsPrincipal User) => User.Claims.First(u => u.Type == RoleKey).Value;
-        
+        public static string GetUserRoleClaimValue(ClaimsPrincipal User) =>User.Claims.FirstOrDefault(u => u.Type == RoleKey)?.Value ?? throw new UnauthorizedAccessException();
+
         public const string NameKey = ClaimTypes.Name;
-        public static string GetUserNameClaimValue(ClaimsPrincipal User) => User.Claims.First(u => u.Type == NameKey).Value;
-        
-        public const string IsConfirmedKey = "IsConfirmed";
-        public static string GetUserIsConfirmedClaimValue(ClaimsPrincipal User) => User.Claims.First(u => u.Type == IsConfirmedKey).Value;
+        public static string GetUserNameClaimValue(ClaimsPrincipal User) => User.Claims.FirstOrDefault(u => u.Type == NameKey)?.Value ?? throw new UnauthorizedAccessException();
     }
 
     public static class PolicyNavigation

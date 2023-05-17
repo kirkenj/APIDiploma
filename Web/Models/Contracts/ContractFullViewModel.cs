@@ -8,9 +8,10 @@ namespace Web.RequestModels.Contracts
         public int UserId { get; set; }
         public int DepartmentID { get; set; }
         public int? ParentContractID { get; set; }
+        public bool IsConfirmed { get; set; } = false;
+        public int? LinkingPartID { get; set; }
         public DateTime PeriodStart { get; set; } = DateTime.Now;
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
-        public bool IsConfirmed { get; set; } = false;
         public string ContractIdentifier { get; set; } = null!;
         public int ContractTypeID { get; set; }
         public IEnumerable<MonthReportViewModel> MonthReports { get; set; } = null!;

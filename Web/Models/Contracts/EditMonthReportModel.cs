@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace Web.RequestModels.Contracts
 {
-    public class EditMonthReportModel : IValidatableObject
+    public class EditMonthReportModel 
     {
+        [JsonIgnore]
+        public int LinkingPartID { get; set; }
         [Required]
         public int ContractID { get; set; }
         [Required]
@@ -66,10 +69,5 @@ namespace Web.RequestModels.Contracts
             + CreditsTime
             + ExamsTime
             + CourseProjectsTime;
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (TimeSum == 0 || TimeSum > 72) yield return new ValidationResult("TimeSum = 0 or TimeSum > 72");
-        }
     }
 }

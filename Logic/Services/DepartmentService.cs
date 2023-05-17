@@ -20,7 +20,7 @@ namespace Logic.Services
         public DbSet<Department> DbSet { get; private set; }
         public Func<CancellationToken, Task<int>> SaveChangesAsync { get; private set; }
 
-        public async Task AddAsync(Department department, CancellationToken token)
+        public async Task AddAsync(Department department, bool SaveChanges = true, CancellationToken token = default)
         {
             if (await DbSet.AnyAsync(d => d.Name== department.Name, token))
             {
@@ -28,7 +28,8 @@ namespace Logic.Services
             }
 
             DbSet.Add(department);
-            await SaveChangesAsync(token);
+            if (SaveChanges)
+                await SaveChangesAsync(token);
         }
 
         public async Task UpdateAsync(Department valueToAply, CancellationToken token = default)

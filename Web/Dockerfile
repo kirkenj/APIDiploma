@@ -5,7 +5,8 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-ENV DiplomaDatabaseConnectionString="server=icrafts.beget.tech;user=icrafts_test;password=prB%cnJ5;database=icrafts_test;"
+ENV DiplomaDatabaseConnectionString="server=77.246.96.104;user=diploma_usr;password=Mysqlpwd1;database=Diploma;"
+ENV DiplomaLocalMySQLConnectionString="server=77.246.96.104;user=diploma_usr;password=Mysqlpwd1;database=Diploma;"
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src

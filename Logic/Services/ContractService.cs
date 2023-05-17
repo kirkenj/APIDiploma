@@ -8,6 +8,7 @@ using Logic.Models.MonthReports;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using Logic.Exceptions;
+using DocumentFormat.OpenXml.Vml.Office;
 
 namespace Logic.Services
 {
@@ -27,7 +28,18 @@ namespace Logic.Services
 
         }
 
-        public async Task AddAsync(Contract entity, CancellationToken token = default)
+        public async Task DeleteAsync(Contract entity, CancellationToken token = default)
+        {
+            DbSet.Remove(entity);
+            if (entity.IsConfirmed)
+            {
+                await _contractLinkingPartService.OnContractRemovedAsync(entity);
+            }
+
+            await SaveChangesAsync(token);
+        }
+
+        public async Task AddAsync(Contract entity, bool SaveChanges = true, CancellationToken token = default)
         {
             if (entity == null)
             {
@@ -42,7 +54,18 @@ namespace Logic.Services
             IEnumerable<ValidationResult> results;
             if (entity.ParentContractID != null)
             {
+                if (await DbSet.AnyAsync(c => c.ConfirmedByUserID != null && c.ParentContractID == entity.ParentContractID, token))
+                {
+                    throw new ArgumentException($"Contract with ID = {entity.ParentContractID} already has a confirmed child");
+                }
+
                 var parent = await DbSet.FirstOrDefaultAsync(c => c.ID == entity.ParentContractID, token) ?? throw new ObjectNotFoundException($"Object with ID = {entity.ParentContractID} not found");
+
+                if (entity.PeriodStart.Month == parent.PeriodStart.Month && entity.PeriodStart.Year == parent.PeriodStart.Year)
+                {
+                    throw new ArgumentException("Child contract has same period start month with its parent");
+                }
+
                 entity.PeriodEnd = parent.PeriodEnd;
                 entity.DepartmentID = parent.DepartmentID;
                 entity.ContractTypeID = parent.ContractTypeID;
@@ -62,44 +85,54 @@ namespace Logic.Services
             }
 
             DbSet.Add(entity);
-            await SaveChangesAsync(token);
+            if (SaveChanges)
+            {
+                await SaveChangesAsync(token);
+            }
         }
-
-        public async Task<IEnumerable<Contract>> GetAll() => await DbSet.ToListAsync();
 
         public async Task<IEnumerable<MonthReport>> GetMonthReportsAsync(int contractID)
         {
-            var contract = await DbSet.Include(c => c.LinkingPart).ThenInclude(o=>o.MonthReports).FirstOrDefaultAsync(c => c.ID == contractID) ?? throw new ObjectNotFoundException($"Object with ID = {contractID} not found");
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            var contract = await DbSet
+                .Include(c => c.LinkingPart)
+                .ThenInclude(o => o.MonthReports)
+                .FirstOrDefaultAsync(c => c.ID == contractID) 
+                ?? throw new ObjectNotFoundException($"Object with ID = {contractID} not found");
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (!contract.IsConfirmed)
             {
                 return Enumerable.Empty<MonthReport>();
             }
 
-            return contract.LinkingPart.MonthReports;
+            return contract.LinkingPart?.MonthReports ?? throw new ArgumentNullException(nameof(contract.LinkingPart));
         }
 
         public async Task<string?> GetOwnersLoginAsync(int contractID) => (await DbSet.Include(c => c.User).FirstOrDefaultAsync(c => c.ID == contractID))?.User.Login ?? null;
 
-        public async Task<IEnumerable<Contract>> GetRelatedContracts(Contract contract, CancellationToken token = default) => contract.IsConfirmed ? 
-            (await DbSet.Include(c => c.LinkingPart).ThenInclude(o => o.Assignments).FirstAsync(c => c.ID == contract.ID, token)).LinkingPart.Assignments.Where(c => c.IsConfirmed) 
+        public async Task<IEnumerable<Contract>> GetRelatedContracts(Contract contract, CancellationToken token = default)
+        {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            return contract.IsConfirmed ?
+            (await DbSet.Include(c => c.LinkingPart).ThenInclude(l => l.Assignments).FirstAsync(c => c.ID == contract.ID, token))?.LinkingPart?.Assignments.Where(c => c.ConfirmedByUserID != null) ?? throw new ArgumentNullException("LinkingPart")
             : Enumerable.Empty<Contract>();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+        }
 
-        public async Task<IEnumerable<(List<KeyValuePair<int, string>> relatedContractsIDs, List<MonthReport> monthReports)>> GetReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd) => await _contractLinkingPartService.GetReportsOnPeriodAsync(periodStart, periodEnd);
+        public async Task<IEnumerable<RelatedContractsWithReportsObject>> GetReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd) => await _contractLinkingPartService.GetReportsOnPeriodAsync(periodStart, periodEnd);
 
         public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeOnDateAsync(int contractID, DateTime date, IEnumerable<(int year, int month)> exceptValuesWithKeys)
         {
-            throw new NotImplementedException();
             var contract = await DbSet.FirstOrDefaultAsync(c => c.ID == contractID) ?? throw new ObjectNotFoundException($"Object with ID = {contractID} not found");
             if (!contract.IsConfirmed)
             {
                 throw new ArgumentException("This contract is not confirmed");
             }
 
-            var linkingPart = contract.LinkingPartID;
-            //_contractLinkingPartService.GetUntakenTimeAsync
+            return await _contractLinkingPartService.GetUntakenTimeAsync(contract.LinkingPartID ?? throw new ArgumentNullException(nameof(contract.LinkingPartID)), date, exceptValuesWithKeys);
         }
 
-        public async Task OnObjectConfirmedAsync(Contract entity, CancellationToken token = default)
+        public async Task OnObjectAboutToBeConfirmedAsync(Contract entity, CancellationToken token = default)
         {
             if (entity == null) 
             {
@@ -109,6 +142,11 @@ namespace Logic.Services
             entity.AssignmentDate = new DateTime (entity.PeriodStart.Year, entity.PeriodStart.Month, 1);
             if (entity.ParentContractID != null)
             {
+                if (await DbSet.AnyAsync(c => c.ConfirmedByUserID != null && c.ParentContractID == entity.ParentContractID, token))
+                {
+                    throw new ArgumentException($"Contract with ID = {entity.ParentContractID} already has a confirmed child");
+                }
+
                 var parentContract = await DbSet.FirstAsync(c => c.ID == entity.ParentContractID, token);
                 var relCheck = ValidateParentRelation(entity, parentContract);
                 if (relCheck.Any())
@@ -116,8 +154,6 @@ namespace Logic.Services
                     throw new ArgumentException(string.Join("\n", relCheck));
                 }
 
-                parentContract.ChildContractID = entity.ID;
-                parentContract.ChildContract = entity;
                 entity.LinkingPartID = parentContract.LinkingPartID;
             }
             else
@@ -127,20 +163,20 @@ namespace Logic.Services
                     SourceContractID = entity.ID
                 };
 
-                entity.PeriodEnd = entity.PeriodEnd ?? throw new ArgumentNullException($"{nameof(entity.PeriodEnd)}");
+                entity.LinkingPart = linkingPart;
                 var dateStart = new DateTime(entity.PeriodStart.Year, entity.PeriodStart.Month, 1);
-                var dateEnd = new DateTime(entity.PeriodEnd.Value.Year, entity.PeriodEnd.Value.Month, 1);
+                var dateEnd = new DateTime(entity.PeriodEnd.Year, entity.PeriodEnd.Month, 1);
                 var reports = new List<MonthReport>();
                 while (dateStart <= dateEnd)
                 {
                     reports.Add(new MonthReport { LinkingPart = linkingPart, LinkingPartID = linkingPart.ID, Month = dateStart.Month, Year = dateStart.Year });
                     dateStart = dateStart.AddMonths(1);
                 }
-                linkingPart.MonthReports = reports;
-                await _contractLinkingPartService.AddAsync(linkingPart, token);
-            }
 
-            await SaveChangesAsync(token);
+                linkingPart.MonthReports = reports;
+                DbSet.RemoveRange(DbSet.Where(c => c.ID != entity.ID && c.ParentContractID == entity.ParentContractID));
+                await _contractLinkingPartService.AddAsync(linkingPart, false, token);
+            }
         }
 
         public async Task UpdateAsync(Contract valueToAply, CancellationToken token = default)
@@ -151,14 +187,59 @@ namespace Logic.Services
                 throw new ArgumentException("This contract is confirmed");
             }
 
+
+            if (valueToAply == null)
+            {
+                throw new ArgumentNullException(nameof(valueToAply));
+            }
+
+            if (await DbSet.AnyAsync(c => c.ContractIdentifier == valueToAply.ContractIdentifier && c.ID != valueToAply.ID, token))
+            {
+                throw new ArgumentException("Contract identifier is not unique");
+            }
+
+            IEnumerable<ValidationResult> results;
+            if (valueToAply.ParentContractID != null)
+            {
+                if (await DbSet.AnyAsync(c => c.ConfirmedByUserID != null && c.ParentContractID == valueToAply.ParentContractID, token))
+                {
+                    throw new ArgumentException($"Contract with ID = {valueToAply.ParentContractID} already has a confirmed child");
+                }
+
+                var parent = await DbSet.FirstOrDefaultAsync(c => c.ID == valueToAply.ParentContractID, token) ?? throw new ObjectNotFoundException($"Object with ID = {valueToAply.ParentContractID} not found");
+
+                if (valueToAply.PeriodStart.Month == parent.PeriodStart.Month && valueToAply.PeriodStart.Year == parent.PeriodStart.Year)
+                {
+                    throw new ArgumentException("Child contract has same period start month with its parent");
+                }
+
+                valueToAply.PeriodEnd = parent.PeriodEnd;
+                valueToAply.DepartmentID = parent.DepartmentID;
+                valueToAply.ContractTypeID = parent.ContractTypeID;
+                results = ValidateParentRelation(valueToAply, parent);
+                if (results.Any())
+                {
+                    throw new ArgumentException(string.Join("\n", results));
+                }
+            }
+            else
+            {
+                results = ValidateOnCreate(valueToAply);
+                if (results.Any())
+                {
+                    throw new ArgumentException(string.Join("\n", results));
+                }
+            }
+
+
             DbSet.Remove(record);
-            await AddAsync(valueToAply, token);
+            await SaveChangesAsync(token);
+            valueToAply.ID = record.ID;
+            DbSet.Add(record);
+            await SaveChangesAsync(token);
         }
 
-        public Task UpdateMonthReport(MonthReport monthReport)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task UpdateMonthReport(MonthReport monthReport) => await _contractLinkingPartService.UpdateMonthReport(monthReport);
 
         private static IEnumerable<ValidationResult> ValidateOnCreate(Contract contract)
         {
@@ -167,12 +248,12 @@ namespace Logic.Services
                 throw new ArgumentNullException(nameof(contract));
             }
 
-            if (contract.PeriodEnd is null)
+            if (contract.ParentContractID != null && contract.ParentContractID == contract.ID)
             {
-                throw new ArgumentNullException(nameof(contract.PeriodEnd));
+                yield return new ValidationResult($"{nameof(contract.ParentContractID)} = {nameof(contract.ID)}");
             }
 
-            if (contract.PeriodStart >= contract.PeriodEnd.Value)
+            if (contract.PeriodStart >= contract.PeriodEnd)
             {
                 yield return new ValidationResult($"{nameof(contract.PeriodStart)} >= {nameof(contract.PeriodEnd)}");
             }
@@ -290,11 +371,6 @@ namespace Logic.Services
                 yield return new ValidationResult("Parent contract is not confirmed");
             }
 
-            if (parent.ChildContractID != null && parent.ChildContractID != child.ID)
-            {
-                yield return new ValidationResult("parent.ChildContractID != child.ID");
-            }
-
             if (child.ParentContractID != parent.ID)
             {
                 throw new ArgumentException("ParentContractID != ParentContract.ID");
@@ -303,6 +379,11 @@ namespace Logic.Services
             if (child.ContractTypeID != parent.ContractTypeID)
             {
                 yield return new ValidationResult("ContractTypeID != ParentContract.ContractTypeID");
+            }
+
+            if (child.PeriodStart.Month == parent.PeriodStart.Month && child.PeriodStart.Year == parent.PeriodStart.Year)
+            {
+                yield return new ValidationResult("Child contract has same period start month with its parent");
             }
 
             if (child.PeriodStart <= parent.PeriodStart || child.PeriodStart >= parent.PeriodEnd)
@@ -414,6 +495,22 @@ namespace Logic.Services
             {
                 yield return new ValidationResult($"TestingEscortMaxTime < ParentContract.TestingEscortMaxTime");
             }
+        }
+
+        public async Task BlockReport(int linkingPartID, int month, int year, int userID) => await _contractLinkingPartService.BlockReport(linkingPartID, month, year, userID);
+
+        public async Task<RelatedContractsWithReportsObject> GetFullData(int contractID)
+        {
+            var contract = await DbSet.FirstOrDefaultAsync(c => c.ID == contractID) ?? throw new ObjectNotFoundException($"Contract with ID = {contractID} not found");
+            if (!contract.IsConfirmed)
+            {
+                return new RelatedContractsWithReportsObject()
+                {
+                    Contracts = new List<Contract> { contract }
+                };
+            }
+
+            return await _contractLinkingPartService.GetFullData(contract.LinkingPartID ?? throw new Exception("contract.LinkingPartID is null"));
         }
     }
 }

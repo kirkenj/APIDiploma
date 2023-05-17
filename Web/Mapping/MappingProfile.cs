@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Database.Entities;
+using Logic.Models.MonthReports;
 using Web.Models.AcademicDegrees;
+using Web.Models.Contracts;
 using Web.Models.ContractType;
 using Web.Models.Departments;
 using Web.RequestModels.Account;
@@ -75,6 +77,7 @@ namespace API.Mapping
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserID))
             .ForMember(dest => dest.ContractIdentifier, opt => opt.MapFrom(src => src.ContractIdentifier))
             .ForMember(dest => dest.DepartmentID, opt => opt.MapFrom(src => src.DepartmentID))
+            .ForMember(dest => dest.LinkingPartID, opt => opt.MapFrom(src => src.LinkingPartID))
             .ForMember(dest => dest.ParentContractID, opt => opt.MapFrom(src => src.ParentContractID))
             .ForMember(dest => dest.ContractTypeID, opt => opt.MapFrom(src => src.ContractTypeID))
             .ForMember(dest => dest.PeriodStart, opt => opt.MapFrom(src => src.PeriodStart))
@@ -98,12 +101,44 @@ namespace API.Mapping
             .ForMember(dest => dest.CreditsMaxTime, opt => opt.MapFrom(src => src.CreditsMaxTime))
             .ForMember(dest => dest.ExamsMaxTime, opt => opt.MapFrom(src => src.ExamsMaxTime))
             .ForMember(dest => dest.CourseProjectsMaxTime, opt => opt.MapFrom(src => src.CourseProjectsMaxTime));
+            
+            CreateMap<(Contract Contract, bool HasChild), ContractViewModel>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Contract.ID))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Contract.UserID))
+            .ForMember(dest => dest.ContractIdentifier, opt => opt.MapFrom(src => src.Contract.ContractIdentifier))
+            .ForMember(dest => dest.DepartmentID, opt => opt.MapFrom(src => src.Contract.DepartmentID))
+            .ForMember(dest => dest.LinkingPartID, opt => opt.MapFrom(src => src.Contract.LinkingPartID))
+            .ForMember(dest => dest.ParentContractID, opt => opt.MapFrom(src => src.Contract.ParentContractID))
+            .ForMember(dest => dest.ContractTypeID, opt => opt.MapFrom(src => src.Contract.ContractTypeID))
+            .ForMember(dest => dest.PeriodStart, opt => opt.MapFrom(src => src.Contract.PeriodStart))
+            .ForMember(dest => dest.PeriodEnd, opt => opt.MapFrom(src => src.Contract.PeriodEnd))
+            .ForMember(dest => dest.IsConfirmed, opt => opt.MapFrom(src => src.Contract.IsConfirmed))
+            .ForMember(dest => dest.TestingEscortMaxTime, opt => opt.MapFrom(src => src.Contract.TestingEscortMaxTime))
+            .ForMember(dest => dest.PlasticPosesDemonstrationMaxTime, opt => opt.MapFrom(src => src.Contract.PlasticPosesDemonstrationMaxTime))
+            .ForMember(dest => dest.GraduatesAcademicWorkMaxTime, opt => opt.MapFrom(src => src.Contract.GraduatesAcademicWorkMaxTime))
+            .ForMember(dest => dest.GraduatesManagementMaxTime, opt => opt.MapFrom(src => src.Contract.GraduatesManagementMaxTime))
+            .ForMember(dest => dest.SECMaxTime, opt => opt.MapFrom(src => src.Contract.SECMaxTime))
+            .ForMember(dest => dest.DiplomasReviewsMaxTime, opt => opt.MapFrom(src => src.Contract.DiplomasReviewsMaxTime))
+            .ForMember(dest => dest.DiplomasMaxTime, opt => opt.MapFrom(src => src.Contract.DiplomasMaxTime))
+            .ForMember(dest => dest.InternshipsMaxTime, opt => opt.MapFrom(src => src.Contract.InternshipsMaxTime))
+            .ForMember(dest => dest.TestsAndReferatsMaxTime, opt => opt.MapFrom(src => src.Contract.TestsAndReferatsMaxTime))
+            .ForMember(dest => dest.InterviewsMaxTime, opt => opt.MapFrom(src => src.Contract.InterviewsMaxTime))
+            .ForMember(dest => dest.LectionsMaxTime, opt => opt.MapFrom(src => src.Contract.LectionsMaxTime))
+            .ForMember(dest => dest.PracticalClassesMaxTime, opt => opt.MapFrom(src => src.Contract.PracticalClassesMaxTime))
+            .ForMember(dest => dest.LaboratoryClassesMaxTime, opt => opt.MapFrom(src => src.Contract.LaboratoryClassesMaxTime))
+            .ForMember(dest => dest.ConsultationsMaxTime, opt => opt.MapFrom(src => src.Contract.ConsultationsMaxTime))
+            .ForMember(dest => dest.OtherTeachingClassesMaxTime, opt => opt.MapFrom(src => src.Contract.OtherTeachingClassesMaxTime))
+            .ForMember(dest => dest.CreditsMaxTime, opt => opt.MapFrom(src => src.Contract.CreditsMaxTime))
+            .ForMember(dest => dest.ExamsMaxTime, opt => opt.MapFrom(src => src.Contract.ExamsMaxTime))
+            .ForMember(dest => dest.CourseProjectsMaxTime, opt => opt.MapFrom(src => src.Contract.CourseProjectsMaxTime))
+            .ForMember(dest => dest.HasChild, opt => opt.MapFrom(src => src.HasChild));
 
             CreateMap<Contract, ContractFullViewModel>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserID))
             .ForMember(dest => dest.ContractIdentifier, opt => opt.MapFrom(src => src.ContractIdentifier))
             .ForMember(dest => dest.DepartmentID, opt => opt.MapFrom(src => src.DepartmentID))
+            .ForMember(dest => dest.LinkingPartID, opt => opt.MapFrom(src => src.LinkingPartID))
             .ForMember(dest => dest.ContractTypeID, opt => opt.MapFrom(src => src.ContractTypeID))
             .ForMember(dest => dest.ParentContractID, opt => opt.MapFrom(src => src.ParentContractID))
             .ForMember(dest => dest.PeriodStart, opt => opt.MapFrom(src => src.PeriodStart))
@@ -127,14 +162,21 @@ namespace API.Mapping
             .ForMember(dest => dest.CreditsMaxTime, opt => opt.MapFrom(src => src.CreditsMaxTime))
             .ForMember(dest => dest.ExamsMaxTime, opt => opt.MapFrom(src => src.ExamsMaxTime))
             .ForMember(dest => dest.CourseProjectsMaxTime, opt => opt.MapFrom(src => src.CourseProjectsMaxTime));
+
+            CreateMap<RelatedContractsWithReportsViewModel, RelatedContractsWithReportsObject>()
+            .ForMember(dest => dest.Contracts, opt => opt.MapFrom(src => src.RelatedContracts))
+            .ForMember(dest => dest.Reports, opt => opt.MapFrom(src => src.MonthReports));
+
+
             #endregion
 
             #region MonthReport
             CreateMap<MonthReport, MonthReportViewModel>()
-            .ForMember(dest => dest.ContractID, opt => opt.MapFrom(src => src.LinkingPartID))
+            .ForMember(dest => dest.LinkingPartID, opt => opt.MapFrom(src => src.LinkingPartID))
             .ForMember(dest => dest.Year, opt => opt.MapFrom(src => src.Year))
             .ForMember(dest => dest.Month, opt => opt.MapFrom(src => src.Month))
             .ForMember(dest => dest.TestingEscortTime, opt => opt.MapFrom(src => src.TestingEscortTime))
+            .ForMember(dest => dest.IsBlocked, opt => opt.MapFrom(src => src.IsBlocked))
             .ForMember(dest => dest.PlasticPosesDemonstrationTime, opt => opt.MapFrom(src => src.PlasticPosesDemonstrationTime))
             .ForMember(dest => dest.GraduatesAcademicWorkTime, opt => opt.MapFrom(src => src.GraduatesAcademicWorkTime))
             .ForMember(dest => dest.GraduatesManagementTime, opt => opt.MapFrom(src => src.GraduatesManagementTime))
@@ -153,8 +195,7 @@ namespace API.Mapping
             .ForMember(dest => dest.CourseProjectsTime, opt => opt.MapFrom(src => src.CourseProjectsTime))
             .ForMember(dest => dest.SECTime, opt => opt.MapFrom(src => src.SECTime));
             
-            CreateMap<EditMonthReportModel, MonthReport > ()
-            .ForMember(dest => dest.LinkingPartID, opt => opt.MapFrom(src => src.ContractID))
+            CreateMap<EditMonthReportModel, MonthReport> ()
             .ForMember(dest => dest.Year, opt => opt.MapFrom(src => src.Year))
             .ForMember(dest => dest.Month, opt => opt.MapFrom(src => src.Month))
             .ForMember(dest => dest.TestingEscortTime, opt => opt.MapFrom(src => src.TestingEscortTime))

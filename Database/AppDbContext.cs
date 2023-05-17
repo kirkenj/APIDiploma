@@ -20,10 +20,8 @@ namespace Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            
-            //optionsBuilder.UseMySql("server=icrafts.beget.tech;user=icrafts_test;password=prB%cnJ5;database=icrafts_test;", new MySqlServerVersion(new Version(8,0,33)));
-            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
-            //optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            //optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -124,15 +122,14 @@ namespace Database
             {
                 entity.Property(e => e.ID).HasColumnName("ID").UseMySqlIdentityColumn();
                 entity.Property(e => e.UserID).HasColumnName("UserID");
-                entity.Property(e => e.ParentContractID).HasColumnName("ParentContractID");
-                entity.HasIndex(e => e.ParentContractID).IsUnique();
+                entity.Property(e => e.ParentContractID).IsRequired(false).HasColumnName("ParentContractID");
                 entity.Property(e => e.ContractIdentifier).HasColumnName("ContractIdentifier");
                 entity.HasIndex(e => e.ContractIdentifier).IsUnique();
                 entity.Property(e => e.AssignmentDate).HasColumnName("AssignmentDate");
                 entity.Property(e => e.PeriodStart).HasColumnName("PeriodStart");
                 entity.Property(e => e.PeriodEnd).HasColumnName("PeriodEnd");
-                entity.Property(e => e.ConfirmedByUserID).HasColumnName("ConfirmedByUserID");
-                entity.Property(e => e.LinkingPartID).HasColumnName("LinkingPartID");
+                entity.Property(e => e.ConfirmedByUserID).IsRequired(false).HasColumnName("ConfirmedByUserID");
+                entity.Property(e => e.LinkingPartID).IsRequired(false).HasColumnName("LinkingPartID");
                 entity.HasOne(e => e.LinkingPart)
                 .WithMany(a => a.Assignments)
                 .HasForeignKey(a => a.LinkingPartID)
@@ -140,19 +137,16 @@ namespace Database
                 .HasConstraintName("FK_Contract_LinkingPart");
                 entity.HasOne(e => e.ConfirmedByUser)
                 .WithMany(e => e.ConfirmedContracts)
+                .IsRequired(false)
                 .HasForeignKey(e => e.ConfirmedByUserID)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_Contract_Confirmed_By_User");
                 entity.HasOne(e => e.ParentContract)
-                .WithOne(e => e.ChildContract)
-                .HasForeignKey<Contract>(e => e.ParentContractID)
-                .OnDelete(DeleteBehavior.NoAction)
-                .HasConstraintName("FK_Contrcat_Contract_Parent");;
-                entity.HasOne(e => e.ChildContract)
-                .WithOne(e => e.ParentContract)
-                .HasForeignKey<Contract>(e => e.ChildContractID)
-                .OnDelete(DeleteBehavior.NoAction)
-                .HasConstraintName("FK_Contrcat_Contract_Child");
+                .WithMany(e => e.ChildContracts)
+                .IsRequired(false)
+                .HasForeignKey(e => e.ParentContractID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Contrcat_Contract_Parent");
                 entity.HasOne(e => e.User)
                 .WithMany(u => u.Contracts)
                 .HasForeignKey(u => u.UserID)

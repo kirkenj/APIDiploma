@@ -5,6 +5,8 @@
         public int ContractID { get; set; }
         public int Month { get; set; }
         public int Year { get; set; }
+        public bool IsBlocked { get; set; }
+        public int LinkingPartID { get; set; }
         public int LectionsTime { get; set; } = 0;
         public int PracticalClassesTime { get; set; } = 0;
         public int LaboratoryClassesTime { get; set; } = 0;

@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Web.RequestModels.Contracts;
 using AutoMapper;
 using Web.Constants;
+using Logic.Exceptions;
+using Web.Models.Contracts;
 
 namespace Web.Controllers
 {
@@ -43,15 +45,14 @@ namespace Web.Controllers
                 return BadRequest();
             }
 
-            var contractToReturn = await _contractService.FirstOrDefaultAsync(c => c.ID == contractID);
-            if (contractToReturn is null)
+            var contractToReturn = await _contractService.GetFullData(contractID);
+            var mappedContract = new RelatedContractsWithReportsViewModel
             {
-                return BadRequest();
-            }
+                RelatedContracts = _mapper.Map<List<ContractViewModel>>(contractToReturn.Contracts),
+                MonthReports = _mapper.Map<List<MonthReportViewModel>>(contractToReturn.Reports)
+            };
 
-            var mappedContract = _mapper.Map<ContractFullViewModel>(contractToReturn);
-            var mappedReports = _mapper.Map<List<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID));
-            mappedContract.MonthReports = mappedReports;
+            mappedContract.MonthReports.ForEach(r => r.ContractID = contractID);
             return Ok(mappedContract);
         }
 
@@ -59,7 +60,7 @@ namespace Web.Controllers
         [HttpGet(nameof(GetAll))]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(_mapper.Map<List<ContractViewModel>>(await _contractService.GetAll()));
+            return Ok(_mapper.Map<List<ContractViewModel>>(await _contractService.GetAllAsync()));
         }
 
         [HttpPost]
@@ -119,11 +120,17 @@ namespace Web.Controllers
                 return BadRequest();
             }
 
-            return Ok(_mapper.Map<IEnumerable<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID)));
+            var ret = _mapper.Map<IEnumerable<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID));
+            foreach ( var item in ret)
+            {
+                item.ContractID = contractID;
+            }
+
+            return Ok(ret);
         }
 
-        [HttpGet(nameof(GetMonthReportsUntakenTime) + "/{contractID}")]
-        public async Task<IActionResult> GetMonthReportsUntakenTime(int contractID)
+        [HttpGet(nameof(GetMonthReportsUntakenTime))]
+        public async Task<IActionResult> GetMonthReportsUntakenTime(int contractID, DateTime date)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
@@ -131,22 +138,33 @@ namespace Web.Controllers
             {
                 return BadRequest();
             }
-        
-            return Ok();
-            //return Ok(await _contractService.GetUntakenTimeAsync(contractID, Enumerable.Empty<(int,int)>()));
+            
+            return Ok(await _contractService.GetUntakenTimeOnDateAsync(contractID, date, Enumerable.Empty<(int,int)>()));
         }
 
         [HttpPut(nameof(EditMonthReport))]
         public async Task<IActionResult> EditMonthReport(EditMonthReportModel editModel)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
-            var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(editModel.ContractID))
+            var currentUserLogin = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            var contract = await _contractService.FirstOrDefaultAsync(e => e.ID == editModel.ContractID);
+            if (contract == null)
             {
-                return BadRequest();
+                return BadRequest($"Contract with ID = {editModel.ContractID} not found");
+            }
+
+            if (!contract.IsConfirmed)
+            {
+                return BadRequest("Contract is not confirmed");
+            }
+
+            if (!isAdmin && currentUserLogin != contract.UserID)
+            {
+                return BadRequest("You have no rights to do it");
             }
             
             var monthReportToApply = _mapper.Map<MonthReport>(editModel);
+            monthReportToApply.LinkingPartID = contract.LinkingPartID ?? throw new ArgumentNullException("contract.LinkingPartID is null");
             await _contractService.UpdateMonthReport(monthReportToApply);
             return Ok();
         }
@@ -156,15 +174,17 @@ namespace Web.Controllers
         public async Task<IActionResult> GetMonthReportsReport(DateTime periodStart, DateTime periodEnd)
         {
             if (periodEnd <= periodStart) return BadRequest("periodEnd <= periodStart");
-            var result = await _contractService.GetReportsOnPeriodAsync(periodStart, periodEnd);
-            return Ok(result.Select(r => new { groupIDs = r.relatedContractsIDs, reports = _mapper.Map<List<MonthReportViewModel>>(r.monthReports) }));
+            var res = await _contractService.GetReportsOnPeriodAsync(periodStart, periodEnd);
+
+            var ret = res.Select(r => new RelatedContractsWithReportsViewModel { RelatedContracts = _mapper.Map<List<ContractViewModel>>(r.Contracts), MonthReports = _mapper.Map<List<MonthReportViewModel>>(r.Reports) });
+            return Ok(ret);
         }
 
         [HttpPost(nameof(BlockReport))]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> BlockReport(int contractID, int year, int month)
+        public async Task<IActionResult> BlockReport(int linkingPartID, int year, int month)
         {
-            throw new NotImplementedException();
+            await _contractService.BlockReport(linkingPartID, month, year, IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User));
             return Ok();
         }
     }

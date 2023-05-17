@@ -80,7 +80,7 @@ namespace Web.Controllers
         }
 
         #region DegreeAssignment
-                [HttpGet("DegreeAssignment")]
+        [HttpGet("DegreeAssignment")]
         //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> GetDegreeAssignment()
         {

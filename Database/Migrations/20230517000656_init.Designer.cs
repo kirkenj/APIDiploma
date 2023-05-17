@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230516084230_init")]
+    [Migration("20230517000656_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -103,9 +103,6 @@ namespace Database.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("AssignmentDate");
 
-                    b.Property<int?>("ChildContractID")
-                        .HasColumnType("int");
-
                     b.Property<int?>("ConfirmedByUserID")
                         .HasColumnType("int")
                         .HasColumnName("ConfirmedByUserID");
@@ -170,7 +167,6 @@ namespace Database.Migrations
                         .HasColumnName("LectionsMaxTime");
 
                     b.Property<int?>("LinkingPartID")
-                        .IsRequired()
                         .HasColumnType("int")
                         .HasColumnName("LinkingPartID");
 
@@ -216,9 +212,6 @@ namespace Database.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("ChildContractID")
-                        .IsUnique();
-
                     b.HasIndex("ConfirmedByUserID");
 
                     b.HasIndex("ContractIdentifier")
@@ -230,8 +223,7 @@ namespace Database.Migrations
 
                     b.HasIndex("LinkingPartID");
 
-                    b.HasIndex("ParentContractID")
-                        .IsUnique();
+                    b.HasIndex("ParentContractID");
 
                     b.HasIndex("UserID");
 
@@ -601,12 +593,6 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.Contract", b =>
                 {
-                    b.HasOne("Database.Entities.Contract", "ChildContract")
-                        .WithOne("ParentContract")
-                        .HasForeignKey("Database.Entities.Contract", "ChildContractID")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .HasConstraintName("FK_Contrcat_Contract_Child");
-
                     b.HasOne("Database.Entities.User", "ConfirmedByUser")
                         .WithMany("ConfirmedContracts")
                         .HasForeignKey("ConfirmedByUserID")
@@ -631,8 +617,13 @@ namespace Database.Migrations
                         .WithMany("Assignments")
                         .HasForeignKey("LinkingPartID")
                         .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired()
                         .HasConstraintName("FK_Contract_LinkingPart");
+
+                    b.HasOne("Database.Entities.Contract", "ParentContract")
+                        .WithMany("ChildContracts")
+                        .HasForeignKey("ParentContractID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_Contrcat_Contract_Parent");
 
                     b.HasOne("Database.Entities.User", "User")
                         .WithMany("Contracts")
@@ -641,8 +632,6 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Contracts_Users");
 
-                    b.Navigation("ChildContract");
-
                     b.Navigation("ConfirmedByUser");
 
                     b.Navigation("ContractType");
@@ -650,6 +639,8 @@ namespace Database.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("LinkingPart");
+
+                    b.Navigation("ParentContract");
 
                     b.Navigation("User");
                 });
@@ -727,7 +718,7 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Entities.Contract", b =>
                 {
-                    b.Navigation("ParentContract");
+                    b.Navigation("ChildContracts");
                 });
 
             modelBuilder.Entity("Database.Entities.ContractLinkingPart", b =>

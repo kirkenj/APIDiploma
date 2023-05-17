@@ -27,7 +27,7 @@ public class AccountService : IAccountService
         _academicDegreeService = academicDegreeService;
     }
 
-    public virtual async Task AddAsync(User userToAdd, CancellationToken token = default)
+    public virtual async Task AddAsync(User userToAdd, bool SaveChanges = true, CancellationToken token = default)
     {
         if (await DbSet.AnyAsync(u => u.Login == userToAdd.Login))
         {
@@ -44,7 +44,8 @@ public class AccountService : IAccountService
         };
 
         DbSet.Add(userToSave);
-        await SaveChangesAsync.Invoke(CancellationToken.None);
+        if (SaveChanges)
+            await SaveChangesAsync.Invoke(CancellationToken.None);
     }
 
     public async Task<IEnumerable<User>> GetUsersAsync()
@@ -73,11 +74,6 @@ public class AccountService : IAccountService
         }
 
         await SaveChangesAsync.Invoke(CancellationToken.None);
-    }
-
-    public Task OnObjectConfirmedAsync(User entity, CancellationToken token = default)
-    {
-        return Task.CompletedTask;
     }
 
     public virtual async Task AddAssignmentAsync(UserAcademicDegreeAssignament assignation, CancellationToken token = default)

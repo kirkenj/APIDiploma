@@ -17,11 +17,12 @@ namespace Logic.Services
             SaveChangesAsync = appDBContext.SaveChangesAsync;
         }
 
-        public async Task AddAsync(Role valueToAdd, CancellationToken cancellationToken = default) 
+        public async Task AddAsync(Role valueToAdd, bool SaveChanges = true, CancellationToken cancellationToken = default) 
         {
             if (await DbSet.AnyAsync(r => r.Name == valueToAdd.Name, cancellationToken)) throw new Exception($"Role name is taken {valueToAdd.Name}");
             await DbSet.AddAsync(valueToAdd, cancellationToken);
-            await SaveChangesAsync(cancellationToken);
+            if (SaveChanges)
+                await SaveChangesAsync(cancellationToken);
         }
 
         public async Task<Role?> GetRoleAsync(int roleId)

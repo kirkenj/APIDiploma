@@ -1,4 +1,5 @@
 ﻿using Database.Entities;
+using Newtonsoft.Json;
 
 namespace Web.RequestModels.Contracts
 {
@@ -8,11 +9,13 @@ namespace Web.RequestModels.Contracts
         public int UserId { get; set; }
         public int DepartmentID { get; set; }
         public int? ParentContractID { get; set; }
+        public bool IsConfirmed { get; set; } = false;
+        public bool? HasChild { get; set; } = null;
+        public int? LinkingPartID { get; set; }
         public DateTime PeriodStart { get; set; } = DateTime.Now;
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
         public string ContractIdentifier { get; set; } = null!;
         public int ContractTypeID { get; set; }
-        public bool IsConfirmed { get; set; } = false;
         public int LectionsMaxTime { get; set; } = 0;
         public int PracticalClassesMaxTime { get; set; } = 0;
         public int LaboratoryClassesMaxTime { get; set; } = 0;
