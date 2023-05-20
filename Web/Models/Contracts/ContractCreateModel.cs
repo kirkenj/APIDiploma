@@ -9,68 +9,68 @@ namespace Web.RequestModels.Contracts
         [Required]
         public int DepartmentID { get; set; }
         public int? ParentContractID { get; set; }
-        public DateTime PeriodStart { get; set; } = DateTime.Now;
-        public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
+        public DateTime PeriodStart { get; set; }
+        public DateTime PeriodEnd { get; set; }
         [Required]
         public string ContractIdentifier { get; set; } = null!;
         [Required]
         public int ContractTypeID { get; set; }
         [Range(0, int.MaxValue)]
-        public int LectionsMaxTime { get; set; } = 0;
+        public double LectionsTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int PracticalClassesMaxTime { get; set; } = 0;
+        public double PracticalClassesTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int LaboratoryClassesMaxTime { get; set; } = 0;
+        public double LaboratoryClassesTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int ConsultationsMaxTime { get; set; } = 0;
+        public double ConsultationsTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int OtherTeachingClassesMaxTime { get; set; } = 0;
+        public double OtherTeachingClassesTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int CreditsMaxTime { get; set; } = 0;
+        public double CreditsTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int ExamsMaxTime { get; set; } = 0;
+        public double ExamsTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int CourseProjectsMaxTime { get; set; } = 0;
+        public double CourseProjectsTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int InterviewsMaxTime { get; set; } = 0;
+        public double InterviewsTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int TestsAndReferatsMaxTime { get; set; } = 0;
+        public double TestsAndReferatsTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int InternshipsMaxTime { get; set; } = 0;
+        public double InternshipsTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int DiplomasMaxTime { get; set; } = 0;
+        public double DiplomasTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int DiplomasReviewsMaxTime { get; set; } = 0;
+        public double DiplomasReviewsTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int SECMaxTime { get; set; } = 0;
+        public double SECTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int GraduatesManagementMaxTime { get; set; } = 0;
+        public double GraduatesManagementTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int GraduatesAcademicWorkMaxTime { get; set; } = 0;
+        public double GraduatesAcademicWorkTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int PlasticPosesDemonstrationMaxTime { get; set; } = 0;
+        public double PlasticPosesDemonstrationTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
-        public int TestingEscortMaxTime { get; set; } = 0;
-        
-        public int TimeSum =>
-                TestingEscortMaxTime
-                + PlasticPosesDemonstrationMaxTime
-                + GraduatesAcademicWorkMaxTime
-                + GraduatesManagementMaxTime
-                + SECMaxTime
-                + DiplomasReviewsMaxTime
-                + DiplomasMaxTime
-                + InternshipsMaxTime
-                + TestsAndReferatsMaxTime
-                + InterviewsMaxTime
-                + LectionsMaxTime
-                + PracticalClassesMaxTime
-                + LaboratoryClassesMaxTime
-                + ConsultationsMaxTime
-                + OtherTeachingClassesMaxTime
-                + CreditsMaxTime
-                + ExamsMaxTime
-                + CourseProjectsMaxTime;
+        public double TestingEscortTime { get; set; } = 0;
+        [Range(0, int.MaxValue)]
+        public double TimeSum =>
+            TestingEscortTime
+            + PlasticPosesDemonstrationTime
+            + GraduatesAcademicWorkTime
+            + GraduatesManagementTime
+            + SECTime
+            + DiplomasReviewsTime
+            + DiplomasTime
+            + InternshipsTime
+            + TestsAndReferatsTime
+            + InterviewsTime
+            + LectionsTime
+            + PracticalClassesTime
+            + LaboratoryClassesTime
+            + ConsultationsTime
+            + OtherTeachingClassesTime
+            + CreditsTime
+            + ExamsTime
+            + CourseProjectsTime;
 
         public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

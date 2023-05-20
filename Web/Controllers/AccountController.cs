@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using Logic.Services;
 using Logic.Models.User;
 using Logic.Models.Role;
+using Web.Models.Account;
 
 namespace Web.Controllers
 {
@@ -41,7 +42,14 @@ namespace Web.Controllers
         {
             var login = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             var mappedValue = _mapper.Map<UserViewModel>(await _accountService.FirstOrDefaultAsync(u => u.Login == login));
-            return Ok(mappedValue);
+
+            return Ok(new AccountFromToken
+            {
+                ID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User),
+                Login = IncludeModels.UserIdentitiesTools.GetUserNameClaimValue(User),
+                Role = IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User),
+                UserAccountInDB = mappedValue
+            });
         }
 
         [HttpPut]
@@ -76,7 +84,7 @@ namespace Web.Controllers
 
         [Authorize]
         [HttpGet(nameof(GetRoles))]
-        public async Task<IActionResult> GetRoles(RoleSelectObject? selectObject)
+        public async Task<IActionResult> GetRoles([FromQuery]RoleSelectObject? selectObject)
         {
             return Ok(await _roleService.GetListViaSelectionObjectAsync(selectObject));
         }

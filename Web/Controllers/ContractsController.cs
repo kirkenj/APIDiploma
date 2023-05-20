@@ -144,7 +144,7 @@ namespace Web.Controllers
         }
 
         [HttpPut(nameof(EditMonthReport))]
-        public async Task<IActionResult> EditMonthReport(EditMonthReportModel editModel)
+        public async Task<IActionResult> EditMonthReport(MonthReportEditModel editModel)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);

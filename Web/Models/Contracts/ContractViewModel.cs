@@ -16,43 +16,43 @@ namespace Web.RequestModels.Contracts
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
         public string ContractIdentifier { get; set; } = null!;
         public int ContractTypeID { get; set; }
-        public int LectionsMaxTime { get; set; } = 0;
-        public int PracticalClassesMaxTime { get; set; } = 0;
-        public int LaboratoryClassesMaxTime { get; set; } = 0;
-        public int ConsultationsMaxTime { get; set; } = 0;
-        public int OtherTeachingClassesMaxTime { get; set; } = 0;
-        public int CreditsMaxTime { get; set; } = 0;
-        public int ExamsMaxTime { get; set; } = 0;
-        public int CourseProjectsMaxTime { get; set; } = 0;
-        public int InterviewsMaxTime { get; set; } = 0;
-        public int TestsAndReferatsMaxTime { get; set; } = 0;
-        public int InternshipsMaxTime { get; set; } = 0;
-        public int DiplomasMaxTime { get; set; } = 0;
-        public int DiplomasReviewsMaxTime { get; set; } = 0;
-        public int SECMaxTime { get; set; } = 0;
-        public int GraduatesManagementMaxTime { get; set; } = 0;
-        public int GraduatesAcademicWorkMaxTime { get; set; } = 0;
-        public int PlasticPosesDemonstrationMaxTime { get; set; } = 0;
-        public int TestingEscortMaxTime { get; set; } = 0;
+        public double LectionsMaxTime { get; set; } = 0;
+        public double PracticalClassesTime { get; set; } = 0;
+        public double LaboratoryClassesTime { get; set; } = 0;
+        public double ConsultationsTime { get; set; } = 0;
+        public double OtherTeachingClassesTime { get; set; } = 0;
+        public double CreditsTime { get; set; } = 0;
+        public double ExamsTime { get; set; } = 0;
+        public double CourseProjectsTime { get; set; } = 0;
+        public double InterviewsTime { get; set; } = 0;
+        public double TestsAndReferatsTime { get; set; } = 0;
+        public double InternshipsTime { get; set; } = 0;
+        public double DiplomasTime { get; set; } = 0;
+        public double DiplomasReviewsTime { get; set; } = 0;
+        public double SECTime { get; set; } = 0;
+        public double GraduatesManagementTime { get; set; } = 0;
+        public double GraduatesAcademicWorkTime { get; set; } = 0;
+        public double PlasticPosesDemonstrationTime { get; set; } = 0;
+        public double TestingEscortTime { get; set; } = 0;
 
-        public int TimeSum =>
-            TestingEscortMaxTime
-            + PlasticPosesDemonstrationMaxTime
-            + GraduatesAcademicWorkMaxTime
-            + GraduatesManagementMaxTime
-            + SECMaxTime
-            + DiplomasReviewsMaxTime
-            + DiplomasMaxTime
-            + InternshipsMaxTime
-            + TestsAndReferatsMaxTime
-            + InterviewsMaxTime
+        public double TimeSum =>
+            TestingEscortTime
+            + PlasticPosesDemonstrationTime
+            + GraduatesAcademicWorkTime
+            + GraduatesManagementTime
+            + SECTime
+            + DiplomasReviewsTime
+            + DiplomasTime
+            + InternshipsTime
+            + TestsAndReferatsTime
+            + InterviewsTime
             + LectionsMaxTime
-            + PracticalClassesMaxTime
-            + LaboratoryClassesMaxTime
-            + ConsultationsMaxTime
-            + OtherTeachingClassesMaxTime
-            + CreditsMaxTime
-            + ExamsMaxTime
-            + CourseProjectsMaxTime;
+            + PracticalClassesTime
+            + LaboratoryClassesTime
+            + ConsultationsTime
+            + OtherTeachingClassesTime
+            + CreditsTime
+            + ExamsTime
+            + CourseProjectsTime;
     }
 }

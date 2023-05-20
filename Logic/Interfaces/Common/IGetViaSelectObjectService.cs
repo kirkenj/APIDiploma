@@ -13,7 +13,7 @@ namespace Logic.Interfaces.Common
         public async Task<IEnumerable<TEntity>> GetListViaSelectionObjectAsync(TSelectObject? selectionObject, int? page = default, int? pageSize = default) 
             => await GetPageContent(GetViaSelectionObject(selectionObject, DbSet), page, pageSize).ToListAsync();
 
-        public IQueryable<TEntity> GetPageContent(IQueryable<TEntity> query, int? page = default, int? pageSize = default)
+        public IQueryable<T> GetPageContent<T>(IQueryable<T> query, int? page = default, int? pageSize = default)
         {
             if (page.HasValue && pageSize.HasValue)
             {

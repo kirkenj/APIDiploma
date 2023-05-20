@@ -172,7 +172,8 @@ namespace Database.Migrations
                     ContractIdentifier = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     PeriodStart = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    IsConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false, computedColumnSql: "ConfirmedByUserID is not null", stored: false),
                     ParentContractID = table.Column<int>(type: "int", nullable: true),
                     ConfirmedByUserID = table.Column<int>(type: "int", nullable: true),
                     LinkingPartID = table.Column<int>(type: "int", nullable: true),
@@ -242,6 +243,8 @@ namespace Database.Migrations
                     LinkingPartID = table.Column<int>(type: "int", nullable: false),
                     Month = table.Column<int>(type: "int", nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
+                    BlockedByUserID = table.Column<int>(type: "int", nullable: true),
+                    IsBlocked = table.Column<bool>(type: "tinyint(1)", nullable: false, computedColumnSql: "BlockedByUserID is not null", stored: false),
                     LectionsTime = table.Column<double>(type: "double", nullable: false),
                     PracticalClassesTime = table.Column<double>(type: "double", nullable: false),
                     LaboratoryClassesTime = table.Column<double>(type: "double", nullable: false),
@@ -259,8 +262,7 @@ namespace Database.Migrations
                     GraduatesManagementTime = table.Column<double>(type: "double", nullable: false),
                     GraduatesAcademicWorkTime = table.Column<double>(type: "double", nullable: false),
                     PlasticPosesDemonstrationTime = table.Column<double>(type: "double", nullable: false),
-                    TestingEscortTime = table.Column<double>(type: "double", nullable: false),
-                    BlockedByUserID = table.Column<int>(type: "int", nullable: true)
+                    TestingEscortTime = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230519091754_test")]
-    partial class test
+    [Migration("20230520014523_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -409,6 +409,11 @@ namespace Database.Migrations
                     b.Property<double>("InterviewsTime")
                         .HasColumnType("double")
                         .HasColumnName("InterviewsTime");
+
+                    b.Property<bool>("IsBlocked")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tinyint(1)")
+                        .HasComputedColumnSql("BlockedByUserID is not null", false);
 
                     b.Property<double>("LaboratoryClassesTime")
                         .HasColumnType("double")
