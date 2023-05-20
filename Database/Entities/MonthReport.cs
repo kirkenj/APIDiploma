@@ -1,6 +1,4 @@
-﻿using Database.Interfaces;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Database.Entities
 {
@@ -13,8 +11,7 @@ namespace Database.Entities
         public int Year { get; set; }
         public int? BlockedByUserID { get; set; } = null;
         public User BlockedByUser { get; set; } = null!;
-        public bool IsBlocked => BlockedByUserID != null;
-
+        public bool IsBlocked { get; private set; }
         #region TablePart
         public double LectionsTime { get; set; } = 0;
         public double PracticalClassesTime { get; set; } = 0;

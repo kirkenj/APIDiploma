@@ -7,6 +7,9 @@ using AutoMapper;
 using Web.Constants;
 using Logic.Exceptions;
 using Web.Models.Contracts;
+using Logic.Models.Contracts;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace Web.Controllers
 {
@@ -29,10 +32,15 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get() 
+        public async Task<IActionResult> Get([FromQuery] ContractsSelectObject? selectionObject, int? page = default, int? pageSize = default) 
         {
-            int userID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
-            return Ok(_mapper.Map<List<ContractViewModel>>(_contractService.GetRange(c => c.UserID == userID)));
+            selectionObject ??= new ContractsSelectObject();
+            if (!_roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
+            {
+                selectionObject.UserIDs = new List<int> { IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User) };
+            }
+
+            return Ok(_mapper.Map<List<ContractViewModel>>(await _contractService.GetPageContent(_contractService.GetContractHasChildKeyValuePair(selectionObject), page, pageSize).ToListAsync()));
         }
        
         [HttpGet("{contractID}")]
@@ -54,13 +62,6 @@ namespace Web.Controllers
 
             mappedContract.MonthReports.ForEach(r => r.ContractID = contractID);
             return Ok(mappedContract);
-        }
-
-        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        [HttpGet(nameof(GetAll))]
-        public async Task<IActionResult> GetAll()
-        {
-            return Ok(_mapper.Map<List<ContractViewModel>>(await _contractService.GetAllAsync()));
         }
 
         [HttpPost]
@@ -129,8 +130,8 @@ namespace Web.Controllers
             return Ok(ret);
         }
 
-        [HttpGet(nameof(GetMonthReportsUntakenTime))]
-        public async Task<IActionResult> GetMonthReportsUntakenTime(int contractID, DateTime date)
+        [HttpGet(nameof(GetUntakenTime))]
+        public async Task<IActionResult> GetUntakenTime(int contractID, DateTime date)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
@@ -164,7 +165,7 @@ namespace Web.Controllers
             }
             
             var monthReportToApply = _mapper.Map<MonthReport>(editModel);
-            monthReportToApply.LinkingPartID = contract.LinkingPartID ?? throw new ArgumentNullException("contract.LinkingPartID is null");
+            monthReportToApply.LinkingPartID = contract?.LinkingPartID ?? throw new ArgumentException($"{nameof(contract.LinkingPartID)} is null");
             await _contractService.UpdateMonthReport(monthReportToApply);
             return Ok();
         }
@@ -175,7 +176,6 @@ namespace Web.Controllers
         {
             if (periodEnd <= periodStart) return BadRequest("periodEnd <= periodStart");
             var res = await _contractService.GetReportsOnPeriodAsync(periodStart, periodEnd);
-
             var ret = res.Select(r => new RelatedContractsWithReportsViewModel { RelatedContracts = _mapper.Map<List<ContractViewModel>>(r.Contracts), MonthReports = _mapper.Map<List<MonthReportViewModel>>(r.Reports) });
             return Ok(ret);
         }
@@ -185,6 +185,14 @@ namespace Web.Controllers
         public async Task<IActionResult> BlockReport(int linkingPartID, int year, int month)
         {
             await _contractService.BlockReport(linkingPartID, month, year, IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User));
+            return Ok();
+        }
+
+        [HttpPost(nameof(UnBlockReport))]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> UnBlockReport(int linkingPartID, int year, int month)
+        {
+            await _contractService.UnBlockReport(linkingPartID, month, year, IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User));
             return Ok();
         }
     }

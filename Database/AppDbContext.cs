@@ -130,6 +130,7 @@ namespace Database
                 entity.Property(e => e.PeriodEnd).HasColumnName("PeriodEnd");
                 entity.Property(e => e.ConfirmedByUserID).IsRequired(false).HasColumnName("ConfirmedByUserID");
                 entity.Property(e => e.LinkingPartID).IsRequired(false).HasColumnName("LinkingPartID");
+                entity.Property(e => e.IsConfirmed).HasComputedColumnSql(@"ConfirmedByUserID is not null", stored:false);
                 entity.HasOne(e => e.LinkingPart)
                 .WithMany(a => a.Assignments)
                 .HasForeignKey(a => a.LinkingPartID)
@@ -206,6 +207,7 @@ namespace Database
                 entity.Property(e => e.PlasticPosesDemonstrationTime).HasColumnName("PlasticPosesDemonstrationTime");
                 entity.Property(e => e.TestingEscortTime).HasColumnName("TestingEscortTime");
                 entity.Property(e => e.BlockedByUserID).IsRequired(false).HasColumnName("BlockedByUserID");
+                entity.Property(e => e.IsBlocked).HasComputedColumnSql(@"BlockedByUserID is not null", stored: false);
                 entity.HasOne(e => e.BlockedByUser)
                 .WithMany(e => e.BlockedReports)
                 .HasForeignKey(e => e.BlockedByUserID)

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Database.Entities;
 using Logic.Interfaces;
+using Logic.Models.ContractType;
+using Logic.Models.Department;
 using Microsoft.AspNetCore.Mvc;
 using Web.Models.AcademicDegrees;
 using Web.Models.ContractType;
@@ -21,9 +23,9 @@ namespace Diploma.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] ContractTypesSelectObject? selectObject, int? page = default, int? pageSize = default)
         {
-            return Ok(_mapper.Map<List<ContractTypeViewModel>>(await _academicDegreeService.GetAllAsync()));
+            return Ok(_mapper.Map<List<ContractTypeViewModel>>(await _academicDegreeService.GetListViaSelectionObjectAsync(selectObject, page, pageSize)));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)

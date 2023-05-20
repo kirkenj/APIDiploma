@@ -16,7 +16,7 @@ namespace Database.Entities
         public ContractType? ContractType { get; set; } = null!;
         public DateTime PeriodStart { get; set; }
         public DateTime PeriodEnd { get; set; }
-        public bool IsConfirmed => ConfirmedByUserID != null;
+        public bool IsConfirmed { get; private set; }
         public int? ParentContractID { get; set; }
         public Contract? ParentContract { get; set; } = null;
         public IEnumerable<Contract> ChildContracts { get; set; } = null!;

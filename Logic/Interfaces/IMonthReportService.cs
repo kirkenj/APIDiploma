@@ -1,5 +1,7 @@
 ﻿using Database.Entities;
 using Logic.Interfaces.Common;
+using Logic.Models.Contracts;
+using Logic.Models.MonthReports;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,7 +9,6 @@ namespace Logic.Interfaces
 {
     public interface IMonthReportService : IDbAccessServise<MonthReport>
     {
-        internal DbSet<MonthReport> DBSet => DbSet;
         public static IEnumerable<ValidationResult> Validate(MonthReport monthReport, ValidationContext validationContext)
         {
             if (monthReport.TimeSum < 0)
@@ -110,6 +111,7 @@ namespace Logic.Interfaces
                 yield return new ValidationResult($"{nameof(monthReport.TestingEscortTime)} < 0");
             }
         }
+        public async Task<List<MonthReport>> GetReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd) => await DbSet.Include(m => m.LinkingPart).ThenInclude(l => l.Assignments).Where(m => (m.Year >= periodStart.Year && m.Month >= periodStart.Month) || (m.Year <= periodEnd.Year && m.Month <= periodEnd.Month)).ToListAsync();
 
     }
 }

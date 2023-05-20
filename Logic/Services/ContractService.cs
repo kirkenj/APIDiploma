@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using Logic.Exceptions;
 using DocumentFormat.OpenXml.Vml.Office;
+using Logic.Models.Contracts;
 
 namespace Logic.Services
 {
@@ -27,6 +28,74 @@ namespace Logic.Services
             _contractLinkingPartService = contractLinkingPartService;
 
         }
+
+        public IQueryable<Contract> GetViaSelectionObject(ContractsSelectObject? selectionObject, IQueryable<Contract> contracts)
+        {
+            if (selectionObject == null)
+            {
+                return contracts;
+            }
+
+            if (selectionObject.ContractIDs != null)
+            {
+                contracts = contracts.Where(c => selectionObject.ContractIDs.Contains(c.ID));
+            }
+
+            if (selectionObject.DepartmentIDs != null)
+            {
+                contracts = contracts.Where(c => selectionObject.DepartmentIDs.Contains(c.ID));
+            }
+
+            if (selectionObject.IsConfirmed != null)
+            {
+                contracts = contracts.Where(c => c.IsConfirmed == selectionObject.IsConfirmed);
+            }
+
+            if (selectionObject.ContractTypeIDs != null)
+            {
+                contracts = contracts.Where(c => selectionObject.ContractTypeIDs.Contains(c.ContractTypeID));
+            }
+
+            if (selectionObject.UserIDs != null)
+            {
+                contracts = contracts.Where(c => selectionObject.UserIDs.Contains(c.UserID));
+            }
+
+            if (selectionObject.PeriodStartStartBound != null)
+            {
+                contracts = contracts.Where(c => c.PeriodStart >= selectionObject.PeriodStartStartBound);
+            }
+
+            if (selectionObject.PeriodStartEndBound != null)
+            {
+                contracts = contracts.Where(c => c.PeriodStart <= selectionObject.PeriodStartEndBound);
+            }
+
+            if (selectionObject.PeriodEndStartBound != null)
+            {
+                contracts = contracts.Where(c => c.PeriodEnd >= selectionObject.PeriodEndStartBound);
+            }
+
+            if (selectionObject.PeriodEndEndBound != null)
+            {
+                contracts = contracts.Where(c => c.PeriodEnd <= selectionObject.PeriodEndEndBound);
+            }
+
+            if (selectionObject.TimeSumStartBound != null)
+            {
+                contracts = contracts.Where(c => c.TimeSum >= selectionObject.TimeSumStartBound);
+            }
+
+            if (selectionObject.TimeSumEndBound != null)
+            {
+                contracts = contracts.Where(c => c.TimeSum <= selectionObject.TimeSumEndBound);
+            }
+
+            return contracts;
+        }
+        
+        public IQueryable<KeyValuePair<Contract, bool>> GetContractHasChildKeyValuePair(ContractsSelectObject? selectionObject) => GetViaSelectionObject(selectionObject, DbSet)
+            .Select(c => new KeyValuePair<Contract, bool>(c, c.ChildContracts.Any(q => q.IsConfirmed)));
 
         public async Task DeleteAsync(Contract entity, CancellationToken token = default)
         {
@@ -54,7 +123,7 @@ namespace Logic.Services
             IEnumerable<ValidationResult> results;
             if (entity.ParentContractID != null)
             {
-                if (await DbSet.AnyAsync(c => c.ConfirmedByUserID != null && c.ParentContractID == entity.ParentContractID, token))
+                if (await DbSet.AnyAsync(c => c.IsConfirmed && c.ParentContractID == entity.ParentContractID, token))
                 {
                     throw new ArgumentException($"Contract with ID = {entity.ParentContractID} already has a confirmed child");
                 }
@@ -114,7 +183,7 @@ namespace Logic.Services
         {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
             return contract.IsConfirmed ?
-            (await DbSet.Include(c => c.LinkingPart).ThenInclude(l => l.Assignments).FirstAsync(c => c.ID == contract.ID, token))?.LinkingPart?.Assignments.Where(c => c.ConfirmedByUserID != null) ?? throw new ArgumentNullException("LinkingPart")
+            (await DbSet.Include(c => c.LinkingPart).ThenInclude(l => l.Assignments).FirstAsync(c => c.ID == contract.ID, token))?.LinkingPart?.Assignments.Where(c => c.IsConfirmed) ?? throw new ArgumentNullException("LinkingPart")
             : Enumerable.Empty<Contract>();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
@@ -142,7 +211,7 @@ namespace Logic.Services
             entity.AssignmentDate = new DateTime (entity.PeriodStart.Year, entity.PeriodStart.Month, 1);
             if (entity.ParentContractID != null)
             {
-                if (await DbSet.AnyAsync(c => c.ConfirmedByUserID != null && c.ParentContractID == entity.ParentContractID, token))
+                if (await DbSet.AnyAsync(c => c.IsConfirmed && c.ParentContractID == entity.ParentContractID, token))
                 {
                     throw new ArgumentException($"Contract with ID = {entity.ParentContractID} already has a confirmed child");
                 }
@@ -155,6 +224,7 @@ namespace Logic.Services
                 }
 
                 entity.LinkingPartID = parentContract.LinkingPartID;
+                DbSet.RemoveRange(DbSet.Where(c => c.ID != entity.ID && c.ParentContractID == entity.ParentContractID));
             }
             else
             {
@@ -174,7 +244,6 @@ namespace Logic.Services
                 }
 
                 linkingPart.MonthReports = reports;
-                DbSet.RemoveRange(DbSet.Where(c => c.ID != entity.ID && c.ParentContractID == entity.ParentContractID));
                 await _contractLinkingPartService.AddAsync(linkingPart, false, token);
             }
         }
@@ -201,7 +270,7 @@ namespace Logic.Services
             IEnumerable<ValidationResult> results;
             if (valueToAply.ParentContractID != null)
             {
-                if (await DbSet.AnyAsync(c => c.ConfirmedByUserID != null && c.ParentContractID == valueToAply.ParentContractID, token))
+                if (await DbSet.AnyAsync(c => c.IsConfirmed && c.ParentContractID == valueToAply.ParentContractID, token))
                 {
                     throw new ArgumentException($"Contract with ID = {valueToAply.ParentContractID} already has a confirmed child");
                 }
@@ -512,5 +581,7 @@ namespace Logic.Services
 
             return await _contractLinkingPartService.GetFullData(contract.LinkingPartID ?? throw new Exception("contract.LinkingPartID is null"));
         }
+
+        public async Task UnBlockReport(int linkingPartID, int month, int year, int userID) => await _contractLinkingPartService.UnBlockReport(linkingPartID, month, year, userID);
     }
 }

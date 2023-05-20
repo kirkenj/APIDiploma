@@ -1,8 +1,10 @@
 ﻿using Database.Entities;
 using Database.Interfaces;
+using Irony.Parsing;
 using Logic.Exceptions;
 using Logic.Interfaces;
-using Logic.Interfaces.Common;
+using Logic.Models.ContractLinkingPart;
+using Logic.Models.Contracts;
 using Logic.Models.MonthReports;
 using Microsoft.EntityFrameworkCore;
 
@@ -101,15 +103,16 @@ namespace Logic.Services
                 throw new NoAccessException();
             }
 
-            var report = await _monthReportService.DBSet.FirstOrDefaultAsync(r => r.Month == month && r.Year == year && r.LinkingPartID == linkingPartID) ?? throw new ObjectNotFoundException("r.Month == month && r.Year == year && r.LinkingPartID == linkingPartID");
-            report.BlockedByUserID = userID;
-            await SaveChangesAsync(token);
+            var report = await _monthReportService.FirstOrDefaultAsync(r => r.Month == month && r.Year == year && r.LinkingPartID == linkingPartID) ?? throw new ObjectNotFoundException("r.Month == month && r.Year == year && r.LinkingPartID == linkingPartID");
+            report.BlockedByUser = user;
+            report.BlockedByUserID = user.ID;
+            await _monthReportService.UpdateAsync(report);
         }
 
         public async Task<IEnumerable<RelatedContractsWithReportsObject>> GetReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd)
         {
-            var reports = await _monthReportService.DBSet.Include(m => m.LinkingPart).ThenInclude(l=>l.Assignments).Where(m => (m.Year >= periodStart.Year && m.Month >= periodStart.Month) || (m.Year <= periodEnd.Year && m.Month <= periodEnd.Month)).ToListAsync();
-            return reports.GroupBy(r => r.LinkingPart)
+            return (await _monthReportService.GetReportsOnPeriodAsync(periodStart, periodEnd))
+            .GroupBy(r => r.LinkingPart)
                 .Select(m => new RelatedContractsWithReportsObject 
                 { 
                     Contracts = m.Key.Assignments.Where(a => a.IsConfirmed && a.AssignmentDate <= periodEnd).ToList(), 
@@ -221,6 +224,19 @@ namespace Logic.Services
                 Contracts = part.Assignments,
                 Reports = part.MonthReports,
             };
+        }
+
+        public async Task UnBlockReport(int linkingPartID, int month, int year, int userID, CancellationToken token = default)
+        {
+            var user = await _accountService.FirstOrDefaultAsync(u => u.ID == userID, token) ?? throw new ObjectNotFoundException($"User wasn't found by ID = {userID}");
+            if (!_accountService.IsAdmin(user))
+            {
+                throw new NoAccessException();
+            }
+
+            var report = await _monthReportService.FirstOrDefaultAsync(r => r.Month == month && r.Year == year && r.LinkingPartID == linkingPartID, token) ?? throw new ObjectNotFoundException("r.Month == month && r.Year == year && r.LinkingPartID == linkingPartID");
+            report.BlockedByUserID = null; 
+            await _monthReportService.UpdateAsync(report);
         }
     }
 }

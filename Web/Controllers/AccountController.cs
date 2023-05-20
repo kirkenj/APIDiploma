@@ -7,6 +7,8 @@ using Web.RequestModels.Account;
 using Database.Entities;
 using System.ComponentModel.DataAnnotations;
 using Logic.Services;
+using Logic.Models.User;
+using Logic.Models.Role;
 
 namespace Web.Controllers
 {
@@ -28,9 +30,9 @@ namespace Web.Controllers
 
         [HttpGet(nameof(GetAll))]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] UserSelectObject? selectObject, int? page = default, int? pageSize = default)
         {
-            return Ok( _mapper.Map<List<UserViewModel>>(await _accountService.GetUsersAsync()));
+            return Ok( _mapper.Map<List<UserViewModel>>(await _accountService.GetListViaSelectionObjectAsync(selectObject, page, pageSize)));
         }
 
         [HttpGet]
@@ -74,9 +76,9 @@ namespace Web.Controllers
 
         [Authorize]
         [HttpGet(nameof(GetRoles))]
-        public IActionResult GetRoles()
+        public async Task<IActionResult> GetRoles(RoleSelectObject? selectObject)
         {
-            return Ok(_roleService.GetRange(u => u.ID >= 0).ToList());
+            return Ok(await _roleService.GetListViaSelectionObjectAsync(selectObject));
         }
 
         #region DegreeAssignment

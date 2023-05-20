@@ -2,6 +2,7 @@
 using Database.Entities;
 using Database.Interfaces;
 using Logic.Interfaces;
+using Logic.Models.Role;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Services
@@ -60,6 +61,26 @@ namespace Logic.Services
             var roleToUpdate = await DbSet.FirstOrDefaultAsync(r => r.ID == valuesToAply.ID, token) ?? throw new DirectoryNotFoundException($"Role with ID = {valuesToAply.ID} not found");
             roleToUpdate.Name = valuesToAply.Name;
             await SaveChangesAsync(token);
+        }
+
+        public IQueryable<Role> GetViaSelectionObject(RoleSelectObject? selectionObject, IQueryable<Role> entities)
+        {
+            if (selectionObject == null)
+            {
+                return entities;
+            }
+
+            if (selectionObject.IDs != null)
+            {
+                entities = entities.Where(c => selectionObject.IDs.Contains(c.ID));
+            }
+
+            if (selectionObject.Name != null)
+            {
+                entities = entities.Where(c => c.Name.Contains(selectionObject.Name));
+            }
+
+            return entities;
         }
     }
 }

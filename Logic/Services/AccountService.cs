@@ -2,6 +2,7 @@
 using Database.Interfaces;
 using Logic.Exceptions;
 using Logic.Interfaces;
+using Logic.Models.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Services;
@@ -46,11 +47,6 @@ public class AccountService : IAccountService
         DbSet.Add(userToSave);
         if (SaveChanges)
             await SaveChangesAsync.Invoke(CancellationToken.None);
-    }
-
-    public async Task<IEnumerable<User>> GetUsersAsync()
-    {
-        return await DbSet.Include(u => u.Role).ToListAsync();
     }
 
     public bool IsAdmin(User user) => _roleService.IsAdminRoleID(user.RoleId);
@@ -117,5 +113,45 @@ public class AccountService : IAccountService
     public async Task<UserAcademicDegreeAssignament?> GetAssignmentOnDate(DateTime date, int objectIDToFindPerVal, CancellationToken token = default)
     {
         return await AssignmentsDBSet.OrderByDescending(a => a.AssignmentDate).FirstOrDefaultAsync(a => a.AssignmentDate <= date && a.ObjectIdentifier.Equals(objectIDToFindPerVal), token);
+    }
+
+    public IQueryable<User> GetViaSelectionObject(UserSelectObject? selectionObject, IQueryable<User> entities)
+    {
+        if (selectionObject == null)
+        {
+            return entities;
+        }
+
+        if (selectionObject.IDs != null)
+        {
+            entities = entities.Where(c => selectionObject.IDs.Contains(c.ID));
+        }
+
+        if (selectionObject.Name != null)
+        {
+            entities = entities.Where(c => c.Name.Contains(selectionObject.Name));
+        }
+
+        if (selectionObject.Surname != null)
+        {
+            entities = entities.Where(c => c.Surname.Contains(selectionObject.Surname));
+        }
+
+        if (selectionObject.Patronymic != null)
+        {
+            entities = entities.Where(c => c.Patronymic.Contains(selectionObject.Patronymic));
+        }
+
+        if (selectionObject.Login != null)
+        {
+            entities = entities.Where(c => c.Login.Contains(selectionObject.Login));
+        }
+
+        if (selectionObject.RoleIds != null)
+        {
+            entities = entities.Where(c => selectionObject.RoleIds.Contains(c.RoleId));
+        }
+
+        return entities;
     }
 }

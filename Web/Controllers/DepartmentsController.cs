@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Database.Entities;
 using Logic.Interfaces;
+using Logic.Models.Department;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -24,9 +25,9 @@ namespace Diploma.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] DepartmentSelectObject? selectObject, int? page = default, int? pageSize = default)
         {
-            return Ok(_mapper.Map<List<DepartmentViewModel>>(await _departmentService.GetAllAsync()));
+            return Ok(_mapper.Map<List<DepartmentViewModel>>(await _departmentService.GetListViaSelectionObjectAsync(selectObject, page, pageSize)));
         }
 
         [HttpPost]

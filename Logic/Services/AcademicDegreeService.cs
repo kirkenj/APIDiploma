@@ -2,6 +2,7 @@
 using Database.Interfaces;
 using Logic.Exceptions;
 using Logic.Interfaces;
+using Logic.Models.AcademicDegree;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.Intrinsics.Arm;
 
@@ -48,6 +49,26 @@ namespace Logic.Services
 
             valueToModify.Name = valueToAply.Name;
             await SaveChangesAsync(token);
+        }
+
+        public IQueryable<AcademicDegree> GetViaSelectionObject(AcademicDegreeSelectObject? selectionObject, IQueryable<AcademicDegree> entities)
+        {
+            if (selectionObject == null)
+            {
+                return entities;
+            }
+
+            if (selectionObject.IDs != null)
+            {
+                entities = entities.Where(c => selectionObject.IDs.Contains(c.ID));
+            }
+
+            if (selectionObject.Name != null)
+            {
+                entities = entities.Where(c => c.Name.Contains(selectionObject.Name));
+            }
+
+            return entities;
         }
     }
 }

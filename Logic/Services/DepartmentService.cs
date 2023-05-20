@@ -1,9 +1,9 @@
 ﻿using Database;
 using Database.Entities;
 using Database.Interfaces;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using Logic.Exceptions;
 using Logic.Interfaces;
+using Logic.Models.Department;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Services
@@ -30,6 +30,26 @@ namespace Logic.Services
             DbSet.Add(department);
             if (SaveChanges)
                 await SaveChangesAsync(token);
+        }
+
+        public IQueryable<Department> GetViaSelectionObject(DepartmentSelectObject? selectionObject, IQueryable<Department> entities)
+        {
+            if (selectionObject == null)
+            {
+                return entities;
+            }
+
+            if (selectionObject.IDs != null)
+            {
+                entities = entities.Where(c => selectionObject.IDs.Contains(c.ID));
+            }
+
+            if (selectionObject.Name != null)
+            {
+                entities = entities.Where(c => c.Name.Contains(selectionObject.Name));
+            }
+
+            return entities;
         }
 
         public async Task UpdateAsync(Department valueToAply, CancellationToken token = default)

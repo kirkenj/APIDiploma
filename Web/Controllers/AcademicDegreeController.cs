@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Database.Entities;
 using Logic.Interfaces;
+using Logic.Models.AcademicDegree;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Web.Models.AcademicDegrees;
 
 namespace Diploma.Controllers
@@ -12,20 +14,19 @@ namespace Diploma.Controllers
     {
         private readonly IAcademicDegreeService _academicDegreeService;
         private readonly IMapper _mapper;
-        private readonly string assignationsName;
 
         public AcademicDegreeController(IAcademicDegreeService departmentService, IMapper mapper)
         {
-            assignationsName = typeof(AcademicDegreePriceAssignation).Name;
             _academicDegreeService = departmentService;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] AcademicDegreeSelectObject? selectObject, int? page = default, int? pageSize = default)
         {
-            return Ok(_mapper.Map<List<AcademicDegreeViewModel>>(await _academicDegreeService.GetAllAsync()));
+            return Ok(_mapper.Map<List<AcademicDegreeViewModel>>(await _academicDegreeService.GetListViaSelectionObjectAsync(selectObject, page, pageSize)));
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -64,7 +65,7 @@ namespace Diploma.Controllers
         }
 
 
-        #region PriceAssignations
+        #region PriceAssignments
         [HttpGet("PriceAssignments")]
         //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> GetPriceAssignations()
