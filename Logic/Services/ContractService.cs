@@ -192,13 +192,15 @@ namespace Logic.Services
 
         public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeOnDateAsync(int contractID, DateTime date, IEnumerable<(int year, int month)> exceptValuesWithKeys)
         {
-            var contract = await DbSet.FirstOrDefaultAsync(c => c.ID == contractID) ?? throw new ObjectNotFoundException($"Object with ID = {contractID} not found");
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            var contract = await DbSet.Include(c => c.LinkingPart).ThenInclude(l => l.MonthReports).FirstOrDefaultAsync(c => c.ID == contractID) ?? throw new ObjectNotFoundException($"Object with ID = {contractID} not found");
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (!contract.IsConfirmed)
             {
                 throw new ArgumentException("This contract is not confirmed");
             }
 
-            return await _contractLinkingPartService.GetUntakenTimeAsync(contract.LinkingPartID ?? throw new ArgumentNullException(nameof(contract.LinkingPartID)), date, exceptValuesWithKeys);
+            return _contractLinkingPartService.GetUntakenTime(contract.LinkingPart ?? throw new ArgumentNullException(nameof(contract.LinkingPartID)), date, exceptValuesWithKeys);
         }
 
         public async Task OnObjectAboutToBeConfirmedAsync(Contract entity, CancellationToken token = default)

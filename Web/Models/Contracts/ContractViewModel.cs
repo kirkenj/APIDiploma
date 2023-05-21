@@ -16,7 +16,7 @@ namespace Web.RequestModels.Contracts
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
         public string ContractIdentifier { get; set; } = null!;
         public int ContractTypeID { get; set; }
-        public double LectionsMaxTime { get; set; } = 0;
+        public double LectionsTime { get; set; } = 0;
         public double PracticalClassesTime { get; set; } = 0;
         public double LaboratoryClassesTime { get; set; } = 0;
         public double ConsultationsTime { get; set; } = 0;
@@ -46,7 +46,7 @@ namespace Web.RequestModels.Contracts
             + InternshipsTime
             + TestsAndReferatsTime
             + InterviewsTime
-            + LectionsMaxTime
+            + LectionsTime
             + PracticalClassesTime
             + LaboratoryClassesTime
             + ConsultationsTime
