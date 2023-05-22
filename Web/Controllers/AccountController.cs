@@ -10,6 +10,7 @@ using Logic.Services;
 using Logic.Models.User;
 using Logic.Models.Role;
 using Web.Models.Account;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Web.Controllers
 {
@@ -59,7 +60,7 @@ namespace Web.Controllers
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != editModel.Login)
             {
-                return BadRequest();
+                return BadRequest(IncludeModels.BadRequestTextFactory.GetNoRightsExceptionText());
             }
 
             var updateData = _mapper.Map<User>(editModel);
@@ -75,7 +76,7 @@ namespace Web.Controllers
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != userLoginToUpdatePassword )
             {
-                return BadRequest();
+                return BadRequest(IncludeModels.BadRequestTextFactory.GetNoRightsExceptionText());
             }
 
             await _accountService.UpdatePasswordAsync(userLoginToUpdatePassword, newPassword);
@@ -90,49 +91,63 @@ namespace Web.Controllers
         }
 
         #region DegreeAssignment
-        [HttpGet("DegreeAssignment")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
+        [HttpGet("DegreeAssignments")]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> GetDegreeAssignment()
         {
             return Ok(await _accountService.GetAllAssignmentsAsync());
         }
 
-        [HttpGet("{id}/DegreeAssignment")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
-        public async Task<IActionResult> GetDegreeAssignment(int id)
+        [HttpGet("{userId}/DegreeAssignments")]
+        public async Task<IActionResult> GetDegreeAssignments(int userId)
         {
-            return Ok(await _accountService.GetAssignmentsForObject(id));
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserId = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            if (!isAdmin && currentUserId != userId)
+            {
+                return BadRequest(IncludeModels.BadRequestTextFactory.GetNoRightsExceptionText());
+            }
+
+
+            return Ok(await _accountService.GetAssignmentsForObject(userId));
         }
 
-        [HttpGet("{id}/DegreeAssignment/{date}")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
-        public async Task<IActionResult> GetDegreeAssignment(int id, DateTime date)
+        [HttpGet("{userId}/DegreeAssignments/{date}")]
+        public async Task<IActionResult> GetDegreeAssignment(int userId, DateTime date)
         {
-            var ret = await _accountService.GetAssignmentOnDate(date, id);
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserId = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            if (!isAdmin && currentUserId != userId)
+            {
+                return BadRequest(IncludeModels.BadRequestTextFactory.GetNoRightsExceptionText());
+            }
+
+            var ret = await _accountService.GetAssignmentOnDate(date, userId);
             return ret is null ? BadRequest("No data found") : Ok(ret);
         }
 
-        [HttpPut("{id}/DegreeAssignment")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
-        public async Task<IActionResult> PutDegreeAssignment(int id, DateTime assignationActiveDate, int newValue, DateTime? newAssignationDate)
+        [HttpPut("{userId}/DegreeAssignments")]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> PutDegreeAssignment(int userId, DateTime assignationActiveDate, int newValue, DateTime? newAssignationDate)
         {
-            await _accountService.EditAssignmentAsync(id, assignationActiveDate, newValue, newAssignationDate, CancellationToken.None);
+            await _accountService.EditAssignmentAsync(userId, assignationActiveDate, newValue, newAssignationDate, CancellationToken.None);
             return Ok();
         }
 
-        [HttpPost("{id}/DegreeAssignment")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
-        public async Task<IActionResult> PostDegreeAssignment(int id, DateTime assignationActiveDate, int Value, CancellationToken token = default)
+        [HttpPost("{userId}/DegreeAssignments")]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> PostDegreeAssignment(int userId, DateTime assignationActiveDate, int Value, CancellationToken token = default)
         {
-            var newAssignation = new UserAcademicDegreeAssignament { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = id };
+            var newAssignation = new UserAcademicDegreeAssignament { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = userId };
             await _accountService.AddAssignmentAsync(newAssignation, token);
             return Ok();
         }
 
-        [HttpDelete("{id}/DegreeAssignment")]
-        public async Task<IActionResult> DeletePriceAssignment(int id, DateTime assignationActiveDate, CancellationToken token = default)
+        [HttpDelete("{userId}/DegreeAssignments")]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> DeletePriceAssignment(int userId, DateTime assignationActiveDate, CancellationToken token = default)
         {
-            await _accountService.RemoveAssignmentAsync(id, assignationActiveDate, token);
+            await _accountService.RemoveAssignmentAsync(userId, assignationActiveDate, token);
             return Ok();
         }
         #endregion

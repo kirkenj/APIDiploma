@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Vml.Spreadsheet;
+using System.Globalization;
 using System.Security.Claims;
 namespace Web.Constants;
 
@@ -25,6 +26,12 @@ public static class IncludeModels
         public const string OnlySuperAdminPolicyName = "OnlySuperAdmin";
         public static readonly string[] OnlySuperAdmnAllowedRoles = new[] { "SuperAdmin" };
         public static (string PolicyName, string[] RoleNames) OnlySuperAdminPolicy => (OnlySuperAdminPolicyName, OnlySuperAdmnAllowedRoles);
+    }
+
+    public static class BadRequestTextFactory
+    {
+        public static string GetNoRightsExceptionText() => "You have no rights to do it";
+        public static string GetObjectNotFoundExceptionText(string key) => $"Object not found with key {key}";
     }
 }
 

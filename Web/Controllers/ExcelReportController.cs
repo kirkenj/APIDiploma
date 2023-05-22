@@ -1,11 +1,14 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Constants;
 
 namespace Web.Controllers
 {
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
     public class ExcelReportController : ControllerBase
     {
         [HttpGet(nameof(GetMonthReportsReportAsExcel))]

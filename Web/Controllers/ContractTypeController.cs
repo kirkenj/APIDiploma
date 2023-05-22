@@ -3,7 +3,9 @@ using Database.Entities;
 using Logic.Interfaces;
 using Logic.Models.ContractType;
 using Logic.Models.Department;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Constants;
 using Web.Models.AcademicDegrees;
 using Web.Models.ContractType;
 
@@ -35,7 +37,7 @@ namespace Diploma.Controllers
         }
 
         [HttpPost]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> Post([FromBody] string newName)
         {
             await _academicDegreeService.AddAsync(new ContractType { Name = newName });
@@ -43,7 +45,7 @@ namespace Diploma.Controllers
         }
 
         [HttpPut]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> Put(ContractTypeViewModel academicDegree)
         {
             await _academicDegreeService.UpdateAsync(_mapper.Map<ContractType>(academicDegree), CancellationToken.None);
@@ -51,7 +53,7 @@ namespace Diploma.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
+        [Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> Delete(int id)
         {
             var valueToRemove = await _academicDegreeService.FirstOrDefaultAsync(d => d.ID == id);
@@ -67,21 +69,18 @@ namespace Diploma.Controllers
 
         #region PriceAssignations
         [HttpGet("PriceAssignments")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> GetPriceAssignations()
         {
             return Ok(await _academicDegreeService.GetAllAssignmentsAsync());
         }
 
         [HttpGet("{id}/PriceAssignments")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> GetPriceAssignments(int id)
         {
             return Ok(await _academicDegreeService.GetAssignmentsForObject(id));
         }
 
         [HttpGet("{id}/PriceAssignment/{date}")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> GetPriceAssignment(int id, DateTime date)
         {
             var ret = await _academicDegreeService.GetAssignmentOnDate(date, id);
@@ -89,7 +88,7 @@ namespace Diploma.Controllers
         }
 
         [HttpPut("{id}/PriceAssignment")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> PutPriceAssignment(int id, DateTime assignationActiveDate, double newValue, DateTime? newAssignationDate )
         {
             await _academicDegreeService.EditAssignmentAsync(id, assignationActiveDate, newValue, newAssignationDate, CancellationToken.None);
@@ -97,7 +96,7 @@ namespace Diploma.Controllers
         }
 
         [HttpPost("{id}/PriceAssignment")]
-        //[Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> PostPriceAssignment(int id, DateTime assignationActiveDate, double Value, CancellationToken token = default)
         {
             var newAssignation = new ContractTypePriceAssignment { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = id };
@@ -106,6 +105,7 @@ namespace Diploma.Controllers
         }
 
         [HttpDelete("{id}/PriceAssignment")]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> DeletePriceAssignment(int id, DateTime assignationActiveDate, CancellationToken token = default)
         {
             await _academicDegreeService.RemoveAssignmentAsync(id, assignationActiveDate, token);

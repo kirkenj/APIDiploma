@@ -50,7 +50,7 @@ namespace Web.Controllers
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
             {
-                return BadRequest();
+                return BadRequest("You have no rights to do it");
             }
 
             var contractToReturn = await _contractService.GetFullData(contractID);
@@ -80,6 +80,20 @@ namespace Web.Controllers
         [HttpPut]
         public async Task<ActionResult> Put(ContractEditModel editModel)
         {
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            editModel.UserId = currentUserID;
+            var contractToEdit = await _contractService.FirstOrDefaultAsync(c => c.ID == editModel.ContractID);
+            if (contractToEdit == null) 
+            {
+                return BadRequest($"Contract with ID = {editModel.ContractID} not found");
+            }
+
+            if (!isAdmin && currentUserID != contractToEdit.UserID)
+            {
+                return BadRequest("You have no rights to do it");
+            }
+
             var newContract = _mapper.Map<Contract>(editModel);
             if (!_roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
             {
@@ -93,10 +107,17 @@ namespace Web.Controllers
         [HttpDelete("{contractID}")]
         public async Task<IActionResult> Delete(int contractID)
         {
-            var valueToRemove = await _contractService.FirstOrDefaultAsync(c => c.ID ==  contractID);
-            if (valueToRemove is null)
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            var valueToRemove = await _contractService.FirstOrDefaultAsync(c => c.ID == contractID);
+            if (valueToRemove == null)
             {
-                return BadRequest();
+                return BadRequest($"Contract with ID = {contractID} not found");
+            }
+
+            if (!isAdmin && currentUserID != valueToRemove.UserID)
+            {
+                return BadRequest("You have no rights to do it");
             }
 
             await _contractService.DeleteAsync(valueToRemove);
@@ -118,7 +139,7 @@ namespace Web.Controllers
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
             {
-                return BadRequest();
+                return BadRequest("Contract not found or you do not have rights to do it");
             }
 
             var ret = _mapper.Map<IEnumerable<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID));
@@ -137,7 +158,7 @@ namespace Web.Controllers
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
             if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
             {
-                return BadRequest();
+                return BadRequest("You do not have rights to do it");
             }
             
             return Ok(await _contractService.GetUntakenTimeOnDateAsync(contractID, date, Enumerable.Empty<(int,int)>()));

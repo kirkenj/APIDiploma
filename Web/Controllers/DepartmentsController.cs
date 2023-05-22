@@ -53,7 +53,7 @@ namespace Diploma.Controllers
             var valueToRemove = await _departmentService.FirstOrDefaultAsync(d => d.ID ==  id);
             if (valueToRemove == null)
             {
-                return BadRequest();
+                return BadRequest(IncludeModels.BadRequestTextFactory.GetObjectNotFoundExceptionText($"Id = {id}"));
             }
 
             await _departmentService.DeleteAsync(valueToRemove);
