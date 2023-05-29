@@ -10,6 +10,7 @@ namespace Database.Entities
         public string Name { get; set; } = null!;
         public string Surname { get; set; } = null!;
         public string Patronymic { get; set; } = null!;
+        public string NSP { get; private set; } = null!;
         public IEnumerable<Contract> Contracts { get; set; } = null!;
         public int RoleId { get; set; } = 2;
         public Role Role { get; set; } = null!;

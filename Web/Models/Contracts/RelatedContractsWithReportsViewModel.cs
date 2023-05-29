@@ -1,6 +1,6 @@
-﻿using Web.RequestModels.Contracts;
+﻿using WebFront.RequestModels.Contracts;
 
-namespace Web.Models.Contracts
+namespace WebFront.Models.Contracts
 {
     public class RelatedContractsWithReportsViewModel
     {

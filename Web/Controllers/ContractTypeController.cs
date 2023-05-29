@@ -5,9 +5,9 @@ using Logic.Models.ContractType;
 using Logic.Models.Department;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Constants;
-using Web.Models.AcademicDegrees;
-using Web.Models.ContractType;
+using WebFront.Constants;
+using WebFront.Models.AcademicDegrees;
+using WebFront.Models.ContractType;
 
 namespace Diploma.Controllers
 {
@@ -67,7 +67,7 @@ namespace Diploma.Controllers
         }
 
 
-        #region PriceAssignations
+        #region PriceAssignments
         [HttpGet("PriceAssignments")]
         public async Task<IActionResult> GetPriceAssignations()
         {

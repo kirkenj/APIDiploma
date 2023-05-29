@@ -1,4 +1,4 @@
-﻿namespace Web.Models.AcademicDegrees
+﻿namespace WebFront.Models.AcademicDegrees
 {
     public class AcademicDegreeViewModel
     {

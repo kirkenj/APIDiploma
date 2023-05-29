@@ -67,6 +67,7 @@ public class AccountService : IAccountService
         if (valuesToAply.RoleId != -1)
         {
             var role = await _roleService.GetRoleAsync(valuesToAply.RoleId) ?? throw new ObjectNotFoundException($"Role with ID = {valuesToAply.RoleId} not found");
+            userToUpdate.RoleId = role.ID;
         }
 
         await SaveChangesAsync.Invoke(CancellationToken.None);
@@ -127,19 +128,9 @@ public class AccountService : IAccountService
             entities = entities.Where(c => selectionObject.IDs.Contains(c.ID));
         }
 
-        if (selectionObject.Name != null)
+        if (selectionObject.NSP != null)
         {
-            entities = entities.Where(c => c.Name.Contains(selectionObject.Name));
-        }
-
-        if (selectionObject.Surname != null)
-        {
-            entities = entities.Where(c => c.Surname.Contains(selectionObject.Surname));
-        }
-
-        if (selectionObject.Patronymic != null)
-        {
-            entities = entities.Where(c => c.Patronymic.Contains(selectionObject.Patronymic));
+            entities = entities.Where(c => c.NSP.Contains(selectionObject.NSP));
         }
 
         if (selectionObject.Login != null)

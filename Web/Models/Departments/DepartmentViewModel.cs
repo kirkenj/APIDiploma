@@ -1,4 +1,4 @@
-﻿namespace Web.Models.Departments
+﻿namespace WebFront.Models.Departments
 {
     public class DepartmentViewModel
     {

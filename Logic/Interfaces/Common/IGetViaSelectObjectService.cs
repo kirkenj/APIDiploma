@@ -17,7 +17,9 @@ namespace Logic.Interfaces.Common
         {
             if (page.HasValue && pageSize.HasValue)
             {
-                query = query.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
+                var pageVal = page.Value <= 0 ? 1 : page.Value;
+                var pageSizeVal = pageSize.Value <= 0 ? 1 : pageSize.Value;
+                query = query.Skip((pageVal - 1) * pageSizeVal).Take(pageSizeVal);
             }
 
             return query;

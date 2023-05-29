@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Web.RequestModels.Account
+namespace WebFront.RequestModels.Account
 {
     public class UserEditModel
     {

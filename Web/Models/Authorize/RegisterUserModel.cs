@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace Web.RequestModels.Authorize
+namespace WebFront.RequestModels.Authorize
 {
     public class RegisterUserModel
     {

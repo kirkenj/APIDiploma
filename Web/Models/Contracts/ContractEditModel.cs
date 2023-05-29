@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Threading;
 
-namespace Web.RequestModels.Contracts
+namespace WebFront.RequestModels.Contracts
 {
     public class ContractEditModel : IValidatableObject
     {

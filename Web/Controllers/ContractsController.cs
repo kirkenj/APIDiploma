@@ -2,16 +2,16 @@
 using Database.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.RequestModels.Contracts;
+using WebFront.RequestModels.Contracts;
 using AutoMapper;
-using Web.Constants;
+using WebFront.Constants;
 using Logic.Exceptions;
-using Web.Models.Contracts;
+using WebFront.Models.Contracts;
 using Logic.Models.Contracts;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace Web.Controllers
+namespace WebFront.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

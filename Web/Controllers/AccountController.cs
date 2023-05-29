@@ -2,17 +2,17 @@
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Constants;
-using Web.RequestModels.Account;
+using WebFront.Constants;
+using WebFront.RequestModels.Account;
 using Database.Entities;
 using System.ComponentModel.DataAnnotations;
 using Logic.Services;
 using Logic.Models.User;
 using Logic.Models.Role;
-using Web.Models.Account;
+using WebFront.Models.Account;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-namespace Web.Controllers
+namespace WebFront.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

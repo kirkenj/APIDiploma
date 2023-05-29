@@ -1,4 +1,4 @@
-﻿using Data.Constants;
+﻿using Database.Constants;
 using Database.Entities;
 using Database.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -15,13 +15,12 @@ namespace Database
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
-            Database.EnsureCreated();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
-            //optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            //optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,7 +47,7 @@ namespace Database
                 entity.HasKey(e => new { e.AssignmentDate, e.ObjectIdentifier });
             });
 
-            modelBuilder.Entity<AcademicDegreePriceAssignation>(entity =>
+            modelBuilder.Entity<AcademicDegreePriceAssignment>(entity =>
             {
                 entity.Property(x => x.ObjectIdentifier).HasColumnName("ObjectIdentifier");
                 entity.Property(e => e.Value).HasColumnName("Value");
@@ -106,6 +105,7 @@ namespace Database
                 entity.Property(e => e.Patronymic).HasColumnName("Patronymic").HasMaxLength(50);
                 entity.Property(e => e.PasswordHash).HasColumnName("PasswordHash").HasColumnType("NVARCHAR").HasMaxLength(200).IsRequired();
                 entity.Property(e => e.Login).HasColumnName("Login").IsRequired().HasMaxLength(50);
+                entity.Property(e => e.NSP).HasComputedColumnSql(@"TRIM(concat(u.Name, ' ', u.Surname, ' ', u.Patronymic))", stored:false);
                 entity.HasOne(e => e.Role)
                 .WithMany(r => r.Users)
                 .HasForeignKey(e => e.RoleId)
@@ -222,8 +222,8 @@ namespace Database
             modelBuilder.Entity<AcademicDegree>().HasData(new AcademicDegree { ID = 1, Name = "Doctor" });
             modelBuilder.Entity<AcademicDegree>().HasData(new AcademicDegree { ID = 2, Name = "Professor" });
 
-            modelBuilder.Entity<AcademicDegreePriceAssignation>().HasData(new AcademicDegreePriceAssignation { ObjectIdentifier = 1, AssignmentDate = new DateTime(2023, 5, 1), Value = 12 });
-            modelBuilder.Entity<AcademicDegreePriceAssignation>().HasData(new AcademicDegreePriceAssignation { ObjectIdentifier = 2, AssignmentDate = new DateTime(2023, 5, 1), Value = 10 });
+            modelBuilder.Entity<AcademicDegreePriceAssignment>().HasData(new AcademicDegreePriceAssignment { ObjectIdentifier = 1, AssignmentDate = new DateTime(2023, 5, 1), Value = 12 });
+            modelBuilder.Entity<AcademicDegreePriceAssignment>().HasData(new AcademicDegreePriceAssignment { ObjectIdentifier = 2, AssignmentDate = new DateTime(2023, 5, 1), Value = 10 });
 
             modelBuilder.Entity<ContractType>().HasData(new ContractType { ID = 1, Name = "Ordinary" });
             modelBuilder.Entity<ContractType>().HasData(new ContractType { ID = 2, Name = "Advanced" });
@@ -232,6 +232,8 @@ namespace Database
             modelBuilder.Entity<ContractTypePriceAssignment>().HasData(new ContractTypePriceAssignment { ObjectIdentifier = 2, AssignmentDate = new DateTime(2023, 5, 1), Value = 10 });
 
             modelBuilder.Entity<User>().HasData(new User() { ID = 1, Name = "admin", Surname = "admin", Patronymic = "admin", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, Login = "admin" });
+            modelBuilder.Entity<User>().HasData(new User() { ID = 2, Name = "name1", Surname = "name1", Patronymic = "name1", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, Login = "name1" });
+            modelBuilder.Entity<User>().HasData(new User() { ID = 3, Name = "name2", Surname = "name2", Patronymic = "name2", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, Login = "name2" });
         
             modelBuilder.Entity<UserAcademicDegreeAssignament>().HasData(new UserAcademicDegreeAssignament { ObjectIdentifier = 1, AssignmentDate = new DateTime(2023, 5, 1), Value = 1 });
             

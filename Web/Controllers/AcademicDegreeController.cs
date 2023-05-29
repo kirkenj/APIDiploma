@@ -4,8 +4,8 @@ using Logic.Interfaces;
 using Logic.Models.AcademicDegree;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Constants;
-using Web.Models.AcademicDegrees;
+using WebFront.Constants;
+using WebFront.Models.AcademicDegrees;
 
 namespace Diploma.Controllers
 {
@@ -98,7 +98,7 @@ namespace Diploma.Controllers
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> PostPriceAssignment(int id, DateTime assignationActiveDate, double Value, CancellationToken token = default)
         {
-            var newAssignation = new AcademicDegreePriceAssignation { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = id };
+            var newAssignation = new AcademicDegreePriceAssignment { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = id };
             await _academicDegreeService.AddAssignmentAsync(newAssignation, token);
             return Ok();
         }

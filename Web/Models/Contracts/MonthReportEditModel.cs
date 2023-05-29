@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
-namespace Web.RequestModels.Contracts
+namespace WebFront.RequestModels.Contracts
 {
     public class MonthReportEditModel 
     {

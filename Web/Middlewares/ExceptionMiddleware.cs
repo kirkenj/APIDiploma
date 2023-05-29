@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Web.Middlewares
+namespace WebFront.Middlewares
 {
     public class ExceptionMiddleware
     {

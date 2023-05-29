@@ -1,4 +1,4 @@
-﻿namespace Web.Models.ContractType
+﻿namespace WebFront.Models.ContractType
 {
     public class ContractTypeViewModel
     {

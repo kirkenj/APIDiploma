@@ -1,7 +1,7 @@
 ﻿using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using System.Globalization;
 using System.Security.Claims;
-namespace Web.Constants;
+namespace WebFront.Constants;
 
 public static class IncludeModels
 {
@@ -11,7 +11,7 @@ public static class IncludeModels
         public static int GetUserIDClaimValue(ClaimsPrincipal User) => int.Parse(User.Claims.FirstOrDefault(u => u.Type == IDKey)?.Value?? throw new UnauthorizedAccessException());
 
         public const string RoleKey = ClaimTypes.Role;
-        public static string GetUserRoleClaimValue(ClaimsPrincipal User) =>User.Claims.FirstOrDefault(u => u.Type == RoleKey)?.Value ?? throw new UnauthorizedAccessException();
+        public static string GetUserRoleClaimValue(ClaimsPrincipal User) => User.Claims.FirstOrDefault(u => u.Type == RoleKey)?.Value ?? throw new UnauthorizedAccessException();
 
         public const string NameKey = ClaimTypes.Name;
         public static string GetUserNameClaimValue(ClaimsPrincipal User) => User.Claims.FirstOrDefault(u => u.Type == NameKey)?.Value ?? throw new UnauthorizedAccessException();

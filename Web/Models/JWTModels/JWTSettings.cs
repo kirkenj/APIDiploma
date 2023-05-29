@@ -1,4 +1,4 @@
-﻿namespace Web.Models.JWTModels
+﻿namespace WebFront.Models.JWTModels
 {
     public class JWTSettings
     {

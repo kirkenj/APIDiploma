@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
 using Database.Entities;
 using Logic.Models.MonthReports;
-using Web.Models.AcademicDegrees;
-using Web.Models.Contracts;
-using Web.Models.ContractType;
-using Web.Models.Departments;
-using Web.RequestModels.Account;
-using Web.RequestModels.Authorize;
-using Web.RequestModels.Contracts;
+using WebFront.Models.AcademicDegrees;
+using WebFront.Models.Contracts;
+using WebFront.Models.ContractType;
+using WebFront.Models.Departments;
+using WebFront.RequestModels.Account;
+using WebFront.RequestModels.Authorize;
+using WebFront.RequestModels.Contracts;
 
-namespace API.Mapping
+namespace WebFront.Mapping
 {
     public class MappingProfile : Profile
     {

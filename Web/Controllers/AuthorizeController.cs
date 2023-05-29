@@ -3,16 +3,16 @@ using Logic.Exceptions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Web.RequestModels.Authorize;
+using WebFront.RequestModels.Authorize;
 using AutoMapper;
 using Database.Entities;
 using System.IdentityModel.Tokens.Jwt;
-using Web.Models.JWTModels;
+using WebFront.Models.JWTModels;
 using Microsoft.IdentityModel.Tokens;
-using Web.Models.Authorize;
+using WebFront.Models.Authorize;
 using DocumentFormat.OpenXml.Wordprocessing;
 
-namespace Web.Controllers
+namespace WebFront.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

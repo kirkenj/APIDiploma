@@ -1,6 +1,6 @@
-﻿using Web.RequestModels.Account;
+﻿using WebFront.RequestModels.Account;
 
-namespace Web.Models.Account
+namespace WebFront.Models.Account
 {
     public class AccountFromToken
     {

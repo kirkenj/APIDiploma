@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230520014523_init")]
+    [Migration("20230528214715_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -56,7 +56,7 @@ namespace Database.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Database.Entities.AcademicDegreePriceAssignation", b =>
+            modelBuilder.Entity("Database.Entities.AcademicDegreePriceAssignment", b =>
                 {
                     b.Property<DateTime>("AssignmentDate")
                         .HasColumnType("datetime(6)")
@@ -74,7 +74,7 @@ namespace Database.Migrations
 
                     b.HasIndex("ObjectIdentifier");
 
-                    b.ToTable("AcademicDegreePriceAssignations");
+                    b.ToTable("AcademicDegreePriceAssignments");
 
                     b.HasData(
                         new
@@ -508,6 +508,12 @@ namespace Database.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("Login");
 
+                    b.Property<string>("NSP")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("longtext")
+                        .HasComputedColumnSql("TRIM(concat(u.Name, ' ', u.Surname, ' ', u.Patronymic))", false);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -555,6 +561,26 @@ namespace Database.Migrations
                             Patronymic = "admin",
                             RoleId = 1,
                             Surname = "admin"
+                        },
+                        new
+                        {
+                            ID = 2,
+                            Login = "name1",
+                            Name = "name1",
+                            PasswordHash = "!#/)zW��C�JJ��",
+                            Patronymic = "name1",
+                            RoleId = 1,
+                            Surname = "name1"
+                        },
+                        new
+                        {
+                            ID = 3,
+                            Login = "name2",
+                            Name = "name2",
+                            PasswordHash = "!#/)zW��C�JJ��",
+                            Patronymic = "name2",
+                            RoleId = 1,
+                            Surname = "name2"
                         });
                 });
 
@@ -589,7 +615,7 @@ namespace Database.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Database.Entities.AcademicDegreePriceAssignation", b =>
+            modelBuilder.Entity("Database.Entities.AcademicDegreePriceAssignment", b =>
                 {
                     b.HasOne("Database.Entities.AcademicDegree", "ObjectRef")
                         .WithMany("Assignments")

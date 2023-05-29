@@ -5,9 +5,9 @@ using Logic.Models.Department;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using Web.Constants;
-using Web.Models.Departments;
-using Web.RequestModels.Account;
+using WebFront.Constants;
+using WebFront.Models.Departments;
+using WebFront.RequestModels.Account;
 
 namespace Diploma.Controllers
 {

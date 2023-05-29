@@ -92,7 +92,7 @@ namespace Database.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "AcademicDegreePriceAssignations",
+                name: "AcademicDegreePriceAssignments",
                 columns: table => new
                 {
                     AssignationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -101,7 +101,7 @@ namespace Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AcademicDegreePriceAssignations", x => new { x.AssignationDate, x.ObjectIdentifier });
+                    table.PrimaryKey("PK_AcademicDegreePriceAssignments", x => new { x.AssignationDate, x.ObjectIdentifier });
                     table.ForeignKey(
                         name: "FK_AcademicDegree_AcademicDegreeValueAssignation",
                         column: x => x.ObjectIdentifier,
@@ -142,6 +142,8 @@ namespace Database.Migrations
                     Surname = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Patronymic = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    NSP = table.Column<string>(type: "longtext", nullable: false, computedColumnSql: "TRIM(concat(u.Name, ' ', u.Surname, ' ', u.Patronymic))", stored: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     RoleID = table.Column<int>(type: "int", nullable: false),
                     Login = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
@@ -345,7 +347,7 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "AcademicDegreePriceAssignations",
+                table: "AcademicDegreePriceAssignments",
                 columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
                 values: new object[,]
                 {
@@ -365,7 +367,12 @@ namespace Database.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "ID", "Login", "Name", "PasswordHash", "Patronymic", "RoleID", "Surname" },
-                values: new object[] { 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin" });
+                values: new object[,]
+                {
+                    { 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin" },
+                    { 2, "name1", "name1", "!#/)zW��C�JJ��", "name1", 1, "name1" },
+                    { 3, "name2", "name2", "!#/)zW��C�JJ��", "name2", 1, "name2" }
+                });
 
             migrationBuilder.InsertData(
                 table: "UserAcademicDegreeAssignaments",
@@ -373,8 +380,8 @@ namespace Database.Migrations
                 values: new object[] { new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AcademicDegreePriceAssignations_ObjectIdentifier",
-                table: "AcademicDegreePriceAssignations",
+                name: "IX_AcademicDegreePriceAssignments_ObjectIdentifier",
+                table: "AcademicDegreePriceAssignments",
                 column: "ObjectIdentifier");
 
             migrationBuilder.CreateIndex(
@@ -478,7 +485,7 @@ namespace Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AcademicDegreePriceAssignations");
+                name: "AcademicDegreePriceAssignments");
 
             migrationBuilder.DropTable(
                 name: "Contracts");

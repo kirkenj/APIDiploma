@@ -1,4 +1,4 @@
-﻿namespace Web.RequestModels.Account
+﻿namespace WebFront.RequestModels.Account
 {
     public class UserViewModel
     {

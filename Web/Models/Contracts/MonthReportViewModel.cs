@@ -1,4 +1,4 @@
-﻿namespace Web.RequestModels.Contracts
+﻿namespace WebFront.RequestModels.Contracts
 {
     public class MonthReportViewModel
     {

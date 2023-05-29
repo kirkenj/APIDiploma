@@ -4,49 +4,55 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Interfaces.Common
 {
-    public interface IPeriodicValueServiceWithEdit<TEntity, TAssignationType, TAssignationIDType, TAssignationValueType, TTypeBeingAssigned> : IPeriodicValueService<TEntity, TAssignationType, TAssignationIDType, TAssignationValueType, TTypeBeingAssigned>
-        where TEntity : class, IPeriodicValueObject<TAssignationType, TAssignationIDType, TAssignationValueType, TTypeBeingAssigned>
-        where TAssignationType : class, IPeriodicValueAssignment<TAssignationValueType, TAssignationIDType, TTypeBeingAssigned>
-        where TAssignationIDType : struct
+    public interface IPeriodicValueServiceWithEdit<TEntity, TAssignmentType, TAssignmentIDType, TAssignationValueType, TTypeBeingAssigned> : IPeriodicValueService<TEntity, TAssignmentType, TAssignmentIDType, TAssignationValueType, TTypeBeingAssigned>
+        where TEntity : class, IPeriodicValueObject<TAssignmentType, TAssignmentIDType, TAssignationValueType, TTypeBeingAssigned>
+        where TAssignmentType : class, IPeriodicValueAssignment<TAssignationValueType, TAssignmentIDType, TTypeBeingAssigned>
+        where TAssignmentIDType : struct
         where TAssignationValueType : struct
-        where TTypeBeingAssigned : IIdObject<TAssignationIDType>
+        where TTypeBeingAssigned : IIdObject<TAssignmentIDType>
     {
-        public virtual async Task AddAssignmentAsync(TAssignationType assignation, CancellationToken token = default)
+        public virtual async Task AddAssignmentAsync(TAssignmentType assignment, CancellationToken token = default)
         {
-            if (!await DbSet.AnyAsync(e => e.ID.Equals(assignation.ObjectIdentifier), token))
+            if (!await DbSet.AnyAsync(e => e.ID.Equals(assignment.ObjectIdentifier), token))
             {
-                throw new ObjectNotFoundException($"{assignation.GetType().Name} with ID = {assignation.ObjectIdentifier} not found");
+                throw new ObjectNotFoundException($"{assignment.GetType().Name} with ID = {assignment.ObjectIdentifier} not found");
             }
 
-            assignation.AssignmentDate = new DateTime(assignation.AssignmentDate.Year, assignation.AssignmentDate.Month, 1, 0, 0, 0);
-            if (await AssignmentsDBSet.AnyAsync(a => a.AssignmentDate == assignation.AssignmentDate && assignation.ObjectIdentifier.Equals(a.ObjectIdentifier), token))
+            assignment.AssignmentDate = new DateTime(assignment.AssignmentDate.Year, assignment.AssignmentDate.Month, 1, 0, 0, 0);
+            if (await AssignmentsDBSet.AnyAsync(a => a.AssignmentDate == assignment.AssignmentDate && assignment.ObjectIdentifier.Equals(a.ObjectIdentifier), token))
             {
-                throw new ArgumentException($"{assignation.GetType().Name} with key [AssignationDate = {assignation.AssignmentDate}, ObjectIdentifier = {assignation.ObjectIdentifier}] already exists");
+                throw new ArgumentException($"{assignment.GetType().Name} with key [AssignmentDate = {assignment.AssignmentDate}, ObjectIdentifier = {assignment.ObjectIdentifier}] already exists");
             }
-            await AssignmentsDBSet.AddAsync(assignation, token);
+            await AssignmentsDBSet.AddAsync(assignment, token);
             await SaveChangesAsync(token);
         }
 
-        public virtual async Task EditAssignmentAsync(TAssignationIDType id, DateTime assignationActiveDate, TAssignationValueType newValue, DateTime? newAssignationDate, CancellationToken token = default)
+        public virtual async Task EditAssignmentAsync(TAssignmentIDType id, DateTime assignmentActiveDate, TAssignationValueType newValue, DateTime? newAssignmentDate, CancellationToken token = default)
         {
-            var assignation = await GetAssignmentOnDate(assignationActiveDate, id, token) ?? throw new ObjectNotFoundException($"{typeof(TAssignationType).Name} not found with key [activeDate = {assignationActiveDate}, ObjectID = {id}]");
+            var assignation = await GetAssignmentOnDate(assignmentActiveDate, id, token) ?? throw new ObjectNotFoundException($"{typeof(TAssignmentType).Name} not found with key [activeDate = {assignmentActiveDate}, ObjectID = {id}]");
+
+            AssignmentsDBSet.Remove(assignation);
+            await SaveChangesAsync(token);
+
+
             assignation.Value = newValue;
-            if (newAssignationDate.HasValue)
+            if (newAssignmentDate.HasValue)
             {
-                assignation.AssignmentDate = new DateTime(newAssignationDate.Value.Year, newAssignationDate.Value.Month, 1, 0, 0, 0);
+                assignation.AssignmentDate = new DateTime(newAssignmentDate.Value.Year, newAssignmentDate.Value.Month, 1, 0, 0, 0);
             }
 
+            AssignmentsDBSet.Add(assignation);
             await SaveChangesAsync(token);
         }
 
-        public virtual async Task RemoveAssignmentAsync(TAssignationIDType id, DateTime assignationActiveDate, CancellationToken token = default)
+        public virtual async Task RemoveAssignmentAsync(TAssignmentIDType id, DateTime assignationActiveDate, CancellationToken token = default)
         {
-            var assignation = await GetAssignmentOnDate(assignationActiveDate, id, token) ?? throw new ObjectNotFoundException($"{typeof(TAssignationType).Name} not found with key [activeDate = {assignationActiveDate}, ObjectID = {id}]");
+            var assignation = await GetAssignmentOnDate(assignationActiveDate, id, token) ?? throw new ObjectNotFoundException($"{typeof(TAssignmentType).Name} not found with key [activeDate = {assignationActiveDate}, ObjectID = {id}]");
             AssignmentsDBSet.Remove(assignation);
             await SaveChangesAsync(token);
         }
 
-        public virtual async Task<IEnumerable<TAssignationType>> GetAllAssignmentsAsync(CancellationToken token = default)
+        public virtual async Task<IEnumerable<TAssignmentType>> GetAllAssignmentsAsync(CancellationToken token = default)
         {
             return await AssignmentsDBSet.ToListAsync(token);
         }

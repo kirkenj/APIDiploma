@@ -1,4 +1,4 @@
-﻿namespace Web.Models.Authorize
+﻿namespace WebFront.Models.Authorize
 {
     public class LoginModel
     {

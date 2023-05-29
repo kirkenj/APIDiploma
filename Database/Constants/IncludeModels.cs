@@ -1,4 +1,4 @@
-﻿namespace Data.Constants;
+﻿namespace Database.Constants;
 
 public static class IncludeModels
 {

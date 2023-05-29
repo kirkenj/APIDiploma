@@ -5,7 +5,7 @@ using Logic.Models.User;
 
 namespace Logic.Interfaces
 {
-    public interface IAcademicDegreeService : IDbAccessServise<AcademicDegree>, IPeriodicValueServiceWithEdit<AcademicDegree, AcademicDegreePriceAssignation, int, double, AcademicDegree>
+    public interface IAcademicDegreeService : IDbAccessServise<AcademicDegree>, IPeriodicValueServiceWithEdit<AcademicDegree, AcademicDegreePriceAssignment, int, double, AcademicDegree>
         , IGetViaSelectObjectService<AcademicDegree, AcademicDegreeSelectObject>
     {
     }

@@ -1,9 +1,9 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Constants;
+using WebFront.Constants;
 
-namespace Web.Controllers
+namespace WebFront.Controllers
 {
 
     [Route("api/[controller]")]
