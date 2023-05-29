@@ -1,16 +1,15 @@
-using Database.Interfaces;
 using Database;
+using Database.Interfaces;
 using Logic.Interfaces;
 using Logic.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 using WebFront.Mapping;
 using WebFront.Middlewares;
-using static WebFront.Constants.IncludeModels;
 using WebFront.Models.JWTModels;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using static WebFront.Constants.IncludeModels;
 
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";

@@ -12,7 +12,7 @@ public class HashProvider : IHashProvider
 
     public HashProvider(HashAlgorithm hashAlgorithm, Encoding encoding)
     {
-        _encoding= encoding ?? throw new ArgumentNullException(nameof(encoding));
+        _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         _hashAlgorithm = hashAlgorithm ?? throw new ArgumentNullException(nameof(hashAlgorithm));
     }
 

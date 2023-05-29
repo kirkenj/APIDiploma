@@ -1,21 +1,17 @@
 ﻿using Database.Entities;
 using Database.Interfaces;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Drawing;
+using Logic.Exceptions;
 using Logic.Interfaces;
-using Logic.Interfaces.Common;
+using Logic.Models.Contracts;
 using Logic.Models.MonthReports;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using Logic.Exceptions;
-using DocumentFormat.OpenXml.Vml.Office;
-using Logic.Models.Contracts;
 
 namespace Logic.Services
 {
     public class ContractService : IContractService
     {
-        public IAccountService _accountService {get;set;}
+        public IAccountService _accountService { get; set; }
         public DbSet<Contract> DbSet { get; set; }
         public Func<CancellationToken, Task<int>> SaveChangesAsync { get; set; }
         public IContractLinkingPartService _contractLinkingPartService { get; set; }
@@ -93,7 +89,7 @@ namespace Logic.Services
 
             return contracts;
         }
-        
+
         public IQueryable<KeyValuePair<Contract, bool>> GetContractHasChildKeyValuePair(ContractsSelectObject? selectionObject) => GetViaSelectionObject(selectionObject, DbSet)
             .Select(c => new KeyValuePair<Contract, bool>(c, c.ChildContracts.Any(q => q.IsConfirmed)));
 
@@ -166,7 +162,7 @@ namespace Logic.Services
             var contract = await DbSet
                 .Include(c => c.LinkingPart)
                 .ThenInclude(o => o.MonthReports)
-                .FirstOrDefaultAsync(c => c.ID == contractID) 
+                .FirstOrDefaultAsync(c => c.ID == contractID)
                 ?? throw new ObjectNotFoundException($"Object with ID = {contractID} not found");
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (!contract.IsConfirmed)
@@ -190,27 +186,16 @@ namespace Logic.Services
 
         public async Task<IEnumerable<RelatedContractsWithReportsObject>> GetReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd) => await _contractLinkingPartService.GetReportsOnPeriodAsync(periodStart, periodEnd);
 
-        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeOnDateAsync(int contractID, DateTime date, IEnumerable<(int year, int month)> exceptValuesWithKeys)
-        {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            var contract = await DbSet.Include(c => c.LinkingPart).ThenInclude(l => l.MonthReports).FirstOrDefaultAsync(c => c.ID == contractID) ?? throw new ObjectNotFoundException($"Object with ID = {contractID} not found");
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-            if (!contract.IsConfirmed)
-            {
-                throw new ArgumentException("This contract is not confirmed");
-            }
-
-            return _contractLinkingPartService.GetUntakenTime(contract.LinkingPart ?? throw new ArgumentNullException(nameof(contract.LinkingPartID)), date, exceptValuesWithKeys);
-        }
+        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys) => await _contractLinkingPartService.GetUntakenTimeAsync(contractID, exceptValuesWithKeys);
 
         public async Task OnObjectAboutToBeConfirmedAsync(Contract entity, CancellationToken token = default)
         {
-            if (entity == null) 
+            if (entity == null)
             {
-                throw new ArgumentNullException(nameof(entity)); 
+                throw new ArgumentNullException(nameof(entity));
             }
 
-            entity.AssignmentDate = new DateTime (entity.PeriodStart.Year, entity.PeriodStart.Month, 1);
+            entity.AssignmentDate = new DateTime(entity.PeriodStart.Year, entity.PeriodStart.Month, 1);
             if (entity.ParentContractID != null)
             {
                 if (await DbSet.AnyAsync(c => c.IsConfirmed && c.ParentContractID == entity.ParentContractID, token))
@@ -452,12 +437,7 @@ namespace Logic.Services
                 yield return new ValidationResult("ContractTypeID != ParentContract.ContractTypeID");
             }
 
-            if (child.PeriodStart.Month == parent.PeriodStart.Month && child.PeriodStart.Year == parent.PeriodStart.Year)
-            {
-                yield return new ValidationResult("Child contract has same period start month with its parent");
-            }
-
-            if (child.PeriodStart <= parent.PeriodStart || child.PeriodStart >= parent.PeriodEnd)
+            if (child.PeriodStart <= parent.PeriodStart || child.PeriodStart > parent.PeriodEnd)
             {
                 yield return new ValidationResult("child.PeriodStart <= parent.PeriodStart || child.PeriodStart >= parent.PeriodEnd");
             }

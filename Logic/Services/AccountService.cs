@@ -15,7 +15,7 @@ public class AccountService : IAccountService
     public IAccountService iAccountService => this;
 
     public DbSet<User> DbSet { get; private set; }
-    public Func<CancellationToken, Task<int>> SaveChangesAsync {get; private set;}
+    public Func<CancellationToken, Task<int>> SaveChangesAsync { get; private set; }
     public DbSet<UserAcademicDegreeAssignament> AssignmentsDBSet { get; set; }
 
     public AccountService(IAppDBContext context, IHashProvider hashProvider, IRoleService roleService, IAcademicDegreeService academicDegreeService)

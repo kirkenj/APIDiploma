@@ -5,7 +5,7 @@
         public ObjectNotFoundException(string messge)
             : base(messge)
         {
-            
+
         }
     }
 }

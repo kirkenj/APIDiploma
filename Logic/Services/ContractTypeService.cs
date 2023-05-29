@@ -22,7 +22,7 @@ namespace Logic.Services
 
         public async Task AddAsync(ContractType objectToAdd, bool SaveChanges = true, CancellationToken token = default)
         {
-            if (await DbSet.AnyAsync(d => d.Name== objectToAdd.Name, token))
+            if (await DbSet.AnyAsync(d => d.Name == objectToAdd.Name, token))
             {
                 throw new ArgumentException("Name is taken");
             }
@@ -39,7 +39,7 @@ namespace Logic.Services
             {
                 return;
             }
-            
+
             if (await DbSet.AnyAsync(d => d.Name == valueToAply.Name, token))
             {
                 throw new Exception($"Department name '{valueToAply.Name}' is taken");

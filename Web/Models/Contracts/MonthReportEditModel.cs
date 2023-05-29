@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WebFront.RequestModels.Contracts
 {
-    public class MonthReportEditModel 
+    public class MonthReportEditModel
     {
         [Required]
         public int ContractID { get; set; }
@@ -47,7 +47,7 @@ namespace WebFront.RequestModels.Contracts
         public double PlasticPosesDemonstrationTime { get; set; } = 0;
         [Range(0, int.MaxValue)]
         public double TestingEscortTime { get; set; } = 0;
-        [Range (0, int.MaxValue)]
+        [Range(0, int.MaxValue)]
         public double TimeSum =>
             TestingEscortTime
             + PlasticPosesDemonstrationTime

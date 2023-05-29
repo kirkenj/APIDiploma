@@ -2,7 +2,7 @@
 
 public static class IncludeModels
 {
-    public static class RolesNavigation 
+    public static class RolesNavigation
     {
         public static readonly string AdminRoleName = Database.Constants.IncludeModels.RolesNavigation.AdminRoleName;
         public static readonly int AdminRoleID = Database.Constants.IncludeModels.RolesNavigation.AdminRoleID;

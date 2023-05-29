@@ -11,7 +11,7 @@ namespace Logic.Services
     {
         public DbSet<MonthReport> DbSet { get; private set; }
 
-        public Func<CancellationToken, Task<int>> SaveChangesAsync {get; private set;}
+        public Func<CancellationToken, Task<int>> SaveChangesAsync { get; private set; }
 
         public MonthReportService(AppDbContext dbContext)
         {

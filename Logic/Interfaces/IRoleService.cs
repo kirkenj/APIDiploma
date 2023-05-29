@@ -1,7 +1,6 @@
 ﻿using Database.Entities;
 using Logic.Interfaces.Common;
 using Logic.Models.Role;
-using Logic.Models.User;
 
 namespace Logic.Interfaces
 {

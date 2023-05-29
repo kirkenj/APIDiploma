@@ -1,16 +1,15 @@
-﻿using Logic.Interfaces;
+﻿using AutoMapper;
+using Database.Entities;
 using Logic.Exceptions;
+using Logic.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using WebFront.RequestModels.Authorize;
-using AutoMapper;
-using Database.Entities;
-using System.IdentityModel.Tokens.Jwt;
-using WebFront.Models.JWTModels;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using WebFront.Models.Authorize;
-using DocumentFormat.OpenXml.Wordprocessing;
+using WebFront.Models.JWTModels;
+using WebFront.RequestModels.Authorize;
 
 namespace WebFront.Controllers
 {
@@ -34,13 +33,13 @@ namespace WebFront.Controllers
         }
 
         [HttpPost(nameof(Login))]
-        public async Task<IActionResult> Login([FromBody]LoginModel loginModel)
+        public async Task<IActionResult> Login([FromBody] LoginModel loginModel)
         {
             if (User.Identity?.IsAuthenticated ?? false) Logout();
             loginModel.Password = _hashProvider.GetHash(loginModel.Password);
             var result = await _accountService.FirstOrDefaultAsync(u => u.Login == loginModel.Login && u.PasswordHash == loginModel.Password);
             if (result is null) return BadRequest("Invalid login or password");
-            
+
             var role = await _roleService.FirstOrDefaultAsync(r => r.ID == result.RoleId) ?? throw new ObjectNotFoundException($"Role not found by id = {result.RoleId}");
 
             var claims = new List<Claim>

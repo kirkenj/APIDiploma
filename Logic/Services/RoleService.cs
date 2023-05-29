@@ -18,7 +18,7 @@ namespace Logic.Services
             SaveChangesAsync = appDBContext.SaveChangesAsync;
         }
 
-        public async Task AddAsync(Role valueToAdd, bool SaveChanges = true, CancellationToken cancellationToken = default) 
+        public async Task AddAsync(Role valueToAdd, bool SaveChanges = true, CancellationToken cancellationToken = default)
         {
             if (await DbSet.AnyAsync(r => r.Name == valueToAdd.Name, cancellationToken)) throw new Exception($"Role name is taken {valueToAdd.Name}");
             await DbSet.AddAsync(valueToAdd, cancellationToken);
@@ -28,17 +28,17 @@ namespace Logic.Services
 
         public async Task<Role?> GetRoleAsync(int roleId)
         {
-            if (roleId == IncludeModels.RolesNavigation.AdminRoleID) 
+            if (roleId == IncludeModels.RolesNavigation.AdminRoleID)
             {
                 return new Role { ID = roleId, Name = IncludeModels.RolesNavigation.AdminRoleName };
             }
 
-            if (roleId == IncludeModels.RolesNavigation.OrdinaryUserRoleID) 
+            if (roleId == IncludeModels.RolesNavigation.OrdinaryUserRoleID)
             {
                 return new Role { ID = roleId, Name = IncludeModels.RolesNavigation.OrdinaryUserRoleName };
             }
 
-            if (roleId == IncludeModels.RolesNavigation.SuperAdminRoleID) 
+            if (roleId == IncludeModels.RolesNavigation.SuperAdminRoleID)
             {
                 return new Role { ID = roleId, Name = IncludeModels.RolesNavigation.SuperAdminRoleName };
             }

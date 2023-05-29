@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Database.Entities
 {
-    [Table(nameof(Contract)+"s")]
+    [Table(nameof(Contract) + "s")]
     public class Contract : IConfirmableByAdminObject, IIdObject<int>
     {
         public int ID { get; set; }

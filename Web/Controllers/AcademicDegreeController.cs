@@ -32,7 +32,7 @@ namespace Diploma.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var ret = await _academicDegreeService.FirstOrDefaultAsync(d => d.ID == id);
-            return ret is null? NotFound() : Ok(_mapper.Map<AcademicDegreeViewModel>(ret));
+            return ret is null ? NotFound() : Ok(_mapper.Map<AcademicDegreeViewModel>(ret));
         }
 
         [HttpPost]
@@ -67,34 +67,34 @@ namespace Diploma.Controllers
 
 
         #region PriceAssignments
-        [HttpGet("PriceAssignments")]
+        [HttpGet("PriceAssignment")]
         public async Task<IActionResult> GetPriceAssignations()
         {
             return Ok(await _academicDegreeService.GetAllAssignmentsAsync());
         }
 
-        [HttpGet("{id}/PriceAssignments")]
+        [HttpGet("PriceAssignment/{id}")]
         public async Task<IActionResult> GetPriceAssignments(int id)
         {
             return Ok(await _academicDegreeService.GetAssignmentsForObject(id));
         }
 
-        [HttpGet("{id}/PriceAssignment/{date}")]
+        [HttpGet("PriceAssignment/{id}/{date}")]
         public async Task<IActionResult> GetPriceAssignment(int id, DateTime date)
         {
             var ret = await _academicDegreeService.GetAssignmentOnDate(date, id);
             return ret is null ? BadRequest("No data found") : Ok(ret);
         }
 
-        [HttpPut("{id}/PriceAssignment")]
+        [HttpPut("PriceAssignment/{id}")]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> PutPriceAssignment(int id, DateTime assignationActiveDate, double newValue, DateTime? newAssignationDate )
+        public async Task<IActionResult> PutPriceAssignment(int id, DateTime assignationActiveDate, double newValue, DateTime? newAssignationDate)
         {
             await _academicDegreeService.EditAssignmentAsync(id, assignationActiveDate, newValue, newAssignationDate, CancellationToken.None);
             return Ok();
         }
 
-        [HttpPost("{id}/PriceAssignment")]
+        [HttpPost("PriceAssignment/{id}")]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> PostPriceAssignment(int id, DateTime assignationActiveDate, double Value, CancellationToken token = default)
         {
@@ -103,7 +103,7 @@ namespace Diploma.Controllers
             return Ok();
         }
 
-        [HttpDelete("{id}/PriceAssignment")]
+        [HttpDelete("PriceAssignment/{id}")]
         [Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> DeltePriceAssignment(int id, DateTime assignationActiveDate, CancellationToken token = default)
         {

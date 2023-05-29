@@ -1,15 +1,13 @@
-﻿using Logic.Interfaces;
+﻿using AutoMapper;
 using Database.Entities;
+using Logic.Interfaces;
+using Logic.Models.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebFront.RequestModels.Contracts;
-using AutoMapper;
-using WebFront.Constants;
-using Logic.Exceptions;
-using WebFront.Models.Contracts;
-using Logic.Models.Contracts;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using WebFront.Constants;
+using WebFront.Models.Contracts;
+using WebFront.RequestModels.Contracts;
 
 namespace WebFront.Controllers
 {
@@ -32,7 +30,7 @@ namespace WebFront.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] ContractsSelectObject? selectionObject, int? page = default, int? pageSize = default) 
+        public async Task<IActionResult> Get([FromQuery] ContractsSelectObject? selectionObject, int? page = default, int? pageSize = default)
         {
             selectionObject ??= new ContractsSelectObject();
             if (!_roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
@@ -42,9 +40,9 @@ namespace WebFront.Controllers
 
             return Ok(_mapper.Map<List<ContractViewModel>>(await _contractService.GetPageContent(_contractService.GetContractHasChildKeyValuePair(selectionObject), page, pageSize).ToListAsync()));
         }
-       
+
         [HttpGet("{contractID}")]
-        public async Task<IActionResult> Get(int contractID) 
+        public async Task<IActionResult> Get(int contractID)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
@@ -84,7 +82,7 @@ namespace WebFront.Controllers
             var currentUserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
             editModel.UserId = currentUserID;
             var contractToEdit = await _contractService.FirstOrDefaultAsync(c => c.ID == editModel.ContractID);
-            if (contractToEdit == null) 
+            if (contractToEdit == null)
             {
                 return BadRequest($"Contract with ID = {editModel.ContractID} not found");
             }
@@ -143,7 +141,7 @@ namespace WebFront.Controllers
             }
 
             var ret = _mapper.Map<IEnumerable<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID));
-            foreach ( var item in ret)
+            foreach (var item in ret)
             {
                 item.ContractID = contractID;
             }
@@ -152,7 +150,7 @@ namespace WebFront.Controllers
         }
 
         [HttpGet(nameof(GetUntakenTime))]
-        public async Task<IActionResult> GetUntakenTime(int contractID, DateTime date)
+        public async Task<IActionResult> GetUntakenTime(int contractID)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
@@ -160,8 +158,8 @@ namespace WebFront.Controllers
             {
                 return BadRequest("You do not have rights to do it");
             }
-            
-            return Ok(await _contractService.GetUntakenTimeOnDateAsync(contractID, date, Enumerable.Empty<(int,int)>()));
+
+            return Ok(await _contractService.GetUntakenTimeAsync(contractID, Enumerable.Empty<(int, int)>()));
         }
 
         [HttpPut(nameof(EditMonthReport))]
@@ -184,7 +182,7 @@ namespace WebFront.Controllers
             {
                 return BadRequest("You have no rights to do it");
             }
-            
+
             var monthReportToApply = _mapper.Map<MonthReport>(editModel);
             monthReportToApply.LinkingPartID = contract?.LinkingPartID ?? throw new ArgumentException($"{nameof(contract.LinkingPartID)} is null");
             await _contractService.UpdateMonthReport(monthReportToApply);

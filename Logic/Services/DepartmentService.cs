@@ -1,5 +1,4 @@
-﻿using Database;
-using Database.Entities;
+﻿using Database.Entities;
 using Database.Interfaces;
 using Logic.Exceptions;
 using Logic.Interfaces;
@@ -10,7 +9,7 @@ namespace Logic.Services
 {
     public class DepartmentService : IDepartmentService
     {
-        
+
         public DepartmentService(IAppDBContext appDBContext)
         {
             DbSet = appDBContext.Set<Department>();
@@ -22,7 +21,7 @@ namespace Logic.Services
 
         public async Task AddAsync(Department department, bool SaveChanges = true, CancellationToken token = default)
         {
-            if (await DbSet.AnyAsync(d => d.Name== department.Name, token))
+            if (await DbSet.AnyAsync(d => d.Name == department.Name, token))
             {
                 throw new ArgumentException("Name is taken");
             }
@@ -59,7 +58,7 @@ namespace Logic.Services
             {
                 return;
             }
-            
+
             if (await DbSet.AnyAsync(d => d.Name == valueToAply.Name, token))
             {
                 throw new Exception($"Department name '{valueToAply.Name}' is taken");

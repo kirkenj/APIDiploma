@@ -9,7 +9,7 @@ public static class IncludeModels
         public const string SuperAdminRoleName = "SuperAdmin";
         public const int SuperAdminRoleID = 1;
         public const string OrdinaryUserRoleName = "User";
-        public const int OrdinaryUserRoleID= 2;
+        public const int OrdinaryUserRoleID = 2;
     }
 }
 

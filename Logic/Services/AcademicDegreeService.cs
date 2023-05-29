@@ -4,7 +4,6 @@ using Logic.Exceptions;
 using Logic.Interfaces;
 using Logic.Models.AcademicDegree;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.Intrinsics.Arm;
 
 namespace Logic.Services
 {
@@ -12,11 +11,11 @@ namespace Logic.Services
     {
         public DbSet<AcademicDegreePriceAssignment> AssignmentsDBSet { get; private set; }
         public Func<CancellationToken, Task<int>> SaveChangesAsync { get; private set; }
-        public DbSet<AcademicDegree> DbSet { get; private set;}
+        public DbSet<AcademicDegree> DbSet { get; private set; }
 
         public async Task AddAsync(AcademicDegree entity, bool SaveChanges = true, CancellationToken token = default)
         {
-            if (await DbSet.AnyAsync(a => a.Name ==entity.Name))
+            if (await DbSet.AnyAsync(a => a.Name == entity.Name))
             {
                 throw new ArgumentException($"Name '{entity.Name}' is taken");
             }
@@ -42,8 +41,8 @@ namespace Logic.Services
                 return;
             }
 
-            if (await DbSet.AnyAsync(a => a.ID != valueToModify.ID && a.Name == valueToAply.Name, token) ) 
-            { 
+            if (await DbSet.AnyAsync(a => a.ID != valueToModify.ID && a.Name == valueToAply.Name, token))
+            {
                 throw new ArgumentException($"Name '{valueToAply.Name}' is taken");
             }
 

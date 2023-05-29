@@ -1,16 +1,14 @@
 ﻿using AutoMapper;
+using Database.Entities;
 using Logic.Interfaces;
+using Logic.Models.Role;
+using Logic.Models.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebFront.Constants;
-using WebFront.RequestModels.Account;
-using Database.Entities;
 using System.ComponentModel.DataAnnotations;
-using Logic.Services;
-using Logic.Models.User;
-using Logic.Models.Role;
+using WebFront.Constants;
 using WebFront.Models.Account;
-using DocumentFormat.OpenXml.Spreadsheet;
+using WebFront.RequestModels.Account;
 
 namespace WebFront.Controllers
 {
@@ -19,7 +17,7 @@ namespace WebFront.Controllers
     [Authorize]
     public class AccountController : ControllerBase
     {
-        private readonly IAccountService _accountService; 
+        private readonly IAccountService _accountService;
         private readonly IRoleService _roleService;
         private readonly IMapper _mapper;
 
@@ -34,7 +32,7 @@ namespace WebFront.Controllers
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> GetAll([FromQuery] UserSelectObject? selectObject, int? page = default, int? pageSize = default)
         {
-            return Ok( _mapper.Map<List<UserViewModel>>(await _accountService.GetListViaSelectionObjectAsync(selectObject, page, pageSize)));
+            return Ok(_mapper.Map<List<UserViewModel>>(await _accountService.GetListViaSelectionObjectAsync(selectObject, page, pageSize)));
         }
 
         [HttpGet]
@@ -74,7 +72,7 @@ namespace WebFront.Controllers
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            if (!isAdmin && currentUserLogin != userLoginToUpdatePassword )
+            if (!isAdmin && currentUserLogin != userLoginToUpdatePassword)
             {
                 return BadRequest(IncludeModels.BadRequestTextFactory.GetNoRightsExceptionText());
             }
@@ -85,20 +83,20 @@ namespace WebFront.Controllers
 
         [Authorize]
         [HttpGet(nameof(GetRoles))]
-        public async Task<IActionResult> GetRoles([FromQuery]RoleSelectObject? selectObject)
+        public async Task<IActionResult> GetRoles([FromQuery] RoleSelectObject? selectObject)
         {
             return Ok(await _roleService.GetListViaSelectionObjectAsync(selectObject));
         }
 
         #region DegreeAssignment
-        [HttpGet("DegreeAssignments")]
+        [HttpGet("DegreeAssignment")]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> GetDegreeAssignment()
         {
             return Ok(await _accountService.GetAllAssignmentsAsync());
         }
 
-        [HttpGet("{userId}/DegreeAssignments")]
+        [HttpGet("DegreeAssignment/{userId}")]
         public async Task<IActionResult> GetDegreeAssignments(int userId)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
@@ -112,7 +110,7 @@ namespace WebFront.Controllers
             return Ok(await _accountService.GetAssignmentsForObject(userId));
         }
 
-        [HttpGet("{userId}/DegreeAssignments/{date}")]
+        [HttpGet("DegreeAssignment/{userId}/{date}")]
         public async Task<IActionResult> GetDegreeAssignment(int userId, DateTime date)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
@@ -126,7 +124,7 @@ namespace WebFront.Controllers
             return ret is null ? BadRequest("No data found") : Ok(ret);
         }
 
-        [HttpPut("{userId}/DegreeAssignments")]
+        [HttpPut("DegreeAssignment/{userId}")]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> PutDegreeAssignment(int userId, DateTime assignationActiveDate, int newValue, DateTime? newAssignationDate)
         {
@@ -134,7 +132,7 @@ namespace WebFront.Controllers
             return Ok();
         }
 
-        [HttpPost("{userId}/DegreeAssignments")]
+        [HttpPost("DegreeAssignment/{userId}")]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> PostDegreeAssignment(int userId, DateTime assignationActiveDate, int Value, CancellationToken token = default)
         {
@@ -143,7 +141,7 @@ namespace WebFront.Controllers
             return Ok();
         }
 
-        [HttpDelete("{userId}/DegreeAssignments")]
+        [HttpDelete("DegreeAssignment/{userId}")]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> DeletePriceAssignment(int userId, DateTime assignationActiveDate, CancellationToken token = default)
         {

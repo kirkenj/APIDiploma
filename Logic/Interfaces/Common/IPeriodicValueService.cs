@@ -1,6 +1,4 @@
 ﻿using Database.Interfaces;
-using Irony.Parsing;
-using Logic.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Interfaces.Common

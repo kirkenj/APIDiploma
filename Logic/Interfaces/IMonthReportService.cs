@@ -1,7 +1,5 @@
 ﻿using Database.Entities;
 using Logic.Interfaces.Common;
-using Logic.Models.Contracts;
-using Logic.Models.MonthReports;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 

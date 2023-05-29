@@ -1,7 +1,4 @@
-﻿using Database.Entities;
-using Newtonsoft.Json;
-
-namespace WebFront.RequestModels.Contracts
+﻿namespace WebFront.RequestModels.Contracts
 {
     public class ContractViewModel
     {

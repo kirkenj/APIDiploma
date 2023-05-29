@@ -1,7 +1,6 @@
 ﻿using Database.Entities;
 using Logic.Interfaces.Common;
 using Logic.Models.AcademicDegree;
-using Logic.Models.User;
 
 namespace Logic.Interfaces
 {
@@ -10,4 +9,3 @@ namespace Logic.Interfaces
     {
     }
 }
-    

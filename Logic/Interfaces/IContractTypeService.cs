@@ -1,6 +1,5 @@
 ﻿using Database.Entities;
 using Logic.Interfaces.Common;
-using Logic.Models.Contracts;
 using Logic.Models.ContractType;
 
 namespace Logic.Interfaces

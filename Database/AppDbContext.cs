@@ -20,7 +20,7 @@ namespace Database
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
-            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33)));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,7 +51,7 @@ namespace Database
             {
                 entity.Property(x => x.ObjectIdentifier).HasColumnName("ObjectIdentifier");
                 entity.Property(e => e.Value).HasColumnName("Value");
-                entity.Property(e => e.AssignmentDate).HasColumnName("AssignationDate"); 
+                entity.Property(e => e.AssignmentDate).HasColumnName("AssignationDate");
                 entity.HasKey(e => new { e.AssignmentDate, e.ObjectIdentifier });
 
             });
@@ -105,7 +105,7 @@ namespace Database
                 entity.Property(e => e.Patronymic).HasColumnName("Patronymic").HasMaxLength(50);
                 entity.Property(e => e.PasswordHash).HasColumnName("PasswordHash").HasColumnType("NVARCHAR").HasMaxLength(200).IsRequired();
                 entity.Property(e => e.Login).HasColumnName("Login").IsRequired().HasMaxLength(50);
-                entity.Property(e => e.NSP).HasComputedColumnSql(@"TRIM(concat(u.Name, ' ', u.Surname, ' ', u.Patronymic))", stored:false);
+                entity.Property(e => e.NSP).HasComputedColumnSql(@"TRIM(concat(u.Name, ' ', u.Surname, ' ', u.Patronymic))", stored: false);
                 entity.HasOne(e => e.Role)
                 .WithMany(r => r.Users)
                 .HasForeignKey(e => e.RoleId)
@@ -130,7 +130,7 @@ namespace Database
                 entity.Property(e => e.PeriodEnd).HasColumnName("PeriodEnd");
                 entity.Property(e => e.ConfirmedByUserID).IsRequired(false).HasColumnName("ConfirmedByUserID");
                 entity.Property(e => e.LinkingPartID).IsRequired(false).HasColumnName("LinkingPartID");
-                entity.Property(e => e.IsConfirmed).HasComputedColumnSql(@"ConfirmedByUserID is not null", stored:false);
+                entity.Property(e => e.IsConfirmed).HasComputedColumnSql(@"ConfirmedByUserID is not null", stored: false);
                 entity.HasOne(e => e.LinkingPart)
                 .WithMany(a => a.Assignments)
                 .HasForeignKey(a => a.LinkingPartID)
@@ -152,7 +152,7 @@ namespace Database
                 .WithMany(u => u.Contracts)
                 .HasForeignKey(u => u.UserID)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_Contracts_Users"); 
+                .HasConstraintName("FK_Contracts_Users");
                 entity.HasOne(e => e.Department)
                 .WithMany(u => u.Contracts)
                 .HasForeignKey(u => u.DepartmentID)
@@ -217,7 +217,7 @@ namespace Database
 
             modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.SuperAdminRoleID, Name = IncludeModels.RolesNavigation.SuperAdminRoleName });
             modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.OrdinaryUserRoleID, Name = IncludeModels.RolesNavigation.OrdinaryUserRoleName });
-            modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.AdminRoleID, Name = IncludeModels.RolesNavigation.AdminRoleName});
+            modelBuilder.Entity<Role>().HasData(new Role() { ID = IncludeModels.RolesNavigation.AdminRoleID, Name = IncludeModels.RolesNavigation.AdminRoleName });
 
             modelBuilder.Entity<AcademicDegree>().HasData(new AcademicDegree { ID = 1, Name = "Doctor" });
             modelBuilder.Entity<AcademicDegree>().HasData(new AcademicDegree { ID = 2, Name = "Professor" });
@@ -234,9 +234,9 @@ namespace Database
             modelBuilder.Entity<User>().HasData(new User() { ID = 1, Name = "admin", Surname = "admin", Patronymic = "admin", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, Login = "admin" });
             modelBuilder.Entity<User>().HasData(new User() { ID = 2, Name = "name1", Surname = "name1", Patronymic = "name1", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, Login = "name1" });
             modelBuilder.Entity<User>().HasData(new User() { ID = 3, Name = "name2", Surname = "name2", Patronymic = "name2", PasswordHash = "!#/)zW��C�J\u000eJ�\u001f�", RoleId = IncludeModels.RolesNavigation.SuperAdminRoleID, Login = "name2" });
-        
+
             modelBuilder.Entity<UserAcademicDegreeAssignament>().HasData(new UserAcademicDegreeAssignament { ObjectIdentifier = 1, AssignmentDate = new DateTime(2023, 5, 1), Value = 1 });
-            
+
             modelBuilder.Entity<Department>().HasData(new Department { ID = 1, Name = "FITR" });
             modelBuilder.Entity<Department>().HasData(new Department { ID = 2, Name = "FTUG" });
         }

@@ -1,8 +1,6 @@
 ﻿using AutoMapper;
 using Database.Entities;
-using Logic.Models.MonthReports;
 using WebFront.Models.AcademicDegrees;
-using WebFront.Models.Contracts;
 using WebFront.Models.ContractType;
 using WebFront.Models.Departments;
 using WebFront.RequestModels.Account;
@@ -42,7 +40,7 @@ namespace WebFront.Mapping
             .ForMember(dest => dest.CreditsMaxTime, opt => opt.MapFrom(src => src.CreditsTime))
             .ForMember(dest => dest.ExamsMaxTime, opt => opt.MapFrom(src => src.ExamsTime))
             .ForMember(dest => dest.CourseProjectsMaxTime, opt => opt.MapFrom(src => src.CourseProjectsTime));
-            
+
             CreateMap<ContractEditModel, Contract>()
             .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ContractID))
             .ForMember(dest => dest.UserID, opt => opt.MapFrom(src => src.UserId))
@@ -101,7 +99,7 @@ namespace WebFront.Mapping
             .ForMember(dest => dest.CreditsTime, opt => opt.MapFrom(src => src.CreditsMaxTime))
             .ForMember(dest => dest.ExamsTime, opt => opt.MapFrom(src => src.ExamsMaxTime))
             .ForMember(dest => dest.CourseProjectsTime, opt => opt.MapFrom(src => src.CourseProjectsMaxTime));
-            
+
             CreateMap<KeyValuePair<Contract, bool>, ContractViewModel>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Key.ID))
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Key.UserID))
@@ -158,8 +156,8 @@ namespace WebFront.Mapping
             .ForMember(dest => dest.ExamsTime, opt => opt.MapFrom(src => src.ExamsTime))
             .ForMember(dest => dest.CourseProjectsTime, opt => opt.MapFrom(src => src.CourseProjectsTime))
             .ForMember(dest => dest.SECTime, opt => opt.MapFrom(src => src.SECTime));
-            
-            CreateMap<MonthReportEditModel, MonthReport> ()
+
+            CreateMap<MonthReportEditModel, MonthReport>()
             .ForMember(dest => dest.Year, opt => opt.MapFrom(src => src.Year))
             .ForMember(dest => dest.Month, opt => opt.MapFrom(src => src.Month))
             .ForMember(dest => dest.TestingEscortTime, opt => opt.MapFrom(src => src.TestingEscortTime))
@@ -189,7 +187,7 @@ namespace WebFront.Mapping
             .ForMember(dest => dest.Patronymic, opt => opt.MapFrom(src => src.Patronymic))
             .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.PasswordStr))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login));
-            
+
             CreateMap<User, UserViewModel>()
             .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
@@ -197,7 +195,7 @@ namespace WebFront.Mapping
             .ForMember(dest => dest.Patronymic, opt => opt.MapFrom(src => src.Patronymic))
             .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.RoleId))
             .ForMember(dest => dest.Login, opt => opt.MapFrom(src => src.Login));
-            
+
             CreateMap<UserEditModel, User>()
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Surname, opt => opt.MapFrom(src => src.Surname))

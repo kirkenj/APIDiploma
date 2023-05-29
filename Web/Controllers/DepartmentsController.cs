@@ -4,10 +4,8 @@ using Logic.Interfaces;
 using Logic.Models.Department;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using WebFront.Constants;
 using WebFront.Models.Departments;
-using WebFront.RequestModels.Account;
 
 namespace Diploma.Controllers
 {
@@ -35,7 +33,7 @@ namespace Diploma.Controllers
         public async Task<IActionResult> Post([FromBody] string newDepartmentsName)
         {
             await _departmentService.AddAsync(new Department { Name = newDepartmentsName });
-            return Created(nameof(Post),newDepartmentsName);
+            return Created(nameof(Post), newDepartmentsName);
         }
 
         [HttpPut]
@@ -50,7 +48,7 @@ namespace Diploma.Controllers
         [Authorize(IncludeModels.PolicyNavigation.OnlySuperAdminPolicyName)]
         public async Task<IActionResult> Delete(int id)
         {
-            var valueToRemove = await _departmentService.FirstOrDefaultAsync(d => d.ID ==  id);
+            var valueToRemove = await _departmentService.FirstOrDefaultAsync(d => d.ID == id);
             if (valueToRemove == null)
             {
                 return BadRequest(IncludeModels.BadRequestTextFactory.GetObjectNotFoundExceptionText($"Id = {id}"));

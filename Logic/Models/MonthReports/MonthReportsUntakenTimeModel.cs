@@ -3,7 +3,7 @@
     public class MonthReportsUntakenTimeModel
     {
         public int ContractID { get; set; }
-        public IEnumerable<(int year, int month)> ExceptForReportsWithKey { get; set; } = new List<(int, int)> ();
+        public IEnumerable<(int year, int month)> ExceptForReportsWithKey { get; set; } = new List<(int, int)>();
         public double LectionsTime { get; set; } = 0;
         public double PracticalClassesTime { get; set; } = 0;
         public double LaboratoryClassesTime { get; set; } = 0;

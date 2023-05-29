@@ -13,7 +13,7 @@ namespace WebFront.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-                await _next(context);
+            await _next(context);
             try
             {
             }
