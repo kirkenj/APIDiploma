@@ -1,0 +1,134 @@
+﻿@model IEnumerable<ContractViewModel>
+@using Database.Entities;
+@using Logic.Models.Contracts;
+@using WebFront.Constants;
+@using WebFront.Models.Contracts;
+
+@{
+    ContractsSelectObject? selectionObject = ViewBag.selectionObject;
+    int pageVal = ViewBag.page;
+    int pageSize = ViewBag.pageSize;
+}
+<form action="List" method="Get">
+    <div class="brd" align="center">
+        <details>
+            <summary>Фильтр</summary>
+            <table>
+                <tr>
+                    <th>
+                        Искать по имени:
+                    </th>
+                    <th>
+                        <input type="text" name="Name" value=@(selectionObject?.IdentifierPart)>
+                    </th>
+                </tr>
+
+            </table>
+        </details>
+    </div>
+    <table align="right">
+        <tr>
+            <th>
+                Страница:
+            </th>
+            <th>
+                <input type="number" name="page" value=@pageVal />
+            </th>
+        </tr>
+        <tr>
+            <th>
+                Элементов на страницу:
+            </th>
+            <th>
+                <input type="number" name="pageSize" value=@pageSize />
+            </th>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Получить" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>@Html.ActionLink("Сбросить фильтр", "List")</td>
+        </tr>
+    </table>
+</form>
+
+@Html.ActionLink("Назначения ставок", "Assignments")<br />
+
+
+@if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
+{
+    @Html.ActionLink("Добавить новый", "Add")
+    <br />
+}
+
+<table>
+    <tr>
+        <th class="brd">Код</th>
+        <th class="brd">ИД пользователя</th>
+        <th class="brd">Название</th>
+        <th class="brd">Подтвержден</th>
+        <th class="brd">Дочерний для</th>
+        <th class="brd">Договор с</th>
+        <th class="brd">Договор по</th>
+        <th class="brd">ИД отдела</th>
+        <th class="brd">Итого часов</th>
+        <th class="brd"> </th>
+        <th class="brd">Лекции</th>
+        <th class="brd">Практические занятия</th>
+        <th class="brd">Лабораторные занятия</th>
+        <th class="brd">Консультации</th>
+        <th class="brd">Иное учебное занятие</th>
+        <th class="brd">Зачеты</th>
+        <th class="brd">Экзамены</th>
+        <th class="brd">Курсовая работа, курсовой проект</th>
+        <th class="brd">Собеседование</th>
+        <th class="brd">Контрольная работа, реферат</th>
+        <th class="brd">Стажировка</th>
+        <th class="brd">Дипломный проект, дипломная работа</th>
+        <th class="brd">Рецензирование дипломных проектов, работ, маг. диссертаций</th>
+        <th class="brd">ГЭК</th>
+        <th class="brd">Руководство магистрантами</th>
+        <th class="brd">Учебная работа с аспирантами</th>
+        <th class="brd">Демонстрация пластических поз</th>
+        <th class="brd">Сопровождение тестирования</th>
+    </tr>
+    @{
+        foreach (var item in Model)
+        {
+            <tr>
+                <td class="brd">@item.Id</td>
+                <td class="brd">@item.UserId</td>
+                <td class="brd">@item.ContractIdentifier</td>
+                <td class="brd">@(item.IsConfirmed ? "Да" : "Нет")</td>
+                <td class="brd">@item.ParentContractID</td>
+                <td class="brd">@item.PeriodStart.ToShortDateString()</td>
+                <td class="brd">@item.PeriodEnd.ToShortDateString()</td>
+                <td class="brd">@item.DepartmentID</td>
+                <td class="brd">@item.TimeSum</td>
+                <td class="brd">@Html.ActionLink("Подробнее", $"Get", new {id = item.Id})</td>
+                <td class="brd">@item.LectionsTime</td>
+                <td class="brd">@item.PracticalClassesTime</td>
+                <td class="brd">@item.LaboratoryClassesTime</td>
+                <td class="brd">@item.ConsultationsTime</td>
+                <td class="brd">@item.OtherTeachingClassesTime</td>
+                <td class="brd">@item.CreditsTime</td>
+                <td class="brd">@item.ExamsTime</td>
+                <td class="brd">@item.CourseProjectsTime</td>
+                <td class="brd">@item.InterviewsTime</td>
+                <td class="brd">@item.TestsAndReferatsTime</td>
+                <td class="brd">@item.InternshipsTime</td>
+                <td class="brd">@item.DiplomasTime</td>
+                <td class="brd">@item.DiplomasReviewsTime</td>
+                <td class="brd">@item.SECTime</td>
+                <td class="brd">@item.GraduatesManagementTime</td>
+                <td class="brd">@item.GraduatesAcademicWorkTime</td>
+                <td class="brd">@item.PlasticPosesDemonstrationTime</td>
+                <td class="brd">@item.TestingEscortTime</td>
+            </tr>
+        }
+    }
+</table>
+
+               <>Html.ActionLink("Confirm", "Confirm", new {contractID = item.ID})td>

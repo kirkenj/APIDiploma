@@ -1,0 +1,36 @@
+﻿@model DepartmentViewModel
+@using WebFront.Constants;
+@using WebFront.Models.Departments;
+
+
+@using (var a = Html.BeginForm("Edit", "Departments", FormMethod.Post))
+{
+    <table>
+        @Html.HiddenFor(m=>m.ID)
+        <tr>
+            <td>
+                Старое имя
+            </td>
+            <td>
+                @Html.DisplayFor(m => m.Name)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Новое Имя
+            </td>
+            <td>
+                @Html.EditorFor(m => m.Name)
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Подтвердить" />
+}
+
+<div align="right">
+    @using (Html.BeginForm("Delete", "Departments", FormMethod.Post))
+    {
+        @Html.HiddenFor(m => m.ID)
+        <input type="submit" value="Удалить"/>
+    }
+</div>

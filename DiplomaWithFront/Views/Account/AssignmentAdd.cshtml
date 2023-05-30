@@ -1,0 +1,50 @@
+﻿@model UserAcademicDegreeAssignament
+@using Database.Entities;
+@using WebFront.Constants;
+
+@{
+    IEnumerable<AcademicDegree> degrees = ViewBag.degrees ?? Enumerable.Empty<AcademicDegree>();
+    IEnumerable<User> users = ViewBag.users ?? Enumerable.Empty<User>();
+    int? forID = ViewBag.forID;
+}
+
+@using (var a = Html.BeginForm("AddAssignment", "Account", FormMethod.Post))
+{
+    <table>
+        <tr>
+            <td>
+                Для
+            </td>
+            <td>
+                <select name="id">
+                    @foreach (var obj in users.OrderByDescending(u => u.ID == forID))
+                    {
+                        <option value=@obj.ID>@obj.NSP</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Дата
+            </td>
+            <td>
+                <input type="Date" id="name" name=@nameof(Model.AssignmentDate) required>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Значение
+            </td>
+            <td>
+                <select name="Value">
+                    @foreach (var obj in degrees)
+                    {
+                        <option value=@obj.ID>@obj.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Подтвердить" />
+}

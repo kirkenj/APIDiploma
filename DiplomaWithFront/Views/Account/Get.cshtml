@@ -1,0 +1,47 @@
+﻿@model WebFront.Models.Account.UserViewModel
+@using WebFront.Constants;
+
+
+@if (User?.Identity?.Name == Model.Login || IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User ?? throw new UnauthorizedAccessException()))
+{
+    @Html.ActionLink("Редактировать", $"Edit", routeValues: new {ID = Model.ID})
+    <br>
+    <br>
+}
+<td>@Html.ActionLink("Степени", $"Assignments", new {id = Model.ID})</td>
+
+<table>
+    <tr>
+        <td>
+            Логин
+        </td>
+        <td>
+             @Html.DisplayTextFor(m => m.Login)
+        </td>
+    </tr>
+    <tr>
+
+        <td>
+            ФИО
+        </td>
+        <td>
+            @Html.DisplayTextFor(m => m.NSP)
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Роль
+        </td>
+        <td>
+            @ViewBag.RoleName
+        </td>
+    </tr>
+</table>
+
+<br>
+@if (User?.Identity?.Name == Model.Login)
+{
+    <form action="/Logout" method="post">
+        <input type="submit" value="Выйти" />
+    </form>
+}

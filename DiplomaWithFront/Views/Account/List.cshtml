@@ -1,0 +1,89 @@
+﻿@model IEnumerable<UserViewModel>
+@using Database.Entities;
+@using WebFront.Constants;
+@using WebFront.Models.Account;
+@using Logic.Models.User;
+@{
+    UserSelectObject? selectionObject = ViewBag.selectionObject;
+    int pageVal = ViewBag.page;
+    int pageSize = ViewBag.pageSize;
+    var roles = ViewBag.Roles is IEnumerable<Role> rolesList ? rolesList : Enumerable.Empty<Role>();
+}
+<form action="List" method="Get">
+    <div class="brd" align="center">
+        <details>
+            <summary>Фильтр</summary>
+                <table>
+                    <tr>
+                        <th>
+                            Искать по имени:
+                        </th>
+                        <th>
+                        <input type="text" name=@nameof(selectionObject.NSP) value=@(selectionObject?.NSP)>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            Искать по Роли:
+                        </th>
+                        <th>
+                        <select name=@nameof(selectionObject.RoleIds) multiple>
+                            @foreach (var r in roles)
+                            {
+                                <option value=@r.ID>@r.Name</option>
+                            }
+                        </select>
+                        </th>
+                    </tr>
+                
+                </table>
+        </details>
+    </div>
+    <table align="right">
+        <tr>
+            <th>
+                Страница:
+            </th>
+            <th>
+                <input type="number" name="page" value=@pageVal />
+            </th>
+        </tr>
+        <tr>
+            <th>
+                Элементов на страницу:
+            </th>
+            <th>
+                <input type="number" name=@nameof(pageSize) value=@pageSize />
+            </th>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Получить" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>@Html.ActionLink("Сбросить фильтр", "List")</td>
+        </tr>
+    </table>
+</form>
+
+<table>
+    <tr>
+        <th>Код</th>
+        <th>ФИО</th>
+        <th>Роль</th>
+    </tr>
+    @{
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ID</td>
+                <td>@item.NSP</td>
+                <td>@(roles.FirstOrDefault(r => r.ID == item.RoleId)?.Name ?? "Неизвестная роль")</td>
+                <td>@Html.ActionLink("Подробнее", $"Get", new {id = item.ID})</td>
+                <td>@Html.ActionLink("Степени", $"Assignments", new {id = item.ID})</td>
+
+            </tr>
+        }
+    }
+</table>

@@ -1,0 +1,14 @@
+﻿@using (var a = Html.BeginForm("Add", "Departments", FormMethod.Post))
+{
+    <table>
+        <tr>
+            <td>
+                Имя нового объекта
+            </td>
+            <td>
+                <input type="text" name="newObjectName">
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Подтвердить" />
+}

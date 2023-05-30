@@ -1,0 +1,17 @@
+﻿@model LoginModel;
+@using WebFront.Models.Authorize;
+
+@{
+    ViewBag.Title = "Login";
+}
+
+<h2>Log in</h2>
+<form action="Login" method="post">
+    <div>@Html.LabelFor(Model => Model.Login)</div>
+    <div>@Html.TextBoxFor(Model => Model.Login)</div>
+    <div>@Html.LabelFor(Model => Model.Password)</div>
+    <div>@Html.PasswordFor(Model => Model.Password)</div>
+    <input type="submit" value="Login" />
+</form>
+
+@Html.ActionLink("Register", "Register", "Authorize")

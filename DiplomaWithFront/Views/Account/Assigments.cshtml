@@ -1,0 +1,44 @@
+﻿@model IEnumerable<UserAcademicDegreeAssignament>
+@using Database.Entities;
+@using WebFront.Constants;
+
+@{
+    IEnumerable<AcademicDegree> degrees = ViewBag.degrees ?? Enumerable.Empty<AcademicDegree>();
+    IEnumerable<User> users = ViewBag.users ?? Enumerable.Empty<User>();
+    var isAdmin = IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User);
+    int? forID = ViewBag.forID;
+}
+
+<div alignment = "center">
+    @ViewBag.Message 
+    @if (isAdmin){
+        @Html.ActionLink("Сбросить", "Assignments")
+    }
+</div>
+
+@if (isAdmin)
+{
+    @Html.ActionLink("Добавить", "AddAssignment", new{forID})
+}
+
+<table>
+    <tr>
+        <th>Дата</th>
+        <th>Пользователь</th>
+        <th>Степень</th>
+    </tr>
+    @{
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.AssignmentDate.ToShortDateString()</td>
+                <td>@(users.FirstOrDefault(a => a.ID == item.ObjectIdentifier)?.NSP ?? "Имя не определено")</td>
+                <td>@(degrees.FirstOrDefault(d => d.ID == item.Value)?.Name ?? "Имя не определено")</td>
+                @if (isAdmin)
+                {
+                    <td>@Html.ActionLink("Редактировать", "EditAssignment", new {id = item.ObjectIdentifier, assignmentActiveDate = item.AssignmentDate})</td>
+                }
+            </tr>
+        }
+    }
+</table>

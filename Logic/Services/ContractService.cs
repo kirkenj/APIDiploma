@@ -37,6 +37,11 @@ namespace Logic.Services
                 contracts = contracts.Where(c => selectionObject.ContractIDs.Contains(c.ID));
             }
 
+            if (selectionObject.IdentifierPart != null)
+            {
+                contracts = contracts.Where(c => c.ContractIdentifier.Contains(selectionObject.IdentifierPart));
+            }
+
             if (selectionObject.DepartmentIDs != null)
             {
                 contracts = contracts.Where(c => selectionObject.DepartmentIDs.Contains(c.ID));

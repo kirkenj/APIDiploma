@@ -1,0 +1,46 @@
+﻿@model ContractTypePriceAssignment
+@using Database.Entities;
+@using Logic.Models.ContractType;
+@using WebFront.Constants;
+@using WebFront.Models.ContractType;
+
+@{
+    IEnumerable<ContractType> atachedObjects = ViewBag.AtachedObjects;
+    int? forID = ViewBag.forID;
+}
+
+@using (var a = Html.BeginForm("AddAssignment", "ContractType", FormMethod.Post))
+{
+    <table>
+        <tr>
+            <td>
+                Для
+            </td>
+            <td>
+                <select name="id">
+                    @foreach (var obj in atachedObjects.OrderByDescending(u => u.ID == forID))
+                    {
+                        <option value=@obj.ID>@obj.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Дата
+            </td>
+            <td>
+                <input type="Date" id="name" name=@nameof(Model.AssignmentDate) required>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Значение
+            </td>
+            <td>
+                @Html.EditorFor(m => m.Value)
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Подтвердить" />
+}

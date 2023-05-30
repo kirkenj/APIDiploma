@@ -1,0 +1,43 @@
+﻿@model IEnumerable<ContractTypePriceAssignment>
+@using Database.Entities;
+@using Logic.Models.ContractType;
+@using WebFront.Constants;
+@using WebFront.Models.ContractType;
+
+@{
+    IEnumerable<ContractType> atachedObjects = ViewBag.AtachedObjects ?? Enumerable.Empty<ContractType>();
+    var isAdmin = IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User);
+    int? forID = ViewBag.forID;
+}
+
+<div alignment = "center">
+    @ViewBag.Message 
+    @Html.ActionLink("Сбросить", "Assignments")
+</div>
+
+@if (isAdmin)
+{
+    @Html.ActionLink("Добавить", "AddAssignment", new {forID})
+}
+
+<table>
+    <tr>
+        <th>Дата</th>
+        <th>Объект</th>
+        <th>Значение</th>
+    </tr>
+    @{
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.AssignmentDate.ToShortDateString()</td>
+                <td>@(atachedObjects.FirstOrDefault(a => a.ID == item.ObjectIdentifier)?.Name ?? "Имя не определено")</td>
+                <td>@item.Value</td>
+                @if (isAdmin)
+                {
+                    <td>@Html.ActionLink("Редактировать", "EditAssignment", new {id = item.ObjectIdentifier, assignmentActiveDate = item.AssignmentDate})</td>
+                }
+            </tr>
+        }
+    }
+</table>

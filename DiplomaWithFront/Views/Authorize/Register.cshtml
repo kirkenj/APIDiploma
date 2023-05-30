@@ -1,0 +1,48 @@
+﻿@model RegisterUserModel;
+@using WebFront.Models.Authorize;
+
+@{
+    ViewBag.Title = "Register";
+}
+
+<h2>Create user</h2>
+@using (var a = Html.BeginForm("Register", "Authorize", FormMethod.Post))
+{
+    <div>
+        @Html.LabelFor(Model => Model.Name)
+    </div>
+    <div>
+        @Html.TextBoxFor(Model => Model.Name)
+    </div>
+    <div>
+        @Html.LabelFor(Model => Model.Surname)
+    </div>
+    <div>
+        @Html.TextBoxFor(Model => Model.Surname)
+    </div>
+    <div>
+        @Html.LabelFor(Model => Model.Patronymic)
+    </div>
+    <div>
+        @Html.TextBoxFor(Model => Model.Patronymic)
+    </div>
+    <div>
+        @Html.LabelFor(Model => Model.Login)
+    </div>
+    <div>
+        @Html.TextBoxFor(Model => Model.Login)
+    </div>
+    <div>
+        @Html.LabelFor(Model => Model.Password)
+    </div>
+    <div>
+        @Html.PasswordFor(Model => Model.Password)
+    </div>
+    <div>
+        @Html.LabelFor(Model => Model.ConfirmPassword)
+    </div>
+    <div>
+        @Html.PasswordFor(Model => Model.ConfirmPassword)
+    </div>
+    <input type="submit" value="Register" />
+}

@@ -13,5 +13,6 @@
         public DateTime? PeriodEndEndBound { get; set; }
         public double? TimeSumStartBound { get; set; }
         public double? TimeSumEndBound { get; set; }
+        public string? IdentifierPart { get; set; }
     }
 }

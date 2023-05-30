@@ -1,0 +1,36 @@
+﻿@using Database.Entities;
+@using WebFront.Constants;
+@model WebFront.Models.AcademicDegrees.AcademicDegreeViewModel
+
+@using (var a = Html.BeginForm("Edit", "AcademicDegree", FormMethod.Post))
+{
+    <table>
+        @Html.HiddenFor(m=>m.ID)
+
+        <tr>
+            <td>
+                Старое имя
+            </td>
+            <td>
+                @Html.DisplayFor(m => m.Name)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Новое Имя
+            </td>
+            <td>
+                @Html.EditorFor(m => m.Name)
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Подтвердить" />
+}
+
+<div align="right">
+    @using (Html.BeginForm("Delete", "AcademicDegree", FormMethod.Post))
+    {
+        @Html.HiddenFor(m => m.ID)
+        <input type="submit" value="Удалить" />
+    }
+</div>

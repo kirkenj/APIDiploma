@@ -1,0 +1,31 @@
+﻿@model WebFront.Models.Departments.DepartmentViewModel
+@using WebFront.Constants;
+
+
+@if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
+{
+    @Html.ActionLink("Редактировать", $"Edit", routeValues: new {ID = Model.ID})
+    <br>
+    <br>
+}
+
+
+<table>
+    <tr>
+        <td>
+            Код
+        </td>
+        <td>
+             @Html.DisplayTextFor(m => m.ID)
+        </td>
+    </tr>
+    <tr>
+
+        <td>
+            Наименование
+        </td>
+        <td>
+            @Html.DisplayTextFor(m => m.Name)
+        </td>
+    </tr>
+</table>

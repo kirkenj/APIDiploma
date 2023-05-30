@@ -1,0 +1,29 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+
+
+.withBlackBorder {
+    border: 1px solid #000000;
+}
+
+.brd {
+    border: 4px double black; /* Параметры границы */
+    padding: 10px; /* Поля вокруг текста */
+}

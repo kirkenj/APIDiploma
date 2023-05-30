@@ -1,0 +1,86 @@
+﻿@using Database.Entities;
+@using WebFront.Constants;
+@model WebFront.Models.Account.UserViewModel
+
+@using (var a = Html.BeginForm("Edit", "Account", FormMethod.Post))
+{
+    <table>
+        @Html.HiddenFor(m=>m.Login)
+
+        <tr>
+            <td>
+                Имя
+            </td>
+            <td>
+                @Html.EditorFor(m => m.Name)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Фамилия
+            </td>
+            <td>
+                @Html.EditorFor(m => m.Surname)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Отчество
+            </td>
+            <td>
+                @Html.EditorFor(m => m.Patronymic)
+            </td>
+        </tr>
+        @if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
+        {
+            <tr>
+                <td>
+                    Роль
+                </td>
+                <td>
+                    @if (ViewBag.Roles is IEnumerable<Role> rolesList)
+                    {
+                        <select name="RoleID" value = @Model.RoleId>
+                            @foreach (var r in rolesList.OrderByDescending(r => r.ID == Model.RoleId))
+                            {
+                                <option value=@r.ID>@r.Name</option>
+                            }
+                        </select>
+                    }
+                </td>
+            </tr>
+        }
+        else
+        {
+            @Html.HiddenFor(r => r.RoleId)
+        }
+    </table>
+    <input type="submit" value="Подтвердить" />
+}
+<br>
+<br>
+<br>
+@using (var a = Html.BeginForm("UpdatePassword", "Account", FormMethod.Post))
+{
+    <input type="hidden" name="userLoginToUpdatePassword" value=@Model.Login>
+    <table>
+        <tr>
+            <td>
+                Введите новый пароль
+            </td>
+            <td>
+                <input type="password" name="newPassword" value="password">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Подтвердите пароль
+            </td>
+            <td>
+                <input type="password" name="confirmPassword" value="password">
+            </td>
+        </tr>
+    </table>
+    
+    <input type="submit" value="Подтвердить" />
+}

@@ -1,0 +1,81 @@
+﻿@model IEnumerable<AcademicDegreeViewModel>
+@using Database.Entities;
+@using Logic.Models.AcademicDegree;
+@using WebFront.Constants;
+@using WebFront.Models.AcademicDegrees;
+
+@{
+    AcademicDegreeSelectObject? selectionObject = ViewBag.selectionObject;
+    int pageVal = ViewBag.page;
+    int pageSize = ViewBag.pageSize;
+}
+<form action="List" method="Get">
+    <div class="brd" align="center">
+        <details>
+            <summary>Фильтр</summary>
+            <table>
+                <tr>
+                    <th>
+                        Искать по имени:
+                    </th>
+                    <th>
+                        <input type="text" name="Name" value=@(selectionObject?.Name)>
+                    </th>
+                </tr>
+
+            </table>
+        </details>
+    </div>
+    <table align="right">
+        <tr>
+            <th>
+                Страница:
+            </th>
+            <th>
+                <input type="number" name="page" value=@pageVal />
+            </th>
+        </tr>
+        <tr>
+            <th>
+                Элементов на страницу:
+            </th>
+            <th>
+                <input type="number" name="pageSize" value=@pageSize />
+            </th>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Получить" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>@Html.ActionLink("Сбросить фильтр", "List")</td>
+        </tr>
+    </table>
+</form>
+
+@Html.ActionLink("Назначения ставок", "Assignments")<br />
+
+
+@if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
+{
+    @Html.ActionLink("Добавить новый", "Add")
+}
+
+<table>
+    <tr>
+        <th>Код</th>
+        <th>Название</th>
+    </tr>
+    @{
+        foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ID</td>
+                <td>@item.Name</td>
+                <td>@Html.ActionLink("Подробнее", $"Get", new {id = item.ID})</td>
+                <td>@Html.ActionLink("Ставки", $"Assignments", new {id = item.ID})</td>
+            </tr>
+        }
+    }
+</table>

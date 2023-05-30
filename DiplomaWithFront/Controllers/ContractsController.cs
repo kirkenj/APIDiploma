@@ -1,0 +1,242 @@
+﻿using AutoMapper;
+using Database.Entities;
+using Logic.Interfaces;
+using Logic.Models.Contracts;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using WebFront.Constants;
+using WebFront.Models.Contracts;
+using WebFront.Models.ContractType;
+
+namespace WebFront.Controllers
+{
+    [ApiController]
+    [Authorize]
+    public class ContractsController : Controller
+    {
+        private readonly IAccountService _accountService;
+        private readonly IRoleService _roleService;
+        private readonly IContractService _contractService;
+        private readonly IMapper _mapper;
+
+        public ContractsController(IMapper mapper, IAccountService accountService, IContractService contractService, IRoleService roleService)
+        {
+            _contractService = contractService;
+            _mapper = mapper;
+            _accountService = accountService;
+            _roleService = roleService;
+        }
+
+        [HttpGet("{controller}/" + nameof(List))]
+        public async Task<IActionResult> List([FromQuery] ContractsSelectObject? selectionObject, int page = 1, int? pageSize = 10)
+        {
+            selectionObject ??= new ContractsSelectObject();
+            if (!_roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
+            {
+                selectionObject.UserIDs = new List<int> { IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User) };
+            }
+            var res = await _contractService.GetListViaSelectionObjectAsync(selectionObject, page, pageSize);
+            var ret = _mapper.Map<List<ContractViewModel>>(res);
+            ViewBag.selectionObject = selectionObject;
+            ViewBag.page = page;
+            ViewBag.pageSize = pageSize;
+
+            return View("List", ret);
+        }
+
+        [HttpGet("{controller}/{contractID}")]
+        public async Task<IActionResult> Get(int contractID)
+        {
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
+            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
+            {
+                return BadRequest("You have no rights to do it");
+            }
+
+            var contractToReturn = await _contractService.GetFullData(contractID);
+            var mappedContract = new RelatedContractsWithReportsViewModel
+            {
+                RelatedContracts = _mapper.Map<List<ContractViewModel>>(contractToReturn.Contracts),
+                MonthReports = _mapper.Map<List<MonthReportViewModel>>(contractToReturn.Reports)
+            };
+
+            mappedContract.MonthReports.ForEach(r => r.ContractID = contractID);
+            return Ok(mappedContract);
+        }
+
+
+        [HttpGet("{controller}/Add")]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public IActionResult GetAddForm()
+        {
+            return View("Add");
+        }
+
+        [HttpPost("{controller}/Add")]
+        public async Task<IActionResult> Post(ContractCreateModel createModel)
+        {
+            var contractToAdd = _mapper.Map<Contract>(createModel);
+            if (!_roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
+            {
+                contractToAdd.UserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            }
+
+            await _contractService.AddAsync(contractToAdd);
+            return Ok();
+        }
+
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        [HttpGet("{controller}/Edit/{id}")]
+        public async Task<IActionResult> GetEditForm(int id)
+        {
+            var dep = await _contractService.FirstOrDefaultAsync(d => d.ID == id);
+            if (dep == null)
+            {
+                return NotFound();
+            }
+
+            return View("Edit", _mapper.Map<ContractTypeViewModel>(dep));
+        }
+
+        [HttpPost("{controller}/Edit")]
+        public async Task<ActionResult> Put(ContractEditModel editModel)
+        {
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            editModel.UserId = currentUserID;
+            var contractToEdit = await _contractService.FirstOrDefaultAsync(c => c.ID == editModel.ContractID);
+            if (contractToEdit == null)
+            {
+                return BadRequest($"Contract with ID = {editModel.ContractID} not found");
+            }
+
+            if (!isAdmin && currentUserID != contractToEdit.UserID)
+            {
+                return BadRequest("You have no rights to do it");
+            }
+
+            var newContract = _mapper.Map<Contract>(editModel);
+            if (!_roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User)))
+            {
+                newContract.UserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            }
+
+            await _contractService.UpdateAsync(newContract);
+            return Ok();
+        }
+
+        [HttpDelete("{contractID}")]
+        public async Task<IActionResult> Delete(int contractID)
+        {
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            var valueToRemove = await _contractService.FirstOrDefaultAsync(c => c.ID == contractID);
+            if (valueToRemove == null)
+            {
+                return BadRequest($"Contract with ID = {contractID} not found");
+            }
+
+            if (!isAdmin && currentUserID != valueToRemove.UserID)
+            {
+                return BadRequest("You have no rights to do it");
+            }
+
+            await _contractService.DeleteAsync(valueToRemove);
+            return Ok();
+        }
+
+        [HttpPost(nameof(Confirm) + "/{contractID}")]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> Confirm(int contractID)
+        {
+            await _contractService.ConfirmAsync(contractID, User.Identity?.Name ?? throw new UnauthorizedAccessException());
+            return Ok();
+        }
+
+        [HttpGet(nameof(GetMonthReports) + "/{contractID}")]
+        public async Task<IActionResult> GetMonthReports(int contractID)
+        {
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
+            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
+            {
+                return BadRequest("Contract not found or you do not have rights to do it");
+            }
+
+            var ret = _mapper.Map<IEnumerable<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID));
+            foreach (var item in ret)
+            {
+                item.ContractID = contractID;
+            }
+
+            return Ok(ret);
+        }
+
+        [HttpGet(nameof(GetUntakenTime))]
+        public async Task<IActionResult> GetUntakenTime(int contractID)
+        {
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
+            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
+            {
+                return BadRequest("You do not have rights to do it");
+            }
+
+            return Ok(await _contractService.GetUntakenTimeAsync(contractID, Enumerable.Empty<(int, int)>()));
+        }
+
+        [HttpPut(nameof(EditMonthReport))]
+        public async Task<IActionResult> EditMonthReport(MonthReportEditModel editModel)
+        {
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserLogin = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            var contract = await _contractService.FirstOrDefaultAsync(e => e.ID == editModel.ContractID);
+            if (contract == null)
+            {
+                return BadRequest($"Contract with ID = {editModel.ContractID} not found");
+            }
+
+            if (!contract.IsConfirmed)
+            {
+                return BadRequest("Contract is not confirmed");
+            }
+
+            if (!isAdmin && currentUserLogin != contract.UserID)
+            {
+                return BadRequest("You have no rights to do it");
+            }
+
+            var monthReportToApply = _mapper.Map<MonthReport>(editModel);
+            monthReportToApply.LinkingPartID = contract?.LinkingPartID ?? throw new ArgumentException($"{nameof(contract.LinkingPartID)} is null");
+            await _contractService.UpdateMonthReport(monthReportToApply);
+            return Ok();
+        }
+
+        [HttpGet(nameof(GetMonthReportsReport))]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> GetMonthReportsReport(DateTime periodStart, DateTime periodEnd)
+        {
+            if (periodEnd <= periodStart) return BadRequest("periodEnd <= periodStart");
+            var res = await _contractService.GetReportsOnPeriodAsync(periodStart, periodEnd);
+            var ret = res.Select(r => new RelatedContractsWithReportsViewModel { RelatedContracts = _mapper.Map<List<ContractViewModel>>(r.Contracts), MonthReports = _mapper.Map<List<MonthReportViewModel>>(r.Reports) });
+            return Ok(ret);
+        }
+
+        [HttpPost(nameof(BlockReport))]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> BlockReport(int linkingPartID, int year, int month)
+        {
+            await _contractService.BlockReport(linkingPartID, month, year, IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User));
+            return Ok();
+        }
+
+        [HttpPost(nameof(UnBlockReport))]
+        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+        public async Task<IActionResult> UnBlockReport(int linkingPartID, int year, int month)
+        {
+            await _contractService.UnBlockReport(linkingPartID, month, year, IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User));
+            return Ok();
+        }
+    }
+}

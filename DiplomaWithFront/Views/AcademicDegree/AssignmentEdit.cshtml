@@ -1,0 +1,41 @@
+﻿@model AcademicDegreePriceAssignment
+@using Database.Entities;
+@using WebFront.Constants;
+
+@{
+    IEnumerable<AcademicDegree> atachedObjects = ViewBag.AtachedObjects;
+}
+
+@using (var a = Html.BeginForm("EditAssignment", "AcademicDegree", FormMethod.Post))
+{
+    <input type="hidden" name="id" value=@Model.ObjectIdentifier>
+    <input type="hidden" name="assignationActiveDate" value=@Model.AssignmentDate>
+    <table>
+        <tr>
+            <td>
+                Новая дата
+            </td>
+            <td>
+                <input type="date" name="newAssignationDate" value=@Model.AssignmentDate>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Новое значение
+            </td>
+            <td>
+                <input type="number" name="newValue" value=@Model.Value>
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Подтвердить" />
+}
+
+<div align="right">
+    @using (Html.BeginForm("DeleteAssignment", "AcademicDegree", FormMethod.Post))
+    {
+        <input type="hidden" name="id" value=@Model.ObjectIdentifier>
+        <input type="hidden" name="assignmentActiveDate" value=@Model.AssignmentDate>
+        <input type="submit" value="Удалить" />
+    }
+</div>
