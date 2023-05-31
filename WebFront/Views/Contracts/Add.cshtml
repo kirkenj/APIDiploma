@@ -86,11 +86,11 @@
         </tr>
         <tr>
             <td>Начало действия договора</td>
-            <td>@Html.EditorFor(m =>m.PeriodStart)</td>
+            <td><input type="date" name=@nameof(Model.PeriodStart) required></td>
         </tr>
         <tr>
             <td>Конец действия договора</td>
-            <td>@Html.EditorFor(m =>m.PeriodEnd)</td>
+            <td><input type="date" name=@nameof(Model.PeriodEnd) required></td>
         </tr>
     </table>
 
@@ -116,24 +116,24 @@
             <th class="brd">Сопровождение тестирования</th>
         </tr>
         <tr>
-            <td class="brd">@Html.EditorFor(m =>m.LectionsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.PracticalClassesTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.LaboratoryClassesTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.ConsultationsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.OtherTeachingClassesTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.CreditsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.ExamsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.CourseProjectsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.InterviewsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.TestsAndReferatsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.InternshipsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.DiplomasTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.DiplomasReviewsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.SECTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.GraduatesManagementTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.GraduatesAcademicWorkTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.PlasticPosesDemonstrationTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.TestingEscortTime)</td>
+            <td class="brd"><input type="number" name=@nameof(Model.LectionsTime) step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.PracticalClassesTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.LaboratoryClassesTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.ConsultationsTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.OtherTeachingClassesTime) step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.CreditsTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.ExamsTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.CourseProjectsTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.InterviewsTime)  step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.TestsAndReferatsTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.InternshipsTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.DiplomasTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.DiplomasReviewsTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.SECTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.GraduatesManagementTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.GraduatesAcademicWorkTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.PlasticPosesDemonstrationTime) step="0.01" min="0" ></td>
+            <td class="brd"><input type="number" name=@nameof(Model.TestingEscortTime) step="0.01" min="0" ></td>
         </tr>
     </table>
     <input type="submit" value="Подтвердить" />

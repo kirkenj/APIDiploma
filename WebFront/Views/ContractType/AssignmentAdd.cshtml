@@ -30,7 +30,8 @@
                 Дата
             </td>
             <td>
-                <input type="Date" id="name" name=@nameof(Model.AssignmentDate) required>
+                <input type="Date" name=@nameof(Model.AssignmentDate) required>
+
             </td>
         </tr>
         <tr>
@@ -38,7 +39,7 @@
                 Значение
             </td>
             <td>
-                @Html.EditorFor(m => m.Value)
+                <input type="number" name=@nameof(Model.Value) step="0.01" required>
             </td>
         </tr>
     </table>

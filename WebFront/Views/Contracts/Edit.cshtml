@@ -142,24 +142,24 @@
             <th class="brd">Сопровождение тестирования</th>
         </tr>
         <tr>
-            <td class="brd">@Html.EditorFor(m =>m.LectionsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.PracticalClassesTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.LaboratoryClassesTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.ConsultationsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.OtherTeachingClassesTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.CreditsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.ExamsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.CourseProjectsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.InterviewsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.TestsAndReferatsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.InternshipsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.DiplomasTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.DiplomasReviewsTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.SECTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.GraduatesManagementTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.GraduatesAcademicWorkTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.PlasticPosesDemonstrationTime)</td>
-            <td class="brd">@Html.EditorFor(m =>m.TestingEscortTime)</td>
+            <td class="brd"><input type="number" name=@nameof(Model.LectionsTime) value=@Model.LectionsTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.PracticalClassesTime) value=@Model.PracticalClassesTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.LaboratoryClassesTime) value=@Model.LaboratoryClassesTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.ConsultationsTime) value=@Model.ConsultationsTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.OtherTeachingClassesTime) value=@Model.OtherTeachingClassesTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.CreditsTime) value=@Model.CreditsTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.ExamsTime) value=@Model.ExamsTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.CourseProjectsTime) value=@Model.CourseProjectsTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.InterviewsTime) value=@Model.InterviewsTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.TestsAndReferatsTime) value=@Model.TestsAndReferatsTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.InternshipsTime) value=@Model.InternshipsTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.DiplomasTime) value=@Model.DiplomasTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.DiplomasReviewsTime) value=@Model.DiplomasReviewsTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.SECTime) value=@Model.SECTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.GraduatesManagementTime) value=@Model.GraduatesManagementTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.GraduatesAcademicWorkTime) value=@Model.GraduatesAcademicWorkTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.PlasticPosesDemonstrationTime) value=@Model.PlasticPosesDemonstrationTime step="0.01" min="0"></td>
+            <td class="brd"><input type="number" name=@nameof(Model.TestingEscortTime) value=@Model.TestingEscortTime step="0.01" min="0"></td>
         </tr>
     </table>
     <input type="submit" value="Подтвердить" />
