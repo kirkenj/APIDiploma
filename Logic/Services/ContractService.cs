@@ -281,7 +281,7 @@ namespace Logic.Services
             DbSet.Remove(record);
             await SaveChangesAsync(token);
             valueToAply.ID = record.ID;
-            DbSet.Add(record);
+            DbSet.Add(valueToAply);
             await SaveChangesAsync(token);
         }
 
