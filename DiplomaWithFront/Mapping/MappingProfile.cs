@@ -43,7 +43,7 @@ namespace WebFront.Mapping
             .ForMember(dest => dest.CourseProjectsMaxTime, opt => opt.MapFrom(src => src.CourseProjectsTime));
 
             CreateMap<ContractEditModel, Contract>()
-            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ContractID))
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.UserID, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.ContractIdentifier, opt => opt.MapFrom(src => src.ContractIdentifier))
             .ForMember(dest => dest.PeriodStart, opt => opt.MapFrom(src => src.PeriodStart))

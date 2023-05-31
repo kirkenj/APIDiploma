@@ -5,7 +5,7 @@ namespace WebFront.Models.Contracts
     public class ContractEditModel : IValidatableObject
     {
         [Required]
-        public int ContractID { get; set; }
+        public int Id { get; set; }
         [Required]
         public int? UserId { get; set; } = -1;
         [Required]

@@ -1,0 +1,77 @@
+﻿@model ContractViewModel
+@using WebFront.Models.Account;
+@using WebFront.Models.ContractType;
+@using WebFront.Models.Contracts;
+@using WebFront.Constants;
+@using WebFront.Models.Departments;
+
+@{
+    @using (var a = Html.BeginForm("Add", "Contracts", FormMethod.Post))
+    {
+        string userNsp = ViewBag.UserNSP ?? "Undefined";
+        @Html.HiddenFor(m =>m.PeriodEnd)
+        @Html.HiddenFor(m =>m.UserId)
+        @Html.HiddenFor(m =>m.DepartmentID)
+        @Html.HiddenFor(m =>m.ContractTypeID)
+        <input type="hidden" name="ParentContractId" value=@Model.Id>
+        <table>
+            <tr>
+                <td>Пользователь</td>
+                <td>@userNsp</td>
+            </tr>
+            <tr>
+                <td>Идентификатор договора</td>
+                <td>@Html.EditorFor(m =>m.ContractIdentifier)</td>
+            </tr>
+            <tr>
+                <td>Начало действия договора</td>
+                <td>@Html.EditorFor(m =>m.PeriodStart)</td>
+            </tr>
+        </table>
+
+
+        <table>
+            <tr>
+                <th class="brd">Лекции</th>
+                <th class="brd">Практические занятия</th>
+                <th class="brd">Лабораторные занятия</th>
+                <th class="brd">Консультации</th>
+                <th class="brd">Иное учебное занятие</th>
+                <th class="brd">Зачеты</th>
+                <th class="brd">Экзамены</th>
+                <th class="brd">Курсовая работа, курсовой проект</th>
+                <th class="brd">Собеседование</th>
+                <th class="brd">Контрольная работа, реферат</th>
+                <th class="brd">Стажировка</th>
+                <th class="brd">Дипломный проект, дипломная работа</th>
+                <th class="brd">Рецензирование дипломных проектов, работ, маг. диссертаций</th>
+                <th class="brd">ГЭК</th>
+                <th class="brd">Руководство магистрантами</th>
+                <th class="brd">Учебная работа с аспирантами</th>
+                <th class="brd">Демонстрация пластических поз</th>
+                <th class="brd">Сопровождение тестирования</th>
+            </tr>
+            <tr>
+                <td class="brd">@Html.EditorFor(m =>m.LectionsTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.PracticalClassesTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.LaboratoryClassesTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.ConsultationsTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.OtherTeachingClassesTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.CreditsTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.ExamsTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.CourseProjectsTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.InterviewsTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.TestsAndReferatsTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.InternshipsTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.DiplomasTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.DiplomasReviewsTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.SECTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.GraduatesManagementTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.GraduatesAcademicWorkTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.PlasticPosesDemonstrationTime)</td>
+                <td class="brd">@Html.EditorFor(m =>m.TestingEscortTime)</td>
+            </tr>
+        </table>
+        <input type="submit" value="Подтвердить" />
+    }
+}

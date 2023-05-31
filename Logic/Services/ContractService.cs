@@ -32,11 +32,6 @@ namespace Logic.Services
                 return contracts;
             }
 
-            if (selectionObject.ContractIDs != null)
-            {
-                contracts = contracts.Where(c => selectionObject.ContractIDs.Contains(c.ID));
-            }
-
             if (selectionObject.IdentifierPart != null)
             {
                 contracts = contracts.Where(c => c.ContractIdentifier.Contains(selectionObject.IdentifierPart));
@@ -44,7 +39,7 @@ namespace Logic.Services
 
             if (selectionObject.DepartmentIDs != null)
             {
-                contracts = contracts.Where(c => selectionObject.DepartmentIDs.Contains(c.ID));
+                contracts = contracts.Where(c => selectionObject.DepartmentIDs.Contains(c.DepartmentID));
             }
 
             if (selectionObject.IsConfirmed != null)
@@ -80,16 +75,6 @@ namespace Logic.Services
             if (selectionObject.PeriodEndEndBound != null)
             {
                 contracts = contracts.Where(c => c.PeriodEnd <= selectionObject.PeriodEndEndBound);
-            }
-
-            if (selectionObject.TimeSumStartBound != null)
-            {
-                contracts = contracts.Where(c => c.TimeSum >= selectionObject.TimeSumStartBound);
-            }
-
-            if (selectionObject.TimeSumEndBound != null)
-            {
-                contracts = contracts.Where(c => c.TimeSum <= selectionObject.TimeSumEndBound);
             }
 
             return contracts;
@@ -191,7 +176,7 @@ namespace Logic.Services
 
         public async Task<IEnumerable<RelatedContractsWithReportsObject>> GetReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd) => await _contractLinkingPartService.GetReportsOnPeriodAsync(periodStart, periodEnd);
 
-        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys) => await _contractLinkingPartService.GetUntakenTimeAsync(contractID, exceptValuesWithKeys);
+        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys, bool replaceNegativesWithZero = false) => await _contractLinkingPartService.GetUntakenTimeAsync(contractID, exceptValuesWithKeys, replaceNegativesWithZero);
 
         public async Task OnObjectAboutToBeConfirmedAsync(Contract entity, CancellationToken token = default)
         {
@@ -570,5 +555,9 @@ namespace Logic.Services
         }
 
         public async Task UnBlockReport(int linkingPartID, int month, int year, int userID) => await _contractLinkingPartService.UnBlockReport(linkingPartID, month, year, userID);
+
+        public async Task<MonthReport?> GetReport(int linkingPartID, int month, int year) => await _contractLinkingPartService.GetReport(linkingPartID, month, year);
+
+        public async Task<MonthReportsUntakenTimeModel> GetMaxValuesForReport(int linkingPartId, int repYear, int repMonth) => await _contractLinkingPartService.GetMaxValuesForReport(linkingPartId, repYear, repMonth);
     }
 }

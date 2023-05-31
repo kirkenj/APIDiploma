@@ -1,28 +1,166 @@
-﻿@using Database.Entities;
+﻿@model ContractViewModel
+@using WebFront.Models.Account;
+@using WebFront.Models.ContractType;
+@using WebFront.Models.Contracts;
 @using WebFront.Constants;
-@model WebFront.Models.ContractType.ContractTypeViewModel
+@using WebFront.Models.Departments;
 
-@using (var a = Html.BeginForm("Edit", "ContractType", FormMethod.Post))
+
+
+@using (var a = Html.BeginForm("Edit", "Contracts", FormMethod.Post))
 {
-    <table>
-        @Html.HiddenFor(m=>m.ID)
+    @Html.HiddenFor(m =>m.ParentContractID)
 
+    if (Model.ParentContractID != null)
+    {
+        @Html.HiddenFor(c => c.UserId);
+        @Html.HiddenFor(c => c.DepartmentID);
+        @Html.HiddenFor(c => c.ContractTypeID);
+
+        <table>
+            <tr>
+                <td>Идентификатор договора</td>
+                <td>@Html.EditorFor(m =>m.ContractIdentifier)</td>
+            </tr>
+            <tr>
+                <td>Начало действия договора</td>
+                <td>@Html.EditorFor(m =>m.PeriodStart)</td>
+            </tr>
+        </table>
+    }
+    else
+    {
+
+        bool isAdmin = IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User);
+        IEnumerable<DepartmentViewModel>? departments = ViewBag.Departments;
+        if (departments == null || !departments.Any())
+        {
+            throw new Exception("Departments is null or empty");
+        }
+
+        IEnumerable<ContractTypeViewModel>? contractTypes = ViewBag.ContractTypes;
+        if (contractTypes == null || !contractTypes.Any())
+        {
+            throw new Exception("Departments is null or empty");
+        }
+
+        IEnumerable<UserViewModel> users = Enumerable.Empty<UserViewModel>();
+        if (isAdmin)
+        {
+            users = ViewBag.Users;
+            if (users == null || !users.Any())
+            {
+                throw new Exception("Departments is null or empty");
+            }
+        }
+        else
+        {
+            <input type="hidden" name="UserID" value=@IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User)>
+        }
+        <table>
+            <tr>
+                @if (isAdmin)
+                {
+                    <td>Пользователь</td>
+                    <td>
+                        <select name="UserId">
+                            @foreach (var u in users)
+                            {
+                                <option value=@u.ID>@u.NSP</option>
+                            }
+                        </select>
+                    </td>
+                }
+                else
+                {
+                    <td><input type="hidden" name="UserID" value=@IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User)></td>
+                }
+            </tr>
+
+            <tr>
+                <td>Отдел</td>
+                <td>
+                    <select name=@nameof(Model.DepartmentID)>
+                        @foreach (var d in departments)
+                        {
+                            <option value=@d.ID>@d.Name</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Тип догвоора</td>
+                <td>
+                    <select name=@nameof(Model.ContractTypeID)>
+                        @foreach (var d in contractTypes)
+                        {
+                            <option value=@d.ID>@d.Name</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td>Идентификатор договора</td>
+                <td>@Html.EditorFor(m =>m.ContractIdentifier)</td>
+            </tr>
+            <tr>
+                <td>Начало действия договора</td>
+                <td>@Html.EditorFor(m =>m.PeriodStart)</td>
+            </tr>
+            <tr>
+                <td>Конец действия договора</td>
+                <td>@Html.EditorFor(m =>m.PeriodEnd)</td>
+            </tr>
+        </table>
+
+    }
+
+    @Html.HiddenFor(m =>m.Id)
+
+    <table>
         <tr>
-            <td>
-                Имя
-            </td>
-            <td>
-                @Html.EditorFor(m => m.Name)
-            </td>
+            <th class="brd">Лекции</th>
+            <th class="brd">Практические занятия</th>
+            <th class="brd">Лабораторные занятия</th>
+            <th class="brd">Консультации</th>
+            <th class="brd">Иное учебное занятие</th>
+            <th class="brd">Зачеты</th>
+            <th class="brd">Экзамены</th>
+            <th class="brd">Курсовая работа, курсовой проект</th>
+            <th class="brd">Собеседование</th>
+            <th class="brd">Контрольная работа, реферат</th>
+            <th class="brd">Стажировка</th>
+            <th class="brd">Дипломный проект, дипломная работа</th>
+            <th class="brd">Рецензирование дипломных проектов, работ, маг. диссертаций</th>
+            <th class="brd">ГЭК</th>
+            <th class="brd">Руководство магистрантами</th>
+            <th class="brd">Учебная работа с аспирантами</th>
+            <th class="brd">Демонстрация пластических поз</th>
+            <th class="brd">Сопровождение тестирования</th>
+        </tr>
+        <tr>
+            <td class="brd">@Html.EditorFor(m =>m.LectionsTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.PracticalClassesTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.LaboratoryClassesTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.ConsultationsTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.OtherTeachingClassesTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.CreditsTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.ExamsTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.CourseProjectsTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.InterviewsTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.TestsAndReferatsTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.InternshipsTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.DiplomasTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.DiplomasReviewsTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.SECTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.GraduatesManagementTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.GraduatesAcademicWorkTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.PlasticPosesDemonstrationTime)</td>
+            <td class="brd">@Html.EditorFor(m =>m.TestingEscortTime)</td>
         </tr>
     </table>
     <input type="submit" value="Подтвердить" />
 }
-
-<div align="right">
-    @using (Html.BeginForm("Delete", "ContractType", FormMethod.Post))
-    {
-        @Html.HiddenFor(m => m.ID)
-        <input type="submit" value="Удалить" />
-    }
-</div>

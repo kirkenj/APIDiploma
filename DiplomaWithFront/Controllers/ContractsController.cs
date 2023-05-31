@@ -1,26 +1,32 @@
 ﻿using AutoMapper;
 using Database.Entities;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Logic.Interfaces;
 using Logic.Models.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebFront.Constants;
+using WebFront.Models.Account;
 using WebFront.Models.Contracts;
 using WebFront.Models.ContractType;
+using WebFront.Models.Departments;
 
 namespace WebFront.Controllers
 {
-    [ApiController]
     [Authorize]
     public class ContractsController : Controller
     {
         private readonly IAccountService _accountService;
+        private readonly IContractTypeService _contractTypeService;
+        private readonly IDepartmentService _departmentService;
         private readonly IRoleService _roleService;
         private readonly IContractService _contractService;
         private readonly IMapper _mapper;
 
-        public ContractsController(IMapper mapper, IAccountService accountService, IContractService contractService, IRoleService roleService)
+        public ContractsController(IMapper mapper, IAccountService accountService, IContractService contractService, IDepartmentService departmentService, IRoleService roleService, IContractTypeService contractTypeService)
         {
+            _departmentService = departmentService;
+            _contractTypeService = contractTypeService;
             _contractService = contractService;
             _mapper = mapper;
             _accountService = accountService;
@@ -37,6 +43,11 @@ namespace WebFront.Controllers
             }
             var res = await _contractService.GetListViaSelectionObjectAsync(selectionObject, page, pageSize);
             var ret = _mapper.Map<List<ContractViewModel>>(res);
+
+            ViewBag.Users = (await _accountService.GetListViaSelectionObjectAsync(null)).Select(p => new KeyValuePair<int, string>(p.ID, p.NSP));
+            ViewBag.Departments = (await _departmentService.GetListViaSelectionObjectAsync(null)).Select(p => new KeyValuePair<int, string>(p.ID, p.Name));
+            ViewBag.Contracts = (await _contractService.GetListViaSelectionObjectAsync(null)).Select(p => new KeyValuePair<int, string>(p.ID, p.ContractIdentifier));
+            ViewBag.ContractTypes = (await _contractTypeService.GetListViaSelectionObjectAsync(null)).Select(p => new KeyValuePair<int, string>(p.ID, p.Name));
             ViewBag.selectionObject = selectionObject;
             ViewBag.page = page;
             ViewBag.pageSize = pageSize;
@@ -44,32 +55,64 @@ namespace WebFront.Controllers
             return View("List", ret);
         }
 
-        [HttpGet("{controller}/{contractID}")]
-        public async Task<IActionResult> Get(int contractID)
+        [HttpGet("{controller}/{id}")]
+        public async Task<IActionResult> Get(int id)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
+            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(id))
             {
                 return BadRequest("You have no rights to do it");
             }
 
-            var contractToReturn = await _contractService.GetFullData(contractID);
+            var contractToReturn = await _contractService.GetFullData(id);
             var mappedContract = new RelatedContractsWithReportsViewModel
             {
                 RelatedContracts = _mapper.Map<List<ContractViewModel>>(contractToReturn.Contracts),
                 MonthReports = _mapper.Map<List<MonthReportViewModel>>(contractToReturn.Reports)
             };
 
-            mappedContract.MonthReports.ForEach(r => r.ContractID = contractID);
-            return Ok(mappedContract);
+            mappedContract.MonthReports.ForEach(r => r.ContractID = id);
+            return View("Get", mappedContract);
         }
 
 
         [HttpGet("{controller}/Add")]
-        [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public IActionResult GetAddForm()
+        public async Task<IActionResult> GetAddForm(int? forContractId)
         {
+            if (forContractId.HasValue)
+            {
+                bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+                var currentUserId = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+                var contractToSend = await _contractService.FirstOrDefaultAsync(c => c.ID == forContractId);
+                if(contractToSend == null) 
+                { 
+                    return NotFound(IncludeModels.BadRequestTextFactory.GetObjectNotFoundExceptionText($"Id = {forContractId}"));
+                }
+
+                if (!isAdmin && currentUserId != contractToSend.UserID)
+                {
+                    return BadRequest(IncludeModels.BadRequestTextFactory.GetNoRightsExceptionText());
+                }
+
+                if (!contractToSend.IsConfirmed)
+                {
+                    return BadRequest("This contract is not confirmed");
+                }
+
+                ViewBag.UserNSP = (await _accountService.FirstOrDefaultAsync(u => u.ID == contractToSend.ID))?.NSP ?? "Undefined";
+                return View("AddChild", _mapper.Map<ContractViewModel>(contractToSend));
+            }
+
+            var deps = await _departmentService.GetListViaSelectionObjectAsync(null, 1, int.MaxValue);
+            var types = await _contractTypeService.GetListViaSelectionObjectAsync(null, 1, int.MaxValue);
+            ViewBag.Departments = _mapper.Map<IEnumerable<DepartmentViewModel>>(deps);
+            ViewBag.ContractTypes = _mapper.Map< IEnumerable<ContractTypeViewModel>>(types);
+            if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
+            {
+                ViewBag.Users = _mapper.Map<IEnumerable<UserViewModel>>(await _accountService.GetListViaSelectionObjectAsync(null, 1, int.MaxValue));
+            }
+
             return View("Add");
         }
 
@@ -83,20 +126,29 @@ namespace WebFront.Controllers
             }
 
             await _contractService.AddAsync(contractToAdd);
-            return Ok();
+            return Redirect(nameof(List));
         }
 
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         [HttpGet("{controller}/Edit/{id}")]
         public async Task<IActionResult> GetEditForm(int id)
         {
-            var dep = await _contractService.FirstOrDefaultAsync(d => d.ID == id);
-            if (dep == null)
+            var ret = await _contractService.FirstOrDefaultAsync(d => d.ID == id);
+            if (ret == null)
             {
                 return NotFound();
             }
 
-            return View("Edit", _mapper.Map<ContractTypeViewModel>(dep));
+            var deps = await _departmentService.GetListViaSelectionObjectAsync(null, 1, int.MaxValue);
+            var types = await _contractTypeService.GetListViaSelectionObjectAsync(null, 1, int.MaxValue);
+            ViewBag.Departments = _mapper.Map<IEnumerable<DepartmentViewModel>>(deps);
+            ViewBag.ContractTypes = _mapper.Map<IEnumerable<ContractTypeViewModel>>(types);
+            if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
+            {
+                ViewBag.Users = _mapper.Map<IEnumerable<UserViewModel>>(await _accountService.GetListViaSelectionObjectAsync(null, 1, int.MaxValue));
+            }
+
+            return View("Edit", _mapper.Map<ContractViewModel>(ret));
         }
 
         [HttpPost("{controller}/Edit")]
@@ -105,10 +157,10 @@ namespace WebFront.Controllers
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
             editModel.UserId = currentUserID;
-            var contractToEdit = await _contractService.FirstOrDefaultAsync(c => c.ID == editModel.ContractID);
+            var contractToEdit = await _contractService.FirstOrDefaultAsync(c => c.ID == editModel.Id);
             if (contractToEdit == null)
             {
-                return BadRequest($"Contract with ID = {editModel.ContractID} not found");
+                return BadRequest($"Contract with ID = {editModel.Id} not found");
             }
 
             if (!isAdmin && currentUserID != contractToEdit.UserID)
@@ -122,19 +174,39 @@ namespace WebFront.Controllers
                 newContract.UserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
             }
 
-            await _contractService.UpdateAsync(newContract);
-            return Ok();
+            await _contractService.UpdateAsync(newContract); 
+            return RedirectToAction(nameof(List));
         }
 
-        [HttpDelete("{contractID}")]
-        public async Task<IActionResult> Delete(int contractID)
+        [HttpGet("{controller}/" + nameof(Delete) + "/{id}")]
+        public async Task<IActionResult> DeleteForm(int id)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
-            var valueToRemove = await _contractService.FirstOrDefaultAsync(c => c.ID == contractID);
+
+            var valueToRemove = await _contractService.FirstOrDefaultAsync(c => c.ID == id);
             if (valueToRemove == null)
             {
-                return BadRequest($"Contract with ID = {contractID} not found");
+                return BadRequest($"Contract with ID = {id} not found");
+            }
+
+            if (!isAdmin && currentUserID != valueToRemove.UserID)
+            {
+                return BadRequest("You have no rights to do it");
+            }
+
+            return View("Delete", _mapper.Map<ContractViewModel>(valueToRemove));
+        }
+
+        [HttpPost("{controller}/" + nameof(Delete) + "/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            var valueToRemove = await _contractService.FirstOrDefaultAsync(c => c.ID == id);
+            if (valueToRemove == null)
+            {
+                return BadRequest($"Contract with ID = {id} not found");
             }
 
             if (!isAdmin && currentUserID != valueToRemove.UserID)
@@ -143,50 +215,88 @@ namespace WebFront.Controllers
             }
 
             await _contractService.DeleteAsync(valueToRemove);
-            return Ok();
+            return RedirectToAction(nameof(List));
         }
 
-        [HttpPost(nameof(Confirm) + "/{contractID}")]
+        [HttpPost("{controller}/" + nameof(Confirm) + "/{id}")]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> Confirm(int contractID)
+        public async Task<IActionResult> Confirm(int id)
         {
-            await _contractService.ConfirmAsync(contractID, User.Identity?.Name ?? throw new UnauthorizedAccessException());
-            return Ok();
+            await _contractService.ConfirmAsync(id, User.Identity?.Name ?? throw new UnauthorizedAccessException());
+            return RedirectToAction(nameof(List));
         }
 
-        [HttpGet(nameof(GetMonthReports) + "/{contractID}")]
-        public async Task<IActionResult> GetMonthReports(int contractID)
+        [HttpGet("{controller}/" + nameof(GetMonthReports) + "/{id}")]
+        public async Task<IActionResult> GetMonthReports(int id)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
+            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(id))
             {
                 return BadRequest("Contract not found or you do not have rights to do it");
             }
 
-            var ret = _mapper.Map<IEnumerable<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(contractID));
+            var ret = _mapper.Map<IEnumerable<MonthReportViewModel>>(await _contractService.GetMonthReportsAsync(id));
             foreach (var item in ret)
             {
-                item.ContractID = contractID;
+                item.ContractID = id;
             }
 
             return Ok(ret);
         }
 
-        [HttpGet(nameof(GetUntakenTime))]
-        public async Task<IActionResult> GetUntakenTime(int contractID)
+        [HttpGet("{controller}/" + nameof(GetUntakenTime))]
+        public async Task<IActionResult> GetUntakenTime(int id)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(contractID))
+            if (!isAdmin && currentUserLogin != await _contractService.GetOwnersLoginAsync(id))
             {
                 return BadRequest("You do not have rights to do it");
             }
 
-            return Ok(await _contractService.GetUntakenTimeAsync(contractID, Enumerable.Empty<(int, int)>()));
+            return Ok(await _contractService.GetUntakenTimeAsync(id, Enumerable.Empty<(int, int)>()));
         }
 
-        [HttpPut(nameof(EditMonthReport))]
+        [HttpGet("{controller}/" + nameof(EditMonthReport))]
+        public async Task<IActionResult> GetEditMonthReportForm(int contractID, int month, int year)
+        {
+            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            var currentUserLogin = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            var contract = await _contractService.FirstOrDefaultAsync(e => e.ID == contractID);
+            if (contract == null)
+            {
+                return BadRequest($"Contract with ID = {contractID} not found");
+            }
+
+            if (!contract.IsConfirmed)
+            {
+                return BadRequest("Contract is not confirmed");
+            }
+
+            var linkingPartID = contract.LinkingPartID ?? throw new ArgumentException($"{nameof(contract.LinkingPartID)} is null");
+            if (!isAdmin && currentUserLogin != contract.UserID)
+            {
+                return BadRequest("You have no rights to do it");
+            }
+
+            var monthReport = _mapper.Map<MonthReportViewModel>(await _contractService.GetReport(linkingPartID, month, year));
+
+            if (monthReport.IsBlocked)
+            {
+                return BadRequest("Month report is blocked");
+            }
+
+            monthReport.LinkingPartID = linkingPartID;
+            monthReport.ContractID = contractID;
+
+            ViewBag.MaxVals = await _contractService.GetMaxValuesForReport(linkingPartID, year, month);
+            ViewBag.Identifier = contract.ContractIdentifier;
+
+            return View("ReportEdit", monthReport);
+        }
+
+        [HttpPost("{controller}/" + nameof(EditMonthReport))]
         public async Task<IActionResult> EditMonthReport(MonthReportEditModel editModel)
         {
             bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
@@ -207,13 +317,14 @@ namespace WebFront.Controllers
                 return BadRequest("You have no rights to do it");
             }
 
+
             var monthReportToApply = _mapper.Map<MonthReport>(editModel);
             monthReportToApply.LinkingPartID = contract?.LinkingPartID ?? throw new ArgumentException($"{nameof(contract.LinkingPartID)} is null");
             await _contractService.UpdateMonthReport(monthReportToApply);
-            return Ok();
+            return RedirectToAction("Get", new { id = contract.ID });
         }
 
-        [HttpGet(nameof(GetMonthReportsReport))]
+        [HttpGet("{controller}/" + nameof(GetMonthReportsReport))]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> GetMonthReportsReport(DateTime periodStart, DateTime periodEnd)
         {
@@ -223,20 +334,20 @@ namespace WebFront.Controllers
             return Ok(ret);
         }
 
-        [HttpPost(nameof(BlockReport))]
+        [HttpPost("{controller}/" + nameof(BlockReport))]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> BlockReport(int linkingPartID, int year, int month)
+        public async Task<IActionResult> BlockReport(int contractId, int linkingPartID, int year, int month)
         {
             await _contractService.BlockReport(linkingPartID, month, year, IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User));
-            return Ok();
+            return RedirectToAction("Get", new { id = contractId });
         }
 
-        [HttpPost(nameof(UnBlockReport))]
+        [HttpPost("{controller}/" + nameof(UnBlockReport))]
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
-        public async Task<IActionResult> UnBlockReport(int linkingPartID, int year, int month)
+        public async Task<IActionResult> UnBlockReport(int contractId, int linkingPartID, int year, int month)
         {
             await _contractService.UnBlockReport(linkingPartID, month, year, IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User));
-            return Ok();
+            return RedirectToAction("Get", new { id = contractId });
         }
     }
 }

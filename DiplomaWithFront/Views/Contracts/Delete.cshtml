@@ -1,0 +1,83 @@
+﻿@model WebFront.Models.Contracts.ContractViewModel;
+@using WebFront.Constants;
+
+<table>
+    <tr>
+        <th class="brd">Название</th>
+        <th class="brd">Договор с</th>
+        <th class="brd">Договор по</th>
+        <th class="brd">Итого часов</th>
+        <th class="brd">Подтвержден / заблокирован</th>
+        <th class="brd"> </th>
+        <th class="brd">Лекции</th>
+        <th class="brd">Практические занятия</th>
+        <th class="brd">Лабораторные занятия</th>
+        <th class="brd">Консультации</th>
+        <th class="brd">Иное учебное занятие</th>
+        <th class="brd">Зачеты</th>
+        <th class="brd">Экзамены</th>
+        <th class="brd">Курсовая работа, курсовой проект</th>
+        <th class="brd">Собеседование</th>
+        <th class="brd">Контрольная работа, реферат</th>
+        <th class="brd">Стажировка</th>
+        <th class="brd">Дипломный проект, дипломная работа</th>
+        <th class="brd">Рецензирование дипломных проектов, работ, маг. диссертаций</th>
+        <th class="brd">ГЭК</th>
+        <th class="brd">Руководство магистрантами</th>
+        <th class="brd">Учебная работа с аспирантами</th>
+        <th class="brd">Демонстрация пластических поз</th>
+        <th class="brd">Сопровождение тестирования</th>
+    </tr>
+    <tr>
+        <td class="brd">@Model.ContractIdentifier</td>
+        <td class="brd">@Model.PeriodStart.ToShortDateString()</td>
+        <td class="brd">@Model.PeriodEnd.ToShortDateString()</td>
+        <td class="brd">@Model.TimeSum</td>
+        <td class="brd">
+            @if (Model.IsConfirmed)
+            {
+                @:Да
+            }
+            else
+            {
+                @:Нет
+            }
+        </td>
+        <td class="brd"></td>
+        <td class="brd">@Model.LectionsTime</td>
+        <td class="brd">@Model.PracticalClassesTime</td>
+        <td class="brd">@Model.LaboratoryClassesTime</td>
+        <td class="brd">@Model.ConsultationsTime</td>
+        <td class="brd">@Model.OtherTeachingClassesTime</td>
+        <td class="brd">@Model.CreditsTime</td>
+        <td class="brd">@Model.ExamsTime</td>
+        <td class="brd">@Model.CourseProjectsTime</td>
+        <td class="brd">@Model.InterviewsTime</td>
+        <td class="brd">@Model.TestsAndReferatsTime</td>
+        <td class="brd">@Model.InternshipsTime</td>
+        <td class="brd">@Model.DiplomasTime</td>
+        <td class="brd">@Model.DiplomasReviewsTime</td>
+        <td class="brd">@Model.SECTime</td>
+        <td class="brd">@Model.GraduatesManagementTime</td>
+        <td class="brd">@Model.GraduatesAcademicWorkTime</td>
+        <td class="brd">@Model.PlasticPosesDemonstrationTime</td>
+        <td class="brd">@Model.TestingEscortTime</td>
+    </tr>
+</table>
+
+
+
+<p>Вы уверены?</p>
+
+@if (Model.IsConfirmed)
+{
+    <p>Договор подтвержден</p>
+    @if (Model.ParentContractID == null)
+    {
+        <p>Вместе с ним будут удалены все отчеты и ссылающиеся на него договоры</p>
+    }
+}
+@using (Html.BeginForm("Delete", "Contracts", new { Model.Id}, FormMethod.Post))
+{
+    <input type="submit" value="Да, удалить" />
+}

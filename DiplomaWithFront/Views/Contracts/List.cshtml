@@ -5,9 +5,13 @@
 @using WebFront.Models.Contracts;
 
 @{
-    ContractsSelectObject? selectionObject = ViewBag.selectionObject;
+    ContractsSelectObject selectionObject = ViewBag.selectionObject is ContractsSelectObject contractsSelectObject ? contractsSelectObject :  new();
     int pageVal = ViewBag.page;
     int pageSize = ViewBag.pageSize;
+    IEnumerable<KeyValuePair<int, string>> users = ViewBag.Users is IEnumerable<KeyValuePair<int, string>> usersE ? usersE : Enumerable.Empty<KeyValuePair<int, string>>();
+    IEnumerable<KeyValuePair<int, string>> departments = ViewBag.Departments is IEnumerable<KeyValuePair<int, string>> departmentsE ? departmentsE : Enumerable.Empty<KeyValuePair<int, string>>();
+    IEnumerable<KeyValuePair<int, string>> contracts = ViewBag.Contracts is IEnumerable<KeyValuePair<int, string>> contractsE ? contractsE : Enumerable.Empty<KeyValuePair<int, string>>();
+    IEnumerable<KeyValuePair<int, string>> contractTypes = ViewBag.ContractTypes is IEnumerable<KeyValuePair<int, string>> contractTypesE ? contractTypesE : Enumerable.Empty<KeyValuePair<int, string>>();
 }
 <form action="List" method="Get">
     <div class="brd" align="center">
@@ -19,10 +23,80 @@
                         Искать по имени:
                     </th>
                     <th>
-                        <input type="text" name="Name" value=@(selectionObject?.IdentifierPart)>
+                        <input type="text" name=@nameof(selectionObject.IdentifierPart) value=@(selectionObject?.IdentifierPart)>
                     </th>
                 </tr>
-
+                <tr>
+                    <th>
+                        Искать по отделам:
+                    </th>
+                    <th>
+                        <select name=@nameof(selectionObject.DepartmentIDs) multiple>
+                            @foreach (var u in departments)
+                            {
+                                <option value=@u.Key>@u.Value</option>
+                            }
+                        </select>
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        Искать по пользователям:
+                    </th>
+                    <th>
+                        <select name=@nameof(selectionObject.UserIDs) multiple>
+                            @foreach (var u in users)
+                            {
+                                <option value=@u.Key>@u.Value</option>
+                            }
+                        </select>
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        Искать по типам договоров:
+                    </th>
+                    <th>
+                        <select name=@nameof(selectionObject.ContractTypeIDs) multiple>
+                            @foreach (var u in contractTypes)
+                            {
+                                <option value=@u.Key>@u.Value</option>
+                            }
+                        </select>
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        Договор активен с (нач.пер):
+                    </th>
+                    <th>
+                        <input type="date" name=@nameof(selectionObject.PeriodStartStartBound) />
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        Договор активен с (кон.пер):
+                    </th>
+                    <th>
+                        <input type="date" name=@nameof(selectionObject.PeriodStartEndBound) />
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        Договор активен по (нач.пер):
+                    </th>
+                    <th>
+                        <input type="date" name=@nameof(selectionObject.PeriodEndStartBound) />
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        Договор активен по (кон.пер):
+                    </th>
+                    <th>
+                        <input type="date" name=@nameof(selectionObject.PeriodEndEndBound) />
+                    </th>
+                </tr>
             </table>
         </details>
     </div>
@@ -54,8 +128,6 @@
     </table>
 </form>
 
-@Html.ActionLink("Назначения ставок", "Assignments")<br />
-
 
 @if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
 {
@@ -69,10 +141,11 @@
         <th class="brd">ИД пользователя</th>
         <th class="brd">Название</th>
         <th class="brd">Подтвержден</th>
-        <th class="brd">Дочерний для</th>
+        <th class="brd">Допконтракт для</th>
         <th class="brd">Договор с</th>
         <th class="brd">Договор по</th>
         <th class="brd">ИД отдела</th>
+        <th class="brd">Тип договора</th>
         <th class="brd">Итого часов</th>
         <th class="brd"> </th>
         <th class="brd">Лекции</th>
@@ -99,15 +172,16 @@
         {
             <tr>
                 <td class="brd">@item.Id</td>
-                <td class="brd">@item.UserId</td>
+                <td class="brd">@users.FirstOrDefault(u => u.Key == item.UserId).Value</td>
                 <td class="brd">@item.ContractIdentifier</td>
                 <td class="brd">@(item.IsConfirmed ? "Да" : "Нет")</td>
-                <td class="brd">@item.ParentContractID</td>
+                <td class="brd">@contracts.FirstOrDefault(u => u.Key == item.ParentContractID).Value</td>
                 <td class="brd">@item.PeriodStart.ToShortDateString()</td>
                 <td class="brd">@item.PeriodEnd.ToShortDateString()</td>
-                <td class="brd">@item.DepartmentID</td>
+                <td class="brd">@departments.FirstOrDefault(u => u.Key == item.DepartmentID).Value</td>
+                <td class="brd">@contractTypes.FirstOrDefault(u => u.Key == item.ContractTypeID).Value</td>
                 <td class="brd">@item.TimeSum</td>
-                <td class="brd">@Html.ActionLink("Подробнее", $"Get", new {id = item.Id})</td>
+                <td class="brd">@Html.ActionLink("Подробнее", $"Get", new {item.Id})</td>
                 <td class="brd">@item.LectionsTime</td>
                 <td class="brd">@item.PracticalClassesTime</td>
                 <td class="brd">@item.LaboratoryClassesTime</td>
@@ -130,5 +204,3 @@
         }
     }
 </table>
-
-               <>Html.ActionLink("Confirm", "Confirm", new {contractID = item.ID})td>

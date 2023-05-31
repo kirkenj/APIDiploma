@@ -1,101 +1,45 @@
-﻿@model ContractCreateModel
-@using WebFront.Models.Account;
-@using WebFront.Models.ContractType;
+﻿@model MonthReportViewModel
 @using WebFront.Models.Contracts;
-@using WebFront.Constants;
-@using WebFront.Models.Departments;
 
-@using (var a = Html.BeginForm("Add", "Contracts", FormMethod.Post))
-{
-    bool isAdmin = IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User);
-    IEnumerable<DepartmentViewModel>? departments = ViewBag.Departments;
-    if (departments == null || !departments.Any())
-    {
-        throw new Exception("Departments is null or empty");
-    }
-
-    IEnumerable<ContractTypeViewModel>? contractTypes = ViewBag.ContractTypes;
-    if (contractTypes == null || !contractTypes.Any())
-    {
-        throw new Exception("Departments is null or empty");
-    }
-
-    IEnumerable<UserViewModel> users = Enumerable.Empty<UserViewModel>();
-    if (isAdmin)
-    {
-        users = ViewBag.Users;
-        if (users == null || !users.Any())
-        {
-            throw new Exception("Departments is null or empty");
-        }
-    }
-    else
-    {
-        <input type="hidden" name="UserID" value=@IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User)>
-    }
-
-
+@{
+    string? Identifier = ViewBag.Identifier;
     <table>
+        @if (Identifier == null)
+        {
+            <tr>
+                <td>Код договора</td>
+                <td>@Html.DisplayTextFor(c => c.ContractID)</td>
+            </tr>
+        }
+        else
+        {
+            <tr>
+                <td>Идентификатор договора</td>
+                <td>@Identifier</td>
+            </tr>
+        }
         <tr>
-            @if (isAdmin)
-            {
-                <td>Пользователь</td>
-                <td>
-                    <select name="UserId">
-                        @foreach (var u in users)
-                        {
-                            <option value=@u.ID>@u.NSP</option>
-                        }
-                    </select>
-                </td>
-            }
-            else
-            {
-                <td><input type="hidden" name="UserID" value=@IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User)></td>
-            }
-        </tr>
-
-        <tr>
-            <td>Отдел</td>
-            <td>
-                <select name=@nameof(Model.DepartmentID)>
-                    @foreach (var d in departments)
-                    {
-                        <option value=@d.ID>@d.Name</option>
-                    }
-                </select>
-            </td>
-        </tr>
-
-        <tr>
-            <td>Тип догвоора</td>
-            <td>
-                <select name=@nameof(Model.ContractTypeID)>
-                    @foreach (var d in contractTypes)
-                    {
-                        <option value=@d.ID>@d.Name</option>
-                    }
-                </select>
-            </td>
-        </tr>
-
-
-        <tr>
-            <td>Идентификатор договора</td>
-            <td>@Html.EditorFor(m =>m.ContractIdentifier)</td>
+            <td>Год</td>
+            <td>@Model.Year</td>
         </tr>
         <tr>
-            <td>Начало действия договора</td>
-            <td>@Html.EditorFor(m =>m.PeriodStart)</td>
-        </tr>
-        <tr>
-            <td>Конец действия договора</td>
-            <td>@Html.EditorFor(m =>m.PeriodEnd)</td>
+            <td>Месяц</td>
+            <td>@Model.Month</td>
         </tr>
     </table>
+}
+
+@using (var a = Html.BeginForm("EditMonthReport", "Contracts", FormMethod.Post))
+{
+    Logic.Models.MonthReports.MonthReportsUntakenTimeModel? uval = ViewBag.MaxVals;
+    
 
     <table>
         <tr>
+            @if (uval != null)
+            {
+                <th class="brd"></th>
+            }
             <th class="brd">Лекции</th>
             <th class="brd">Практические занятия</th>
             <th class="brd">Лабораторные занятия</th>
@@ -116,6 +60,37 @@
             <th class="brd">Сопровождение тестирования</th>
         </tr>
         <tr>
+            @if (uval != null)
+            {
+                <td class="brd">Максимальные значения</td>
+                <td class="brd">@uval.LectionsTime</td>
+                <td class="brd">@uval.PracticalClassesTime</td>
+                <td class="brd">@uval.LaboratoryClassesTime</td>
+                <td class="brd">@uval.ConsultationsTime</td>
+                <td class="brd">@uval.OtherTeachingClassesTime</td>
+                <td class="brd">@uval.CreditsTime</td>
+                <td class="brd">@uval.ExamsTime</td>
+                <td class="brd">@uval.CourseProjectsTime</td>
+                <td class="brd">@uval.InterviewsTime</td>
+                <td class="brd">@uval.TestsAndReferatsTime</td>
+                <td class="brd">@uval.InternshipsTime</td>
+                <td class="brd">@uval.DiplomasTime</td>
+                <td class="brd">@uval.DiplomasReviewsTime</td>
+                <td class="brd">@uval.SECTime</td>
+                <td class="brd">@uval.GraduatesManagementTime</td>
+                <td class="brd">@uval.GraduatesAcademicWorkTime</td>
+                <td class="brd">@uval.PlasticPosesDemonstrationTime</td>
+                <td class="brd">@uval.TestingEscortTime</td>
+            }
+        </tr>
+        <tr>
+            @Html.HiddenFor(m =>m.ContractID)
+            @Html.HiddenFor(m =>m.Year)
+            @Html.HiddenFor(m =>m.Month)
+            @if (uval != null)
+            {
+                <td class="brd"> </td>
+            }
             <td class="brd">@Html.EditorFor(m =>m.LectionsTime)</td>
             <td class="brd">@Html.EditorFor(m =>m.PracticalClassesTime)</td>
             <td class="brd">@Html.EditorFor(m =>m.LaboratoryClassesTime)</td>
@@ -138,5 +113,3 @@
     </table>
     <input type="submit" value="Подтвердить" />
 }
-
-

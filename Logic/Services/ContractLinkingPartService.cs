@@ -1,5 +1,6 @@
 ﻿using Database.Entities;
 using Database.Interfaces;
+using DocumentFormat.OpenXml.Bibliography;
 using Logic.Exceptions;
 using Logic.Interfaces;
 using Logic.Models.Contracts;
@@ -41,6 +42,65 @@ namespace Logic.Services
 
         public async Task<IEnumerable<Contract>> GetRelatedContractsAsync(int linkingPartID, CancellationToken token = default) => await AssignmentsDBSet.Where(c => c.LinkingPartID == linkingPartID).ToListAsync(token);
 
+        public async Task<MonthReportsUntakenTimeModel> GetMaxValuesForReport(int linkingPartId, int repYear, int repMonth)
+        {
+            var linkingPart = await DbSet.Include(l => l.MonthReports).Include(l => l.Assignments.Where(a => a.IsConfirmed)).FirstOrDefaultAsync(l => l.MonthReports.Any(r => r.LinkingPartID == linkingPartId && r.Month == repMonth && r.Year == repYear))
+                ?? throw new ObjectNotFoundException($"Month report not found by key[ID = {linkingPartId}, Month = {repMonth}, Year = {repYear}]");
+            var orderedContracts = linkingPart.Assignments.Where(a => a.IsConfirmed).OrderByDescending(c => c.AssignmentDate).ToList();
+            var contractOwner = orderedContracts.First(c => c.AssignmentDate <= new DateTime(repYear, repMonth, 1));
+            var untakenTimeValues = orderedContracts.Where(c => c.AssignmentDate >= contractOwner.AssignmentDate).Select(contract => 
+            {
+                var nextContract = orderedContracts.FirstOrDefault(c => c.AssignmentDate > contract.AssignmentDate);
+                (int month, int year) = nextContract == null ? (contract.PeriodEnd.Month + 1, contract.PeriodEnd.Year) : (nextContract.AssignmentDate.Month, nextContract.AssignmentDate.Year);
+                var reports = linkingPart.MonthReports.Where(c => (c.Year <= year && c.Month < month) && !(c.Year == repYear && c.Month == repMonth)).ToList();
+                return new MonthReportsUntakenTimeModel
+                {
+                    ContractID = contract.ID,
+                    TestingEscortTime = contract.TestingEscortMaxTime - reports.Sum(c => c.TestingEscortTime),
+                    PlasticPosesDemonstrationTime = contract.PlasticPosesDemonstrationMaxTime - reports.Sum((c) => c.PlasticPosesDemonstrationTime),
+                    GraduatesAcademicWorkTime = contract.GraduatesAcademicWorkMaxTime - reports.Sum((c) => c.GraduatesAcademicWorkTime),
+                    GraduatesManagementTime = contract.GraduatesManagementMaxTime - reports.Sum((c) => c.GraduatesManagementTime),
+                    SECTime = contract.SECMaxTime - reports.Sum((c) => c.SECTime),
+                    DiplomasReviewsTime = contract.DiplomasReviewsMaxTime - reports.Sum((c) => c.DiplomasReviewsTime),
+                    DiplomasTime = contract.DiplomasMaxTime - reports.Sum((c) => c.DiplomasTime),
+                    InternshipsTime = contract.InternshipsMaxTime - reports.Sum((c) => c.InternshipsTime),
+                    TestsAndReferatsTime = contract.TestsAndReferatsMaxTime - reports.Sum((c) => c.TestsAndReferatsTime),
+                    InterviewsTime = contract.InterviewsMaxTime - reports.Sum((c) => c.InterviewsTime),
+                    LectionsTime = contract.LectionsMaxTime - reports.Sum((c) => c.LectionsTime),
+                    PracticalClassesTime = contract.PracticalClassesMaxTime - reports.Sum((c) => c.PracticalClassesTime),
+                    LaboratoryClassesTime = contract.LaboratoryClassesMaxTime - reports.Sum((c) => c.LaboratoryClassesTime),
+                    ConsultationsTime = contract.ConsultationsMaxTime - reports.Sum((c) => c.ConsultationsTime),
+                    OtherTeachingClassesTime = contract.OtherTeachingClassesMaxTime - reports.Sum((c) => c.OtherTeachingClassesTime),
+                    CreditsTime = contract.CreditsMaxTime - reports.Sum((c) => c.CreditsTime),
+                    ExamsTime = contract.ExamsMaxTime - reports.Sum((c) => c.ExamsTime),
+                    CourseProjectsTime = contract.CourseProjectsMaxTime - reports.Sum((c) => c.CourseProjectsTime)
+                };
+            });
+            return new MonthReportsUntakenTimeModel
+            {
+                ContractID = untakenTimeValues.First().ContractID,
+                TestingEscortTime = untakenTimeValues.Min(u =>u.TestingEscortTime),
+                PlasticPosesDemonstrationTime = untakenTimeValues.Min(u=>u.PlasticPosesDemonstrationTime),
+                GraduatesAcademicWorkTime = untakenTimeValues.Min(u => u.GraduatesAcademicWorkTime),
+                GraduatesManagementTime = untakenTimeValues.Min(u => u.GraduatesManagementTime),
+                SECTime = untakenTimeValues.Min(u => u.SECTime),
+                DiplomasReviewsTime = untakenTimeValues.Min(u => u.DiplomasReviewsTime),
+                DiplomasTime = untakenTimeValues.Min(u => u.DiplomasTime),
+                InternshipsTime = untakenTimeValues.Min(u => u.InternshipsTime),
+                TestsAndReferatsTime = untakenTimeValues.Min(u => u.TestsAndReferatsTime),
+                InterviewsTime = untakenTimeValues.Min(u => u.InterviewsTime),
+                LectionsTime = untakenTimeValues.Min(u => u.LectionsTime),
+                PracticalClassesTime = untakenTimeValues.Min(u => u.PracticalClassesTime),
+                LaboratoryClassesTime = untakenTimeValues.Min(u => u.LaboratoryClassesTime),
+                ConsultationsTime = untakenTimeValues.Min(u => u.ConsultationsTime),
+                OtherTeachingClassesTime = untakenTimeValues.Min(u => u.OtherTeachingClassesTime),
+                CreditsTime = untakenTimeValues.Min(u => u.CreditsTime),
+                ExamsTime = untakenTimeValues.Min(u => u.ExamsTime),
+                CourseProjectsTime = untakenTimeValues.Min(u => u.CourseProjectsTime)
+            }; 
+        }
+
+
         public async Task UpdateMonthReport(MonthReport monthReportToAply)
         {
             var linkingPart = await DbSet.Include(l => l.MonthReports).Include(l => l.Assignments.Where(a => a.IsConfirmed)).FirstOrDefaultAsync(l => l.MonthReports.Any(r => r.LinkingPartID == monthReportToAply.LinkingPartID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year))
@@ -52,50 +112,46 @@ namespace Logic.Services
                 throw new InvalidOperationException("This month report is blocked for edition");
             }
 
-            var reportDate = new DateTime(monthReportToAply.Year, monthReportToAply.Month, 1);
-            var contract = linkingPart.Assignments.OrderByDescending(c => c.AssignmentDate).First(c => c.AssignmentDate <= reportDate);
-            var untakenTimeIfRemoveTheReport = await GetUntakenTimeAsync(contract.ID, new[] { (report.Year, report.Month) });
-            if (untakenTimeIfRemoveTheReport.TimeSum < monthReportToAply.TimeSum)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.TimeSum > monthReportToAply.TimeSum where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.LectionsTime < monthReportToAply.LectionsTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.LectionsTime > monthReportToAply.LectionsTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.PracticalClassesTime < monthReportToAply.PracticalClassesTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.PracticalClassesTime < monthReportToAply.PracticalClassesTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.LaboratoryClassesTime < monthReportToAply.LaboratoryClassesTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.LaboratoryClassesTime > monthReportToAply.LaboratoryClassesTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.ConsultationsTime < monthReportToAply.ConsultationsTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.ConsultationsTime > monthReportToAply.ConsultationsTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.OtherTeachingClassesTime < monthReportToAply.OtherTeachingClassesTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.OtherTeachingClassesTime > monthReportToAply.OtherTeachingClassesTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.CreditsTime < monthReportToAply.CreditsTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.CreditsTime > monthReportToAply.CreditsTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.ExamsTime < monthReportToAply.ExamsTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.ExamsTime > monthReportToAply.ExamsTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.CourseProjectsTime < monthReportToAply.CourseProjectsTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.CourseProjectsTime > monthReportToAply.CourseProjectsTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.InterviewsTime < monthReportToAply.InterviewsTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.InterviewsTime > monthReportToAply.InterviewsTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.TestsAndReferatsTime < monthReportToAply.TestsAndReferatsTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.TestsAndReferatsTime > monthReportToAply.TestsAndReferatsTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.InternshipsTime < monthReportToAply.InternshipsTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.InternshipsTime > monthReportToAply.InternshipsTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.DiplomasTime < monthReportToAply.DiplomasTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.DiplomasTime > monthReportToAply.DiplomasTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.DiplomasReviewsTime < monthReportToAply.DiplomasReviewsTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.DiplomasReviewsTime > monthReportToAply.DiplomasReviewsTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.SECTime < monthReportToAply.SECTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.SECTime > monthReportToAply.SECTime");
-            if (untakenTimeIfRemoveTheReport.GraduatesManagementTime < monthReportToAply.GraduatesManagementTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.GraduatesManagementTime > monthReportToAply.GraduatesManagementTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.GraduatesAcademicWorkTime < monthReportToAply.GraduatesAcademicWorkTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.GraduatesAcademicWorkTime > monthReportToAply.GraduatesAcademicWorkTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.PlasticPosesDemonstrationTime < monthReportToAply.PlasticPosesDemonstrationTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.PlasticPosesDemonstrationTime > monthReportToAply.PlasticPosesDemonstrationTime where contract identifier is {contract.ContractIdentifier}");
-            if (untakenTimeIfRemoveTheReport.TestingEscortTime < monthReportToAply.TestingEscortTime)
-                throw new ArgumentException($"untakenTimeIfRemoveTheReport.TestingEscortTime > monthReportToAply.TestingEscortTime where contract identifier is {contract.ContractIdentifier}");
-
+            var availableTime = await GetMaxValuesForReport(monthReportToAply.LinkingPartID, monthReportToAply.Year, monthReportToAply.Month);
+            if (availableTime.LectionsTime < monthReportToAply.LectionsTime)
+                throw new ArgumentException($"availableTime.LectionsTime > monthReportToAply.LectionsTime");
+            if (availableTime.PracticalClassesTime < monthReportToAply.PracticalClassesTime)
+                throw new ArgumentException($"availableTime.PracticalClassesTime < monthReportToAply.PracticalClassesTime");
+            if (availableTime.LaboratoryClassesTime < monthReportToAply.LaboratoryClassesTime)
+                throw new ArgumentException($"availableTime.LaboratoryClassesTime > monthReportToAply.LaboratoryClassesTime");
+            if (availableTime.ConsultationsTime < monthReportToAply.ConsultationsTime)
+                throw new ArgumentException($"availableTime.ConsultationsTime > monthReportToAply.ConsultationsTime");
+            if (availableTime.OtherTeachingClassesTime < monthReportToAply.OtherTeachingClassesTime)
+                throw new ArgumentException($"availableTime.OtherTeachingClassesTime > monthReportToAply.OtherTeachingClassesTime");
+            if (availableTime.CreditsTime < monthReportToAply.CreditsTime)
+                throw new ArgumentException($"availableTime.CreditsTime > monthReportToAply.CreditsTime");
+            if (availableTime.ExamsTime < monthReportToAply.ExamsTime)
+                throw new ArgumentException($"availableTime.ExamsTime > monthReportToAply.ExamsTime");
+            if (availableTime.CourseProjectsTime < monthReportToAply.CourseProjectsTime)
+                throw new ArgumentException($"availableTime.CourseProjectsTime > monthReportToAply.CourseProjectsTime");
+            if (availableTime.InterviewsTime < monthReportToAply.InterviewsTime)
+                throw new ArgumentException($"availableTime.InterviewsTime > monthReportToAply.InterviewsTime");
+            if (availableTime.TestsAndReferatsTime < monthReportToAply.TestsAndReferatsTime)
+                throw new ArgumentException($"availableTime.TestsAndReferatsTime > monthReportToAply.TestsAndReferatsTime");
+            if (availableTime.InternshipsTime < monthReportToAply.InternshipsTime)
+                throw new ArgumentException($"availableTime.InternshipsTime > monthReportToAply.InternshipsTime where");
+            if (availableTime.DiplomasTime < monthReportToAply.DiplomasTime)
+                throw new ArgumentException($"availableTime.DiplomasTime > monthReportToAply.DiplomasTime where");
+            if (availableTime.DiplomasReviewsTime < monthReportToAply.DiplomasReviewsTime)
+                throw new ArgumentException($"availableTime.DiplomasReviewsTime > monthReportToAply.DiplomasReviewsTime");
+            if (availableTime.SECTime < monthReportToAply.SECTime)
+                throw new ArgumentException($"availableTime.SECTime > monthReportToAply.SECTime");
+            if (availableTime.GraduatesManagementTime < monthReportToAply.GraduatesManagementTime)
+                throw new ArgumentException($"availableTime.GraduatesManagementTime > monthReportToAply.GraduatesManagementTime");
+            if (availableTime.GraduatesAcademicWorkTime < monthReportToAply.GraduatesAcademicWorkTime)
+                throw new ArgumentException($"availableTime.GraduatesAcademicWorkTime > monthReportToAply.GraduatesAcademicWorkTime");
+            if (availableTime.PlasticPosesDemonstrationTime < monthReportToAply.PlasticPosesDemonstrationTime)
+                throw new ArgumentException($"availableTime.PlasticPosesDemonstrationTime > monthReportToAply.PlasticPosesDemonstrationTime");
+            if (availableTime.TestingEscortTime < monthReportToAply.TestingEscortTime)
+                throw new ArgumentException($"availableTime.TestingEscortTime > monthReportToAply.TestingEscortTime");
             await _monthReportService.UpdateAsync(monthReportToAply);
         }
+    
 
         public async Task BlockReport(int linkingPartID, int month, int year, int userID, CancellationToken token = default)
         {
@@ -105,7 +161,7 @@ namespace Logic.Services
                 throw new NoAccessException();
             }
 
-            var report = await _monthReportService.FirstOrDefaultAsync(r => r.Month == month && r.Year == year && r.LinkingPartID == linkingPartID) ?? throw new ObjectNotFoundException("r.Month == month && r.Year == year && r.LinkingPartID == linkingPartID");
+            var report = await _monthReportService.FirstOrDefaultAsync(r => r.Month == month && r.Year == year && r.LinkingPartID == linkingPartID) ?? throw new ObjectNotFoundException($"({typeof(MonthReport)}) M:{month}, Y:{year}, LP:{linkingPartID}");
             report.BlockedByUser = user;
             report.BlockedByUserID = user.ID;
             await _monthReportService.UpdateAsync(report, token);
@@ -172,7 +228,7 @@ namespace Logic.Services
             }
         }
 
-        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys)
+        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys, bool replaceNegativesWithZero = false)
         {
             var linkingPart = await DbSet.Include(c => c.Assignments).Include(l => l.MonthReports).FirstOrDefaultAsync(c => c.Assignments.Any(a => a.IsConfirmed && a.ID == contractID)) ?? throw new ObjectNotFoundException($"Object with ID = {contractID} not found or not confirmed");
             var contract = linkingPart.Assignments.First(a => a.ID == contractID);
@@ -200,26 +256,28 @@ namespace Logic.Services
                 ExamsTime = contract.ExamsMaxTime - reports.Sum((c) => c.ExamsTime),
                 CourseProjectsTime = contract.CourseProjectsMaxTime - reports.Sum((c) => c.CourseProjectsTime)
             };
-            #region comment
-            //ret.TestingEscortTime = ret.TestingEscortTime < 0 ? 0 : ret.TestingEscortTime;
-            //ret.PlasticPosesDemonstrationTime = ret.PlasticPosesDemonstrationTime < 0 ? 0 : ret.PlasticPosesDemonstrationTime;
-            //ret.GraduatesAcademicWorkTime = ret.GraduatesAcademicWorkTime < 0 ? 0 : ret.GraduatesAcademicWorkTime;
-            //ret.GraduatesManagementTime = ret.GraduatesManagementTime < 0 ? 0 : ret.GraduatesManagementTime;
-            //ret.SECTime = ret.SECTime < 0 ? 0 : ret.SECTime;
-            //ret.DiplomasReviewsTime = ret.DiplomasReviewsTime < 0 ? 0 : ret.DiplomasReviewsTime;
-            //ret.DiplomasTime = ret.DiplomasTime < 0 ? 0 : ret.DiplomasTime;
-            //ret.InternshipsTime = ret.InternshipsTime < 0 ? 0 : ret.InternshipsTime;
-            //ret.TestsAndReferatsTime = ret.TestsAndReferatsTime < 0 ? 0 : ret.TestsAndReferatsTime;
-            //ret.InterviewsTime = ret.InterviewsTime < 0 ? 0 : ret.InterviewsTime;
-            //ret.LectionsTime = ret.LectionsTime < 0 ? 0 : ret.LectionsTime;
-            //ret.PracticalClassesTime = ret.PracticalClassesTime < 0 ? 0 : ret.PracticalClassesTime;
-            //ret.LaboratoryClassesTime = ret.LaboratoryClassesTime < 0 ? 0 : ret.LaboratoryClassesTime;
-            //ret.ConsultationsTime = ret.ConsultationsTime < 0 ? 0 : ret.ConsultationsTime;
-            //ret.OtherTeachingClassesTime = ret.OtherTeachingClassesTime < 0 ? 0 : ret.OtherTeachingClassesTime;
-            //ret.CreditsTime = ret.CreditsTime < 0 ? 0 : ret.CreditsTime;
-            //ret.ExamsTime = ret.ExamsTime < 0 ? 0 : ret.ExamsTime;
-            //ret.CourseProjectsTime = ret.CourseProjectsTime < 0 ? 0 : ret.CourseProjectsTime;
-            #endregion
+
+            if (replaceNegativesWithZero)
+            {
+                ret.TestingEscortTime = ret.TestingEscortTime < 0 ? 0 : ret.TestingEscortTime;
+                ret.PlasticPosesDemonstrationTime = ret.PlasticPosesDemonstrationTime < 0 ? 0 : ret.PlasticPosesDemonstrationTime;
+                ret.GraduatesAcademicWorkTime = ret.GraduatesAcademicWorkTime < 0 ? 0 : ret.GraduatesAcademicWorkTime;
+                ret.GraduatesManagementTime = ret.GraduatesManagementTime < 0 ? 0 : ret.GraduatesManagementTime;
+                ret.SECTime = ret.SECTime < 0 ? 0 : ret.SECTime;
+                ret.DiplomasReviewsTime = ret.DiplomasReviewsTime < 0 ? 0 : ret.DiplomasReviewsTime;
+                ret.DiplomasTime = ret.DiplomasTime < 0 ? 0 : ret.DiplomasTime;
+                ret.InternshipsTime = ret.InternshipsTime < 0 ? 0 : ret.InternshipsTime;
+                ret.TestsAndReferatsTime = ret.TestsAndReferatsTime < 0 ? 0 : ret.TestsAndReferatsTime;
+                ret.InterviewsTime = ret.InterviewsTime < 0 ? 0 : ret.InterviewsTime;
+                ret.LectionsTime = ret.LectionsTime < 0 ? 0 : ret.LectionsTime;
+                ret.PracticalClassesTime = ret.PracticalClassesTime < 0 ? 0 : ret.PracticalClassesTime;
+                ret.LaboratoryClassesTime = ret.LaboratoryClassesTime < 0 ? 0 : ret.LaboratoryClassesTime;
+                ret.ConsultationsTime = ret.ConsultationsTime < 0 ? 0 : ret.ConsultationsTime;
+                ret.OtherTeachingClassesTime = ret.OtherTeachingClassesTime < 0 ? 0 : ret.OtherTeachingClassesTime;
+                ret.CreditsTime = ret.CreditsTime < 0 ? 0 : ret.CreditsTime;
+                ret.ExamsTime = ret.ExamsTime < 0 ? 0 : ret.ExamsTime;
+                ret.CourseProjectsTime = ret.CourseProjectsTime < 0 ? 0 : ret.CourseProjectsTime;
+            }
             return ret;
         }
 
@@ -245,5 +303,7 @@ namespace Logic.Services
             report.BlockedByUserID = null;
             await _monthReportService.UpdateAsync(report);
         }
+
+        public async Task<MonthReport?> GetReport(int linkingPartID, int month, int year) => await _monthReportService.FirstOrDefaultAsync(r => r.LinkingPartID == linkingPartID && r.Month == month && r.Year == year);
     }
 }
