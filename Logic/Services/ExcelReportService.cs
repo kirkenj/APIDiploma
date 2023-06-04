@@ -151,8 +151,8 @@ namespace Logic.Services
                     technoSheet.Cell("B4").Value = "А.М.Авсиевич";
                     positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B4");
                     key = "Заведующий кафедрой";
-                    technoSheet.Cell("A4").Value = key;
-                    technoSheet.Cell("B4").Value = "Ю.В.Полозков";
+                    technoSheet.Cell("A5").Value = key;
+                    technoSheet.Cell("B5").Value = "Ю.В.Полозков";
                     positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B5");
 
 
@@ -303,9 +303,9 @@ namespace Logic.Services
                             sheet.Range($"E{rowIndex + 7}:F{rowIndex + 7}").Merge().Style.Border.BottomBorder = XLBorderStyleValues.Thin;
                             sheet.Range($"G{rowIndex + 7}:H{rowIndex + 7}").Merge().FirstCell().FormulaA1 = positionsPeopleRefsDict["Декан факультета"];
 
-                            sheet.Range($"B{rowIndex + 8}:D{rowIndex + 8}").Merge().Value = "Зам.начальника ПЭУ";
+                            sheet.Range($"B{rowIndex + 8}:D{rowIndex + 8}").Merge().Value = "Заведующий кафедрой";
                             sheet.Range($"E{rowIndex + 8}:F{rowIndex + 8}").Merge().Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                            sheet.Range($"G{rowIndex + 8}:H{rowIndex + 8}").Merge().FirstCell().FormulaA1 = positionsPeopleRefsDict["Зам.начальника ПЭУ"]; ;
+                            sheet.Range($"G{rowIndex + 8}:H{rowIndex + 8}").Merge().FirstCell().FormulaA1 = positionsPeopleRefsDict["Заведующий кафедрой"]; ;
                         }
                     }
                 }
