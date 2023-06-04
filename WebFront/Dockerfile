@@ -5,6 +5,12 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+ENV DiplomaDatabaseConnectionString="server=77.246.96.104;user=diploma_usr;password=Mysqlpwd1;database=Diploma;"
+ENV DiplomaLocalMySQLConnectionString="server=77.246.96.104;user=diploma_usr;password=Mysqlpwd1;database=Diploma;"
+
+RUN sed -i'.bak' 's/$/ contrib/' /etc/apt/sources.list
+RUN apt-get update; apt-get install -y ttf-mscorefonts-installer fontconfig
+
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["WebFront/WebFront.csproj", "WebFront/"]
