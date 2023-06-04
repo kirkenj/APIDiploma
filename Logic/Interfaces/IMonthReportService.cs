@@ -111,5 +111,6 @@ namespace Logic.Interfaces
         }
         public async Task<List<MonthReport>> GetReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd) => await DbSet.Include(m => m.LinkingPart).ThenInclude(l => l.Assignments).Where(m => (m.Year >= periodStart.Year && m.Month >= periodStart.Month) || (m.Year <= periodEnd.Year && m.Month <= periodEnd.Month)).ToListAsync();
 
+        public IEnumerable<ValidationResult> ValidateMonthReport(MonthReport monthReport);
     }
 }

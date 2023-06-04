@@ -27,6 +27,7 @@ builder.Services.AddTransient<IContractService, ContractService>();
 builder.Services.AddTransient<IContractTypeService, ContractTypeService>();
 builder.Services.AddTransient<IContractLinkingPartService, ContractLinkingPartService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
+builder.Services.AddTransient<IExcelReportService, ExcelReportService>();
 builder.Services.AddTransient<IMonthReportService, MonthReportService>();
 builder.Services.AddTransient<IAcademicDegreeService, AcademicDegreeService>();
 builder.Services.AddTransient<IHashProvider, HashProvider>((a) => new HashProvider(HashAlgorithm.Create("MD5") ?? throw new ArgumentException("Hash algorithm not found"), System.Text.Encoding.UTF8));

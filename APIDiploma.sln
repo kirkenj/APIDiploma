@@ -9,12 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Database", "Database\Databa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logic", "Logic\Logic.csproj", "{34F49428-2466-47D1-BE4F-27A564D699D7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75476D01-8C7D-4D5E-AB94-1B4EFE78A783}"
-	ProjectSection(SolutionItems) = preProject
-		.dockerignore = .dockerignore
-		Web\Dockerfile = Web\Dockerfile
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebFront", "WebFront\WebFront.csproj", "{67DDBD82-FEDD-4983-BC59-2ABA1585CBCE}"
 EndProject
 Global

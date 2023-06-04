@@ -27,3 +27,10 @@ body {
     border: 4px double black; /* Параметры границы */
     padding: 10px; /* Поля вокруг текста */
 }
+
+.grayColored {
+    background-color: rgb(238, 238, 238);
+}
+.darkGrayColored {
+    background-color: rgb(215, 215, 215);
+}

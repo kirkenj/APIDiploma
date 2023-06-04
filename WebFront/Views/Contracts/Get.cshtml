@@ -1,10 +1,23 @@
 ﻿@model WebFront.Models.Contracts.RelatedContractsWithReportsViewModel;
 @using WebFront.Constants;
+@using Logic.Models.MonthReports;
 
 @if (Model.RelatedContracts.Any(c => c.IsConfirmed))
 {
     @Html.ActionLink("Добавить допдоговор", "Add", new {forcontractId = Model.RelatedContracts.Where(c => c.IsConfirmed).OrderByDescending(c => c.PeriodStart).First().Id})
 }
+
+<table> 
+
+    <tr>
+        <td>Пользователь</td>
+        <td>@(ViewBag.UserNSP ?? "Undefined")</td>
+    </tr>
+    <tr>
+        <td>Конец действия договоров</td>
+        <td>@Model.RelatedContracts.First().PeriodEnd.ToShortDateString()</td>
+    </tr>
+</table>
 
 <table>
     <tr>
@@ -39,7 +52,8 @@
         foreach (var item in orderedContracts)
         {
             var next = orderedContracts.FirstOrDefault(n => n.PeriodStart > item.PeriodStart);
-            <tr>
+
+            <tr class="grayColored">
                 <td class="brd">@item.ContractIdentifier</td>
                 <td class="brd">@item.PeriodStart.ToShortDateString()</td>
                 <td class="brd">@item.TimeSum</td>
@@ -76,6 +90,31 @@
                 <td class="brd">@item.PlasticPosesDemonstrationTime</td>
                 <td class="brd">@item.TestingEscortTime</td>
             </tr>
+
+            @if(item.IsConfirmed && Model.UntakenTimes.FirstOrDefault(c => c.ContractID == item.Id) is MonthReportsUntakenTimeModel untakenTime)
+            {
+                <tr class="darkGrayColored">
+                    <td class="brd" colspan="5">Не занятое время</td>
+                    <td class="brd">@untakenTime.LectionsTime</td>
+                    <td class="brd">@untakenTime.PracticalClassesTime</td>
+                    <td class="brd">@untakenTime.LaboratoryClassesTime</td>
+                    <td class="brd">@untakenTime.ConsultationsTime</td>
+                    <td class="brd">@untakenTime.OtherTeachingClassesTime</td>
+                    <td class="brd">@untakenTime.CreditsTime</td>
+                    <td class="brd">@untakenTime.ExamsTime</td>
+                    <td class="brd">@untakenTime.CourseProjectsTime</td>
+                    <td class="brd">@untakenTime.InterviewsTime</td>
+                    <td class="brd">@untakenTime.TestsAndReferatsTime</td>
+                    <td class="brd">@untakenTime.InternshipsTime</td>
+                    <td class="brd">@untakenTime.DiplomasTime</td>
+                    <td class="brd">@untakenTime.DiplomasReviewsTime</td>
+                    <td class="brd">@untakenTime.SECTime</td>
+                    <td class="brd">@untakenTime.GraduatesManagementTime</td>
+                    <td class="brd">@untakenTime.GraduatesAcademicWorkTime</td>
+                    <td class="brd">@untakenTime.PlasticPosesDemonstrationTime</td>
+                    <td class="brd">@untakenTime.TestingEscortTime</td>
+                </tr>
+            }
 
             while (reportsIndex < orderedReports.Length && (next == null || (orderedReports[reportsIndex].Year <= next.PeriodStart.Year && orderedReports[reportsIndex].Month < next.PeriodStart.Month)))
             {

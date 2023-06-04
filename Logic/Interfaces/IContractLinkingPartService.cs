@@ -14,7 +14,7 @@ namespace Logic.Interfaces
         public Task UpdateMonthReport(MonthReport monthReportToAply);
         public Task<RelatedContractsWithReportsObject> GetFullData(int linkingPartID);
         public Task UnBlockReport(int linkingPartID, int month, int year, int userID, CancellationToken token = default);
-        public Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys, bool replaceNegativesWithZero = false);
+        public Task<MonthReportsUntakenTimeModel> GetContractsUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys, bool replaceNegativesWithZero = false);
         public Task<MonthReport?> GetReport(int linkingPartID, int month, int year);
         public Task<MonthReportsUntakenTimeModel> GetMaxValuesForReport(int linkingPartId, int repYear, int repMonth);
     }

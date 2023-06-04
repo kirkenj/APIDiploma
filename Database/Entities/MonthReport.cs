@@ -12,6 +12,7 @@ namespace Database.Entities
         public int? BlockedByUserID { get; set; } = null;
         public User BlockedByUser { get; set; } = null!;
         public bool IsBlocked { get; private set; }
+        public DateTime MontYearAsDate { get; private set; }
         #region TablePart
         public double LectionsTime { get; set; } = 0;
         public double PracticalClassesTime { get; set; } = 0;

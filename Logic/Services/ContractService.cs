@@ -176,7 +176,7 @@ namespace Logic.Services
 
         public async Task<IEnumerable<RelatedContractsWithReportsObject>> GetReportsOnPeriodAsync(DateTime periodStart, DateTime periodEnd) => await _contractLinkingPartService.GetReportsOnPeriodAsync(periodStart, periodEnd);
 
-        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys, bool replaceNegativesWithZero = false) => await _contractLinkingPartService.GetUntakenTimeAsync(contractID, exceptValuesWithKeys, replaceNegativesWithZero);
+        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys, bool replaceNegativesWithZero = false) => await _contractLinkingPartService.GetContractsUntakenTimeAsync(contractID, exceptValuesWithKeys, replaceNegativesWithZero);
 
         public async Task OnObjectAboutToBeConfirmedAsync(Contract entity, CancellationToken token = default)
         {
@@ -304,9 +304,9 @@ namespace Logic.Services
                 yield return new ValidationResult($"{nameof(contract.PeriodStart)} >= {nameof(contract.PeriodEnd)}");
             }
 
-            if (contract.TimeSum < 0)
+            if (contract.TimeSum <= 0)
             {
-                yield return new ValidationResult($"{nameof(contract.TimeSum)} < 0");
+                yield return new ValidationResult($"{nameof(contract.TimeSum)} <= 0");
             }
 
             if (contract.LectionsMaxTime < 0)

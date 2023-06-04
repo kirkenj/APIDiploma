@@ -69,9 +69,11 @@ namespace WebFront.Controllers
             var mappedContract = new RelatedContractsWithReportsViewModel
             {
                 RelatedContracts = _mapper.Map<List<ContractViewModel>>(contractToReturn.Contracts),
-                MonthReports = _mapper.Map<List<MonthReportViewModel>>(contractToReturn.Reports)
+                MonthReports = _mapper.Map<List<MonthReportViewModel>>(contractToReturn.Reports),
+                UntakenTimes = contractToReturn.UntakenTimeForContracts == null ? new() : contractToReturn.UntakenTimeForContracts.ToList()
             };
 
+            ViewBag.UserNSP = (await _accountService.FirstOrDefaultAsync(u => u.ID == contractToReturn.Contracts.First().UserID))?.NSP ?? "Undefined";
             mappedContract.MonthReports.ForEach(r => r.ContractID = id);
             return View("Get", mappedContract);
         }
@@ -100,7 +102,7 @@ namespace WebFront.Controllers
                     return BadRequest("This contract is not confirmed");
                 }
 
-                ViewBag.UserNSP = (await _accountService.FirstOrDefaultAsync(u => u.ID == contractToSend.ID))?.NSP ?? "Undefined";
+                ViewBag.UserNSP = (await _accountService.FirstOrDefaultAsync(u => u.ID == contractToSend.UserID))?.NSP ?? "Undefined";
                 return View("AddChild", _mapper.Map<ContractViewModel>(contractToSend));
             }
 

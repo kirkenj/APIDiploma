@@ -207,6 +207,7 @@ namespace Database
                 entity.Property(e => e.PlasticPosesDemonstrationTime).HasColumnName("PlasticPosesDemonstrationTime");
                 entity.Property(e => e.TestingEscortTime).HasColumnName("TestingEscortTime");
                 entity.Property(e => e.BlockedByUserID).IsRequired(false).HasColumnName("BlockedByUserID");
+                entity.Property(e => e.MontYearAsDate).HasComputedColumnSql(@"STR_TO_DATE(Concat('1',',', Month,',', Year),'%d,%m,%Y')", stored: false);
                 entity.Property(e => e.IsBlocked).HasComputedColumnSql(@"BlockedByUserID is not null", stored: false);
                 entity.HasOne(e => e.BlockedByUser)
                 .WithMany(e => e.BlockedReports)

@@ -1,0 +1,49 @@
+﻿@using WebFront.Models.Departments;
+@using (Html.BeginForm("GetMonthReportsReportAsExcel", "ExcelReport", FormMethod.Get))
+{
+    var cDate = DateTime.Now;
+    DateTime date1;
+    DateTime date2;
+
+    if (cDate > new DateTime(cDate.Year, 9, 1))
+    {
+        date1 = new DateTime(cDate.Year, 9, 1);
+        date2 = new DateTime(cDate.Year + 1, 6, 30);
+    }
+    else
+    {
+        date1 = new DateTime(cDate.Year - 1, 9, 1);
+        date2 = new DateTime(cDate.Year, 6, 30);
+    }
+
+    var departments = ViewBag.Departments is IEnumerable<DepartmentViewModel> dep ? dep : Enumerable.Empty<DepartmentViewModel>();
+
+
+    <table>
+        <tr>
+            <td>С</td>
+            <td><input type="date" name="dateStart" value=@date1.ToString("yyyy-MM-dd")></td>
+        </tr>
+
+        <tr>
+            <td>По</td>
+            <td><input type="date" name="dateEnd" value=@date2.ToString("yyyy-MM-dd")></td>
+        </tr>
+
+        <tr>
+            <td>Выборка по отделам:</td>
+            <td>
+
+                <select name="DepartmentIDs" multiple>
+                    @foreach (var u in departments)
+                    {
+                        <option value=@u.ID>@u.Name</option>
+                    }
+                </select>
+
+            </td>
+        </tr>
+    </table>
+    <input type="submit" value="Получить отчет">
+}
+

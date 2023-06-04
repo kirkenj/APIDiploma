@@ -40,6 +40,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="ContractType" asp-action="List">Виды договоров</a>
                         </li>
 
+
                         @{
                             if (isAuthenticated)
                             {
@@ -48,10 +49,14 @@
                                     <li align="right" class="nav-item">
                                         <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="List">Пользователи</a>
                                     </li>
+
+                                    <li align="right" class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="ExcelReport" asp-action="MonthReports">Отчет в excel</a>
+                                    </li>
                                 }
 
                                 <li align="right" class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="0">Пользователь - @User.Identity.Name</a>
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="0">Пользователь - @(User?.Identity?.Name ?? "Undefined")</a>
                                 </li>
                             }
                             else

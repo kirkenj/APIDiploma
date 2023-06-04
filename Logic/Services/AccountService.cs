@@ -96,18 +96,21 @@ public class AccountService : IAccountService
 
     public virtual async Task EditAssignmentAsync(int id, DateTime assignationActiveDate, int newValue, DateTime? newAssignationDate, CancellationToken token = default)
     {
-        var assignation = await GetAssignmentOnDate(assignationActiveDate, id, token) ?? throw new ObjectNotFoundException($"{typeof(UserAcademicDegreeAssignament).Name} not found with key [activeDate = {assignationActiveDate}, ObjectID = {id}]");
-        if (await _academicDegreeService.FirstOrDefaultAsync(d => d.ID == assignation.Value, token) is null)
+        var assignment = await GetAssignmentOnDate(assignationActiveDate, id, token) ?? throw new ObjectNotFoundException($"{typeof(UserAcademicDegreeAssignament).Name} not found with key [activeDate = {assignationActiveDate}, ObjectID = {id}]");
+        if (await _academicDegreeService.FirstOrDefaultAsync(d => d.ID == assignment.Value, token) is null)
         {
-            throw new ObjectNotFoundException($"{typeof(AcademicDegree).Name} not found with ID = {assignation.Value}");
+            throw new ObjectNotFoundException($"{typeof(AcademicDegree).Name} not found with ID = {assignment.Value}");
         }
 
-        assignation.Value = newValue;
+        AssignmentsDBSet.Remove(assignment);
+        await SaveChangesAsync(token);
+        assignment.Value = newValue;
         if (newAssignationDate.HasValue)
         {
-            assignation.AssignmentDate = new DateTime(newAssignationDate.Value.Year, newAssignationDate.Value.Month, 1, 0, 0, 0);
+            assignment.AssignmentDate = new DateTime(newAssignationDate.Value.Year, newAssignationDate.Value.Month, 1, 0, 0, 0);
         }
 
+        AssignmentsDBSet.Add(assignment);
         await SaveChangesAsync(token);
     }
 

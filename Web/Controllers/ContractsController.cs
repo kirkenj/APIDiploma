@@ -55,7 +55,8 @@ namespace WebFront.Controllers
             var mappedContract = new RelatedContractsWithReportsViewModel
             {
                 RelatedContracts = _mapper.Map<List<ContractViewModel>>(contractToReturn.Contracts),
-                MonthReports = _mapper.Map<List<MonthReportViewModel>>(contractToReturn.Reports)
+                MonthReports = _mapper.Map<List<MonthReportViewModel>>(contractToReturn.Reports),
+                UntakenTimes = contractToReturn.UntakenTimeForContracts == null ? new() : contractToReturn.UntakenTimeForContracts.ToList()
             };
 
             mappedContract.MonthReports.ForEach(r => r.ContractID = contractID);

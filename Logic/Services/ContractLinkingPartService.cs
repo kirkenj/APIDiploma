@@ -1,6 +1,5 @@
 ﻿using Database.Entities;
 using Database.Interfaces;
-using DocumentFormat.OpenXml.Bibliography;
 using Logic.Exceptions;
 using Logic.Interfaces;
 using Logic.Models.Contracts;
@@ -48,71 +47,29 @@ namespace Logic.Services
                 ?? throw new ObjectNotFoundException($"Month report not found by key[ID = {linkingPartId}, Month = {repMonth}, Year = {repYear}]");
             var orderedContracts = linkingPart.Assignments.Where(a => a.IsConfirmed).OrderByDescending(c => c.AssignmentDate).ToList();
             var contractOwner = orderedContracts.First(c => c.AssignmentDate <= new DateTime(repYear, repMonth, 1));
-            var untakenTimeValues = orderedContracts.Where(c => c.AssignmentDate >= contractOwner.AssignmentDate).Select(contract => 
-            {
-                var nextContract = orderedContracts.FirstOrDefault(c => c.AssignmentDate > contract.AssignmentDate);
-                (int month, int year) = nextContract == null ? (contract.PeriodEnd.Month + 1, contract.PeriodEnd.Year) : (nextContract.AssignmentDate.Month, nextContract.AssignmentDate.Year);
-                var reports = linkingPart.MonthReports.Where(c => (c.Year <= year && c.Month < month) && !(c.Year == repYear && c.Month == repMonth)).ToList();
-                return new MonthReportsUntakenTimeModel
-                {
-                    ContractID = contract.ID,
-                    TestingEscortTime = contract.TestingEscortMaxTime - reports.Sum(c => c.TestingEscortTime),
-                    PlasticPosesDemonstrationTime = contract.PlasticPosesDemonstrationMaxTime - reports.Sum((c) => c.PlasticPosesDemonstrationTime),
-                    GraduatesAcademicWorkTime = contract.GraduatesAcademicWorkMaxTime - reports.Sum((c) => c.GraduatesAcademicWorkTime),
-                    GraduatesManagementTime = contract.GraduatesManagementMaxTime - reports.Sum((c) => c.GraduatesManagementTime),
-                    SECTime = contract.SECMaxTime - reports.Sum((c) => c.SECTime),
-                    DiplomasReviewsTime = contract.DiplomasReviewsMaxTime - reports.Sum((c) => c.DiplomasReviewsTime),
-                    DiplomasTime = contract.DiplomasMaxTime - reports.Sum((c) => c.DiplomasTime),
-                    InternshipsTime = contract.InternshipsMaxTime - reports.Sum((c) => c.InternshipsTime),
-                    TestsAndReferatsTime = contract.TestsAndReferatsMaxTime - reports.Sum((c) => c.TestsAndReferatsTime),
-                    InterviewsTime = contract.InterviewsMaxTime - reports.Sum((c) => c.InterviewsTime),
-                    LectionsTime = contract.LectionsMaxTime - reports.Sum((c) => c.LectionsTime),
-                    PracticalClassesTime = contract.PracticalClassesMaxTime - reports.Sum((c) => c.PracticalClassesTime),
-                    LaboratoryClassesTime = contract.LaboratoryClassesMaxTime - reports.Sum((c) => c.LaboratoryClassesTime),
-                    ConsultationsTime = contract.ConsultationsMaxTime - reports.Sum((c) => c.ConsultationsTime),
-                    OtherTeachingClassesTime = contract.OtherTeachingClassesMaxTime - reports.Sum((c) => c.OtherTeachingClassesTime),
-                    CreditsTime = contract.CreditsMaxTime - reports.Sum((c) => c.CreditsTime),
-                    ExamsTime = contract.ExamsMaxTime - reports.Sum((c) => c.ExamsTime),
-                    CourseProjectsTime = contract.CourseProjectsMaxTime - reports.Sum((c) => c.CourseProjectsTime)
-                };
-            });
-            return new MonthReportsUntakenTimeModel
-            {
-                ContractID = untakenTimeValues.First().ContractID,
-                TestingEscortTime = untakenTimeValues.Min(u =>u.TestingEscortTime),
-                PlasticPosesDemonstrationTime = untakenTimeValues.Min(u=>u.PlasticPosesDemonstrationTime),
-                GraduatesAcademicWorkTime = untakenTimeValues.Min(u => u.GraduatesAcademicWorkTime),
-                GraduatesManagementTime = untakenTimeValues.Min(u => u.GraduatesManagementTime),
-                SECTime = untakenTimeValues.Min(u => u.SECTime),
-                DiplomasReviewsTime = untakenTimeValues.Min(u => u.DiplomasReviewsTime),
-                DiplomasTime = untakenTimeValues.Min(u => u.DiplomasTime),
-                InternshipsTime = untakenTimeValues.Min(u => u.InternshipsTime),
-                TestsAndReferatsTime = untakenTimeValues.Min(u => u.TestsAndReferatsTime),
-                InterviewsTime = untakenTimeValues.Min(u => u.InterviewsTime),
-                LectionsTime = untakenTimeValues.Min(u => u.LectionsTime),
-                PracticalClassesTime = untakenTimeValues.Min(u => u.PracticalClassesTime),
-                LaboratoryClassesTime = untakenTimeValues.Min(u => u.LaboratoryClassesTime),
-                ConsultationsTime = untakenTimeValues.Min(u => u.ConsultationsTime),
-                OtherTeachingClassesTime = untakenTimeValues.Min(u => u.OtherTeachingClassesTime),
-                CreditsTime = untakenTimeValues.Min(u => u.CreditsTime),
-                ExamsTime = untakenTimeValues.Min(u => u.ExamsTime),
-                CourseProjectsTime = untakenTimeValues.Min(u => u.CourseProjectsTime)
-            }; 
+            return await GetContractsUntakenTimeAsync(contractOwner.ID, new List<(int year, int month)> { (repYear, repMonth) }, true);
         }
 
 
         public async Task UpdateMonthReport(MonthReport monthReportToAply)
         {
+            var res = _monthReportService.ValidateMonthReport(monthReportToAply);
+            if (res.Any())
+            {
+                throw new ArgumentException(string.Join("\r\n", res));
+            }
+
             var linkingPart = await DbSet.Include(l => l.MonthReports).Include(l => l.Assignments.Where(a => a.IsConfirmed)).FirstOrDefaultAsync(l => l.MonthReports.Any(r => r.LinkingPartID == monthReportToAply.LinkingPartID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year))
                 ?? throw new ObjectNotFoundException($"Month report not found by key[ID = {monthReportToAply.LinkingPartID}, Month = {monthReportToAply.Month}, Year = {monthReportToAply.Year}]");
-            var report = linkingPart.MonthReports.First(r => r.LinkingPartID == monthReportToAply.LinkingPartID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year);
-
-            if (report.IsBlocked)
+            
+            if (linkingPart.MonthReports.First(r => r.LinkingPartID == monthReportToAply.LinkingPartID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year).IsBlocked)
             {
                 throw new InvalidOperationException("This month report is blocked for edition");
             }
 
-            var availableTime = await GetMaxValuesForReport(monthReportToAply.LinkingPartID, monthReportToAply.Year, monthReportToAply.Month);
+            var availableTime = await GetContractsUntakenTimeAsync(
+                linkingPart.Assignments.OrderByDescending(c => c.AssignmentDate).First(c => c.AssignmentDate <= new DateTime(monthReportToAply.Year, monthReportToAply.Month, 1)).ID,
+                new List<(int,int)> { (monthReportToAply.Year, monthReportToAply.Month) }, true);
             if (availableTime.LectionsTime < monthReportToAply.LectionsTime)
                 throw new ArgumentException($"availableTime.LectionsTime > monthReportToAply.LectionsTime");
             if (availableTime.PracticalClassesTime < monthReportToAply.PracticalClassesTime)
@@ -174,7 +131,7 @@ namespace Logic.Services
                 .Select(m => new RelatedContractsWithReportsObject
                 {
                     Contracts = m.Key.Assignments.Where(a => a.IsConfirmed && a.AssignmentDate <= periodEnd).ToList(),
-                    Reports = m.Where(r => (r.Month <= periodEnd.Month && r.Year <= periodEnd.Year) && (r.Month >= periodStart.Month && r.Year >= periodStart.Year)).ToList()
+                    Reports = m.Where(r => r.MontYearAsDate >= periodStart && r.MontYearAsDate <= periodEnd).ToList()
                 }).ToList();
         }
 
@@ -200,7 +157,7 @@ namespace Logic.Services
 
             var assigments = linkingPart.Assignments.OrderByDescending(a => a.AssignmentDate);
             var prevContract = assigments.FirstOrDefault(c => c.IsConfirmed && c.AssignmentDate < contract.AssignmentDate) ?? throw new Exception("prevContract not found");
-            var untakenTime = await GetUntakenTimeAsync(prevContract.ID, Enumerable.Empty<(int year, int month)>());
+            var untakenTime = await GetContractsUntakenTimeAsync(prevContract.ID, Enumerable.Empty<(int year, int month)>());
 
             if (
                 untakenTime.TimeSum < 0
@@ -228,7 +185,7 @@ namespace Logic.Services
             }
         }
 
-        public async Task<MonthReportsUntakenTimeModel> GetUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys, bool replaceNegativesWithZero = false)
+        public async Task<MonthReportsUntakenTimeModel> GetContractsUntakenTimeAsync(int contractID, IEnumerable<(int year, int month)> exceptValuesWithKeys, bool replaceNegativesWithZero = false)
         {
             var linkingPart = await DbSet.Include(c => c.Assignments).Include(l => l.MonthReports).FirstOrDefaultAsync(c => c.Assignments.Any(a => a.IsConfirmed && a.ID == contractID)) ?? throw new ObjectNotFoundException($"Object with ID = {contractID} not found or not confirmed");
             var contract = linkingPart.Assignments.First(a => a.ID == contractID);
@@ -284,11 +241,20 @@ namespace Logic.Services
         public async Task<RelatedContractsWithReportsObject> GetFullData(int linkingPartID)
         {
             var part = await DbSet.Include(r => r.Assignments.Where(a => a.ConfirmedByUserID != null)).Include(r => r.MonthReports).FirstOrDefaultAsync(c => c.ID == linkingPartID) ?? throw new ObjectNotFoundException($"Object with id = {linkingPartID} not found");
-            return new RelatedContractsWithReportsObject
+            var ret = new RelatedContractsWithReportsObject
             {
                 Contracts = part.Assignments,
                 Reports = part.MonthReports,
             };
+
+            List<MonthReportsUntakenTimeModel> q = new();
+            foreach(var a in part.Assignments)
+            {
+                q.Add(await GetContractsUntakenTimeAsync(a.ID, Enumerable.Empty<(int, int)>(), true));
+            }
+
+            ret.UntakenTimeForContracts = q;
+            return ret;
         }
 
         public async Task UnBlockReport(int linkingPartID, int month, int year, int userID, CancellationToken token = default)

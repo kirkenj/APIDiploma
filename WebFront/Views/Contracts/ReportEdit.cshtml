@@ -4,20 +4,10 @@
 @{
     string? Identifier = ViewBag.Identifier;
     <table>
-        @if (Identifier == null)
-        {
-            <tr>
-                <td>Код договора</td>
-                <td>@Html.DisplayTextFor(c => c.ContractID)</td>
-            </tr>
-        }
-        else
-        {
-            <tr>
-                <td>Идентификатор договора</td>
-                <td>@Identifier</td>
-            </tr>
-        }
+        <tr>
+            <td>Договор</td>
+            <td>@Html.ActionLink(Identifier ?? Model.ContractID.ToString(), $"Get", new {Id = Model.ContractID})</td>
+        </tr>
         <tr>
             <td>Год</td>
             <td>@Model.Year</td>
@@ -33,7 +23,6 @@
 {
     Logic.Models.MonthReports.MonthReportsUntakenTimeModel? uval = ViewBag.MaxVals;
     
-
     <table>
         <tr>
             @if (uval != null)
