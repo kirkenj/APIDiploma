@@ -23,9 +23,21 @@ namespace Diploma.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] DepartmentSelectObject? selectObject, int? page = default, int? pageSize = default)
+        public async Task<IActionResult> GetOne([FromQuery] DepartmentSelectObject? selectObject, int? page = default, int? pageSize = default)
         {
             return Ok(_mapper.Map<List<DepartmentViewModel>>(await _departmentService.GetListViaSelectionObjectAsync(selectObject, page, pageSize)));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var res = await _departmentService.FirstOrDefaultAsync(d => d.ID == id);
+            if (res == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(_mapper.Map<DepartmentViewModel>(res));
         }
 
         [HttpPost]
