@@ -51,6 +51,30 @@ namespace WebFront.Controllers
             });
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            if (id == 0)
+            {
+                id = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            }
+
+            var isAdmin = IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User);
+            var userID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
+            if (!isAdmin && userID != id)
+            {
+                return BadRequest();
+            }
+
+            var user = await _accountService.FirstOrDefaultAsync(u => u.ID == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(_mapper.Map<UserViewModel>(user));
+        }
+
         [HttpPut]
         public async Task<IActionResult> Put(UserEditModel editModel)
         {
