@@ -6,6 +6,8 @@
         public IEnumerable<int>? DepartmentIDs { get; set; }
         public IEnumerable<int>? ContractTypeIDs { get; set; }
         public bool? IsConfirmed { get; set; }
+        public DateTime? ConclusionDateStartBound { get; set; }
+        public DateTime? ConclusionDateEndBound { get; set; }
         public DateTime? PeriodStartStartBound { get; set; }
         public DateTime? PeriodStartEndBound { get; set; }
         public DateTime? PeriodEndStartBound { get; set; }

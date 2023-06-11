@@ -1,4 +1,8 @@
-﻿@using (var a = Html.BeginForm("Add", "AcademicDegree", FormMethod.Post))
+﻿<b>
+@(ViewData["Title"] = "Добавление академ. степени")
+</b>
+<br />
+@using (var a = Html.BeginForm("Add", "AcademicDegree", FormMethod.Post))
 {
     <table>
         <tr>

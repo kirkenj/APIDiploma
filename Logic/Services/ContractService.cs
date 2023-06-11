@@ -1,5 +1,6 @@
 ﻿using Database.Entities;
 using Database.Interfaces;
+using DocumentFormat.OpenXml.Vml.Office;
 using Logic.Exceptions;
 using Logic.Interfaces;
 using Logic.Models.Contracts;
@@ -14,15 +15,19 @@ namespace Logic.Services
         public IAccountService _accountService { get; set; }
         public DbSet<Contract> DbSet { get; set; }
         public Func<CancellationToken, Task<int>> SaveChangesAsync { get; set; }
-        public IContractLinkingPartService _contractLinkingPartService { get; set; }
+        private readonly IContractLinkingPartService _contractLinkingPartService;
+        private readonly IDepartmentService _departmentService;
+        private readonly IContractTypeService _contractTypeService;
 
-        public ContractService(IAppDBContext dBContext, IAccountService accountService, IContractLinkingPartService contractLinkingPartService)
+
+        public ContractService(IAppDBContext dBContext, IAccountService accountService, IContractLinkingPartService contractLinkingPartService, IDepartmentService departmentService, IContractTypeService contractTypeService)
         {
             DbSet = dBContext.Set<Contract>();
             SaveChangesAsync = dBContext.SaveChangesAsync;
             _accountService = accountService;
             _contractLinkingPartService = contractLinkingPartService;
-
+            _departmentService = departmentService;
+            _contractTypeService = contractTypeService;
         }
 
         public IQueryable<Contract> GetViaSelectionObject(ContractsSelectObject? selectionObject, IQueryable<Contract> contracts)
@@ -77,6 +82,16 @@ namespace Logic.Services
                 contracts = contracts.Where(c => c.PeriodEnd <= selectionObject.PeriodEndEndBound);
             }
 
+            if (selectionObject.ConclusionDateEndBound != null)
+            {
+                contracts = contracts.Where(c => c.ConclusionDate <= selectionObject.ConclusionDateEndBound);
+            }
+
+            if (selectionObject.ConclusionDateStartBound != null)
+            {
+                contracts = contracts.Where(c => c.ConclusionDate >= selectionObject.ConclusionDateStartBound);
+            }
+
             return contracts;
         }
 
@@ -104,6 +119,16 @@ namespace Logic.Services
             if (await DbSet.AnyAsync(c => c.ContractIdentifier == entity.ContractIdentifier, token))
             {
                 throw new ArgumentException("Contract identifier is not unique");
+            }
+
+            if (await _contractTypeService.FirstOrDefaultAsync(c => c.ID == entity.ContractTypeID, token) == null)
+            {
+                throw new ObjectNotFoundException($"Contract type with id = {entity.ContractTypeID} not found");
+            }
+
+            if (await _departmentService.FirstOrDefaultAsync(c => c.ID == entity.DepartmentID, token) == null)
+            {
+                throw new ObjectNotFoundException($"Department with id = {entity.DepartmentID} not found");
             }
 
             IEnumerable<ValidationResult> results;
@@ -244,7 +269,18 @@ namespace Logic.Services
                 throw new ArgumentException("Contract identifier is not unique");
             }
 
+            if (await _contractTypeService.FirstOrDefaultAsync(c => c.ID == valueToAply.ContractTypeID, token) == null)
+            {
+                throw new ObjectNotFoundException($"Contract type with id = {valueToAply.ContractTypeID} not found");
+            }
+
+            if (await _departmentService.FirstOrDefaultAsync(c => c.ID == valueToAply.DepartmentID, token) == null)
+            {
+                throw new ObjectNotFoundException($"Department with id = {valueToAply.DepartmentID} not found");
+            }
+
             IEnumerable<ValidationResult> results;
+
             if (valueToAply.ParentContractID != null)
             {
                 if (await DbSet.AnyAsync(c => c.IsConfirmed && c.ParentContractID == valueToAply.ParentContractID, token))
@@ -262,21 +298,19 @@ namespace Logic.Services
                 valueToAply.PeriodEnd = parent.PeriodEnd;
                 valueToAply.DepartmentID = parent.DepartmentID;
                 valueToAply.ContractTypeID = parent.ContractTypeID;
+                valueToAply.PeriodEnd = parent.PeriodEnd;
                 results = ValidateParentRelation(valueToAply, parent);
                 if (results.Any())
                 {
                     throw new ArgumentException(string.Join("\n", results));
                 }
             }
-            else
-            {
-                results = ValidateOnCreate(valueToAply);
-                if (results.Any())
-                {
-                    throw new ArgumentException(string.Join("\n", results));
-                }
-            }
 
+            results = ValidateOnCreate(valueToAply);
+            if (results.Any())
+            {
+                throw new ArgumentException(string.Join("\n", results));
+            }
 
             DbSet.Remove(record);
             await SaveChangesAsync(token);
@@ -292,6 +326,11 @@ namespace Logic.Services
             if (contract == null)
             {
                 throw new ArgumentNullException(nameof(contract));
+            }
+
+            if (contract.ConclusionDate > contract.PeriodStart)
+            {
+                yield return new ValidationResult($"{nameof(contract.ConclusionDate)} > {nameof(contract.PeriodStart)}");
             }
 
             if (contract.ParentContractID != null && contract.ParentContractID == contract.ID)
@@ -420,6 +459,11 @@ namespace Logic.Services
             if (child.ParentContractID != parent.ID)
             {
                 throw new ArgumentException("ParentContractID != ParentContract.ID");
+            }
+
+            if (child.ConclusionDate < parent.ConclusionDate)
+            {
+                yield return new ValidationResult("ConclusionDate < ParentContract.ConclusionDate");
             }
 
             if (child.ContractTypeID != parent.ContractTypeID)

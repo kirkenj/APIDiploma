@@ -14,6 +14,7 @@ namespace Database.Entities
         public string ContractIdentifier { get; set; } = null!;
         public Department? Department { get; set; } = null!;
         public ContractType? ContractType { get; set; } = null!;
+        public DateTime ConclusionDate { get; set; }
         public DateTime PeriodStart { get; set; }
         public DateTime PeriodEnd { get; set; }
         public bool IsConfirmed { get; private set; }

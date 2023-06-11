@@ -3,7 +3,10 @@
 @using Logic.Models.Contracts;
 @using WebFront.Constants;
 @using WebFront.Models.Contracts;
-
+<b>
+    @(ViewData["Title"] = "Список договоров")
+</b>
+<br />
 @{
     ContractsSelectObject selectionObject = ViewBag.selectionObject is ContractsSelectObject contractsSelectObject ? contractsSelectObject :  new();
     int pageVal = ViewBag.page;
@@ -12,6 +15,7 @@
     IEnumerable<KeyValuePair<int, string>> departments = ViewBag.Departments is IEnumerable<KeyValuePair<int, string>> departmentsE ? departmentsE : Enumerable.Empty<KeyValuePair<int, string>>();
     IEnumerable<KeyValuePair<int, string>> contracts = ViewBag.Contracts is IEnumerable<KeyValuePair<int, string>> contractsE ? contractsE : Enumerable.Empty<KeyValuePair<int, string>>();
     IEnumerable<KeyValuePair<int, string>> contractTypes = ViewBag.ContractTypes is IEnumerable<KeyValuePair<int, string>> contractTypesE ? contractTypesE : Enumerable.Empty<KeyValuePair<int, string>>();
+    string valueAtt;
 }
 <form action="List" method="Get">
     <div class="brd" align="center">
@@ -28,13 +32,49 @@
                 </tr>
                 <tr>
                     <th>
+                        Подтвержден:
+                    </th>
+                    <th>
+                        <select name=@nameof(selectionObject.IsConfirmed) >
+                            @if (selectionObject?.IsConfirmed == null)
+                            {
+                                <option value=@true>Да</option>
+                                <option value=@false>Нет</option>
+                                <option value=@null selected="selected">Любой</option>
+                            }
+                            else
+                            {
+                                if (selectionObject.IsConfirmed == true)
+                                {
+                                    <option value=@true selected="selected">Да</option>
+                                    <option value=@false>Нет</option>
+                                }
+                                else
+                                {
+                                    <option value=@true>Да</option>
+                                    <option value=@false selected="selected">Нет</option>
+                                }
+                                <option value=@null>Любой</option>
+                            }
+                        </select>
+                    </th>
+                </tr>
+                <tr>
+                    <th>
                         Искать по отделам:
                     </th>
                     <th>
                         <select name=@nameof(selectionObject.DepartmentIDs) multiple>
                             @foreach (var u in departments)
                             {
-                                <option value=@u.Key>@u.Value</option>
+                                if (selectionObject?.DepartmentIDs?.Contains(u.Key) ?? false)
+                                {
+                                    <option value=@u.Key selected="selected">@u.Value</option>
+                                }
+                                else
+                                {
+                                    <option value=@u.Key>@u.Value</option>
+                                }
                             }
                         </select>
                     </th>
@@ -47,7 +87,14 @@
                         <select name=@nameof(selectionObject.UserIDs) multiple>
                             @foreach (var u in users)
                             {
-                                <option value=@u.Key>@u.Value</option>
+                                if (selectionObject?.UserIDs?.Contains(u.Key) ?? false)
+                                {
+                                    <option value=@u.Key selected="selected">@u.Value</option>
+                                }
+                                else
+                                {
+                                    <option value=@u.Key>@u.Value</option>
+                                }
                             }
                         </select>
                     </th>
@@ -60,41 +107,96 @@
                         <select name=@nameof(selectionObject.ContractTypeIDs) multiple>
                             @foreach (var u in contractTypes)
                             {
-                                <option value=@u.Key>@u.Value</option>
+                                if (selectionObject?.ContractTypeIDs?.Contains(u.Key) ?? false)
+                                {
+                                    <option value=@u.Key selected="selected">@u.Value</option>
+                                }
+                                else
+                                {
+                                    <option value=@u.Key>@u.Value</option>
+                                }
                             }
                         </select>
                     </th>
                 </tr>
+
                 <tr>
                     <th>
-                        Договор активен с (нач.пер):
+                        Договор заключен (период с\по):
                     </th>
                     <th>
-                        <input type="date" name=@nameof(selectionObject.PeriodStartStartBound) />
+                        @{
+                            valueAtt = string.Empty;
+                            if (selectionObject?.ConclusionDateStartBound.HasValue ?? false)
+                            {
+                                valueAtt = $"value={selectionObject.ConclusionDateStartBound.Value.ToString("yyyy-MM-dd")}";
+                            }
+                        }
+                        <input type="date" name=@nameof(selectionObject.ConclusionDateStartBound) @valueAtt />
+                    </th>
+                    <th>
+                        @{
+                            valueAtt = string.Empty;
+                            if (selectionObject?.ConclusionDateEndBound.HasValue ?? false)
+                            {
+                                valueAtt = $"value={selectionObject.ConclusionDateEndBound.Value.ToString("yyyy-MM-dd")}";
+                            }
+                        }
+                        <input type="date" name=@nameof(selectionObject.ConclusionDateEndBound) @valueAtt />
                     </th>
                 </tr>
+
+
                 <tr>
                     <th>
-                        Договор активен с (кон.пер):
+                        Договор активен с (период с\по):
                     </th>
                     <th>
-                        <input type="date" name=@nameof(selectionObject.PeriodStartEndBound) />
+                        @{
+                            valueAtt = string.Empty;
+                            if (selectionObject?.PeriodStartStartBound.HasValue ?? false)
+                            {
+                                valueAtt = $"value={selectionObject.PeriodStartStartBound.Value.ToString("yyyy-MM-dd")}";
+                            }
+                        }
+
+                        <input type="date" name=@nameof(selectionObject.PeriodStartStartBound) @valueAtt />
+                    </th>
+                    <th>
+                        @{
+                            valueAtt = string.Empty;
+                            if (selectionObject?.PeriodStartEndBound.HasValue ?? false)
+                            {
+                                valueAtt = $"value={selectionObject.PeriodStartEndBound.Value.ToString("yyyy-MM-dd")}";
+                            }
+                        }
+                        <input type="date" name=@nameof(selectionObject.PeriodStartEndBound) @valueAtt />
                     </th>
                 </tr>
+                
                 <tr>
                     <th>
-                        Договор активен по (нач.пер):
+                        Договор активен по (период с\по):
                     </th>
                     <th>
-                        <input type="date" name=@nameof(selectionObject.PeriodEndStartBound) />
+                        @{
+                            valueAtt = string.Empty;
+                            if (selectionObject?.PeriodEndStartBound.HasValue ?? false)
+                            {
+                                valueAtt = $"value={selectionObject.PeriodEndStartBound.Value.ToString("yyyy-MM-dd")}";
+                            }
+                        }
+                        <input type="date" name=@nameof(selectionObject.PeriodEndStartBound) @valueAtt />
                     </th>
-                </tr>
-                <tr>
                     <th>
-                        Договор активен по (кон.пер):
-                    </th>
-                    <th>
-                        <input type="date" name=@nameof(selectionObject.PeriodEndEndBound) />
+                        @{
+                            valueAtt = string.Empty;
+                            if (selectionObject?.PeriodEndEndBound.HasValue ?? false)
+                            {
+                                valueAtt = $"value={selectionObject.PeriodEndEndBound.Value.ToString("yyyy-MM-dd")}";
+                            }
+                        }
+                        <input type="date" name=@nameof(selectionObject.PeriodEndEndBound) @valueAtt />
                     </th>
                 </tr>
             </table>
@@ -128,12 +230,7 @@
     </table>
 </form>
 
-
-@if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
-{
-    @Html.ActionLink("Добавить новый", "Add")
-    <br />
-}
+@Html.ActionLink("Добавить новый", "Add")
 
 <table>
     <tr>
@@ -142,6 +239,7 @@
         <th class="brd">Название</th>
         <th class="brd">Подтвержден</th>
         <th class="brd">Допконтракт для</th>
+        <th class="brd">Дата заключения</th>
         <th class="brd">Договор с</th>
         <th class="brd">Договор по</th>
         <th class="brd">Отдел</th>
@@ -176,6 +274,7 @@
                 <td class="brd">@item.ContractIdentifier</td>
                 <td class="brd">@(item.IsConfirmed ? "Да" : "Нет")</td>
                 <td class="brd">@contracts.FirstOrDefault(u => u.Key == item.ParentContractID).Value</td>
+                <td class="brd">@item.ConclusionDate.ToShortDateString()</td>
                 <td class="brd">@item.PeriodStart.ToShortDateString()</td>
                 <td class="brd">@item.PeriodEnd.ToShortDateString()</td>
                 <td class="brd">@departments.FirstOrDefault(u => u.Key == item.DepartmentID).Value</td>

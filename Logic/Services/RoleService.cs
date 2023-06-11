@@ -82,5 +82,9 @@ namespace Logic.Services
 
             return entities;
         }
+
+        public bool IsSuperAdminRoleID(int iD) => IncludeModels.RolesNavigation.SuperAdminRoleID == iD;
+
+        public bool IsSuperAdminRoleName(string v)=>IncludeModels.RolesNavigation.SuperAdminRoleName == v;
     }
 }

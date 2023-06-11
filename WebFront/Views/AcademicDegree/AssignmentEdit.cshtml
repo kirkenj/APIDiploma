@@ -1,7 +1,9 @@
 ﻿@model AcademicDegreePriceAssignment
 @using Database.Entities;
 @using WebFront.Constants;
-
+<b>@(ViewData["Title"] = "Редактирование ставок академ. степеней")
+</b>
+<br />
 @{
     IEnumerable<AcademicDegree> atachedObjects = ViewBag.AtachedObjects;
 }
@@ -16,7 +18,7 @@
                 Новая дата
             </td>
             <td>
-                <input type="date" name="newAssignationDate" value=@Model.AssignmentDate>
+                <input type="date" name="newAssignationDate" value=@Model.AssignmentDate.ToString("yyyy-MM-dd")>
             </td>
         </tr>
         <tr>

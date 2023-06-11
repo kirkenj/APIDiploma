@@ -12,7 +12,7 @@ namespace Logic.Interfaces.Common
         where TAssignmentValueType : struct
         where TTypeBeingAssigned : IIdObject<TAssignationIDType>
     {
-        internal DbSet<TAssignmentType> AssignmentsDBSet { get; }
+        protected DbSet<TAssignmentType> AssignmentsDBSet { get; }
 
         public async Task<IEnumerable<TAssignmentType>> GetAssignmentsForObject(TAssignationIDType objectID, CancellationToken token = default)
         {

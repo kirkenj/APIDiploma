@@ -1,6 +1,9 @@
 ﻿@model IEnumerable<AcademicDegreePriceAssignment>
 @using Database.Entities;
 @using WebFront.Constants;
+<b>
+@(ViewData["Title"] = "Список ставок академ. степеней") <br />
+</b>
 @{
     IEnumerable<AcademicDegree> atachedObjects = ViewBag.AtachedObjects ?? Enumerable.Empty<AcademicDegree>();
     var isAdmin = IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User);

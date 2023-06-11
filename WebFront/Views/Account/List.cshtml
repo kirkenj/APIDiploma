@@ -3,6 +3,11 @@
 @using WebFront.Constants;
 @using WebFront.Models.Account;
 @using Logic.Models.User;
+<b>
+    @(ViewData["Title"] = "Список пользователей")
+</b>
+<br />
+
 @{
     UserSelectObject? selectionObject = ViewBag.selectionObject;
     int pageVal = ViewBag.page;

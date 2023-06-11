@@ -14,7 +14,10 @@ public static class IncludeModels
         public const string NameKey = ClaimTypes.Name;
         public static string GetUserNameClaimValue(ClaimsPrincipal User) => User.Claims.FirstOrDefault(u => u.Type == NameKey)?.Value ?? throw new UnauthorizedAccessException();
         public static bool GetUserIsAdminClaimValue(ClaimsPrincipal? User) => User != null && IsAuthorized(User) && PolicyNavigation.OnlyAdminPolicy.RoleNames.Contains(GetUserRoleClaimValue(User));
+        public static bool GetUserIsSuperAdminClaimValue(ClaimsPrincipal? User) => User != null && IsAuthorized(User) && PolicyNavigation.OnlySuperAdminPolicy.RoleNames.Contains(GetUserRoleClaimValue(User));
         public static bool IsAuthorized(ClaimsPrincipal? User) => User?.Identity?.IsAuthenticated ?? false;
+
+        
     }
 
     public static class PolicyNavigation

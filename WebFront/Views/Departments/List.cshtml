@@ -2,6 +2,11 @@
 @using Logic.Models.Department;
 @using WebFront.Constants;
 @using WebFront.Models.Departments;
+<b>
+    @(ViewData["Title"] = "Список отделов")
+</b>
+<br />
+
 @{
     DepartmentSelectObject? selectionObject = ViewBag.selectionObject;
     int pageVal = ViewBag.page;

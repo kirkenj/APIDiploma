@@ -1,7 +1,10 @@
 ﻿@using Database.Entities;
 @using WebFront.Constants;
 @model WebFront.Models.ContractType.ContractTypeViewModel
-
+<b>
+    @(ViewData["Title"] = "Редактирование типа договора")
+</b>
+<br />
 @using (var a = Html.BeginForm("Edit", "ContractType", FormMethod.Post))
 {
     <table>

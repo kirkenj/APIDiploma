@@ -1,6 +1,9 @@
 ﻿@model WebFront.Models.ContractType.ContractTypeViewModel
 @using WebFront.Constants;
-
+<b>
+    @(ViewData["Title"] = "Тип договора")
+</b>
+<br />
 
 @if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User ?? throw new UnauthorizedAccessException()))
 {

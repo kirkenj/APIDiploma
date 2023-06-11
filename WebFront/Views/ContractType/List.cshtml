@@ -3,7 +3,10 @@
 @using Logic.Models.ContractType;
 @using WebFront.Constants;
 @using WebFront.Models.ContractType;
-
+<b>
+    @(ViewData["Title"] = "Список типов договора")
+</b>
+<br />
 @{
     ContractTypesSelectObject? selectionObject = ViewBag.selectionObject;
     int pageVal = ViewBag.page;

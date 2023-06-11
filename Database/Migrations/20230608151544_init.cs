@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -94,15 +95,15 @@ namespace Database.Migrations
                 name: "AcademicDegreePriceAssignments",
                 columns: table => new
                 {
-                    AssignationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    AssignmentDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ObjectIdentifier = table.Column<int>(type: "int", nullable: false),
                     Value = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AcademicDegreePriceAssignments", x => new { x.AssignationDate, x.ObjectIdentifier });
+                    table.PrimaryKey("PK_AcademicDegreePriceAssignments", x => new { x.AssignmentDate, x.ObjectIdentifier });
                     table.ForeignKey(
-                        name: "FK_AcademicDegree_AcademicDegreeValueAssignation",
+                        name: "FK_AcademicDegree_AcademicDegreeValueAssignment",
                         column: x => x.ObjectIdentifier,
                         principalTable: "AcademicDegrees",
                         principalColumn: "ID",
@@ -114,15 +115,15 @@ namespace Database.Migrations
                 name: "ContractTypePriceAssignments",
                 columns: table => new
                 {
-                    AssignationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    AssignmentDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ObjectIdentifier = table.Column<int>(type: "int", nullable: false),
                     Value = table.Column<double>(type: "double", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ContractTypePriceAssignments", x => new { x.AssignationDate, x.ObjectIdentifier });
+                    table.PrimaryKey("PK_ContractTypePriceAssignments", x => new { x.AssignmentDate, x.ObjectIdentifier });
                     table.ForeignKey(
-                        name: "FK_ContractType_ContractTypeValueAssignation",
+                        name: "FK_ContractType_ContractTypeValueAssignment",
                         column: x => x.ObjectIdentifier,
                         principalTable: "ContractTypes",
                         principalColumn: "ID",
@@ -172,6 +173,7 @@ namespace Database.Migrations
                     ContractTypeID = table.Column<int>(type: "int", nullable: false),
                     ContractIdentifier = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    ConclusionDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PeriodStart = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PeriodEnd = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     IsConfirmed = table.Column<bool>(type: "tinyint(1)", nullable: false, computedColumnSql: "ConfirmedByUserID is not null", stored: false),
@@ -246,6 +248,8 @@ namespace Database.Migrations
                     Year = table.Column<int>(type: "int", nullable: false),
                     BlockedByUserID = table.Column<int>(type: "int", nullable: true),
                     IsBlocked = table.Column<bool>(type: "tinyint(1)", nullable: false, computedColumnSql: "BlockedByUserID is not null", stored: false),
+                    MontYearAsDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, computedColumnSql: "STR_TO_DATE(Concat('1',',', Month,',', Year),'%d,%m,%Y')", stored: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.ComputedColumn),
                     LectionsTime = table.Column<double>(type: "double", nullable: false),
                     PracticalClassesTime = table.Column<double>(type: "double", nullable: false),
                     LaboratoryClassesTime = table.Column<double>(type: "double", nullable: false),
@@ -283,24 +287,24 @@ namespace Database.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "UserAcademicDegreeAssignaments",
+                name: "UserAcademicDegreeAssignments",
                 columns: table => new
                 {
-                    AssignationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    AssignmentDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     ObjectIdentifier = table.Column<int>(type: "int", nullable: false),
                     Value = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserAcademicDegreeAssignaments", x => new { x.AssignationDate, x.ObjectIdentifier });
+                    table.PrimaryKey("PK_UserAcademicDegreeAssignments", x => new { x.AssignmentDate, x.ObjectIdentifier });
                     table.ForeignKey(
-                        name: "FK_UserAcademicDegreeAssignaments_AcademicDegrees_Value",
+                        name: "FK_UserAcademicDegreeAssignments_AcademicDegrees_Value",
                         column: x => x.Value,
                         principalTable: "AcademicDegrees",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_User_UserAcademicDegreeAssignation",
+                        name: "FK_User_UserAcademicDegreeAssignment",
                         column: x => x.ObjectIdentifier,
                         principalTable: "Users",
                         principalColumn: "ID",
@@ -347,7 +351,7 @@ namespace Database.Migrations
 
             migrationBuilder.InsertData(
                 table: "AcademicDegreePriceAssignments",
-                columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
+                columns: new[] { "AssignmentDate", "ObjectIdentifier", "Value" },
                 values: new object[,]
                 {
                     { new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 12.0 },
@@ -356,7 +360,7 @@ namespace Database.Migrations
 
             migrationBuilder.InsertData(
                 table: "ContractTypePriceAssignments",
-                columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
+                columns: new[] { "AssignmentDate", "ObjectIdentifier", "Value" },
                 values: new object[,]
                 {
                     { new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 12.0 },
@@ -369,13 +373,13 @@ namespace Database.Migrations
                 values: new object[,]
                 {
                     { 1, "admin", "admin", "!#/)zW��C�JJ��", "admin", 1, "admin" },
-                    { 2, "name1", "name1", "!#/)zW��C�JJ��", "name1", 1, "name1" },
-                    { 3, "name2", "name2", "!#/)zW��C�JJ��", "name2", 1, "name2" }
+                    { 2, "name1", "name1", "!#/)zW��C�JJ��", "name1", 3, "name1" },
+                    { 3, "name2", "name2", "!#/)zW��C�JJ��", "name2", 2, "name2" }
                 });
 
             migrationBuilder.InsertData(
-                table: "UserAcademicDegreeAssignaments",
-                columns: new[] { "AssignationDate", "ObjectIdentifier", "Value" },
+                table: "UserAcademicDegreeAssignments",
+                columns: new[] { "AssignmentDate", "ObjectIdentifier", "Value" },
                 values: new object[] { new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 1 });
 
             migrationBuilder.CreateIndex(
@@ -459,13 +463,13 @@ namespace Database.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAcademicDegreeAssignaments_ObjectIdentifier",
-                table: "UserAcademicDegreeAssignaments",
+                name: "IX_UserAcademicDegreeAssignments_ObjectIdentifier",
+                table: "UserAcademicDegreeAssignments",
                 column: "ObjectIdentifier");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAcademicDegreeAssignaments_Value",
-                table: "UserAcademicDegreeAssignaments",
+                name: "IX_UserAcademicDegreeAssignments_Value",
+                table: "UserAcademicDegreeAssignments",
                 column: "Value");
 
             migrationBuilder.CreateIndex(
@@ -496,7 +500,7 @@ namespace Database.Migrations
                 name: "MonthReports");
 
             migrationBuilder.DropTable(
-                name: "UserAcademicDegreeAssignaments");
+                name: "UserAcademicDegreeAssignments");
 
             migrationBuilder.DropTable(
                 name: "Departments");

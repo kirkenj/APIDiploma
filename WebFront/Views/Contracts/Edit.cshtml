@@ -5,7 +5,10 @@
 @using WebFront.Constants;
 @using WebFront.Models.Departments;
 
-
+<b>
+    @(ViewData["Title"] = "Редактирование договора")
+</b>
+<br />
 
 @using (var a = Html.BeginForm("Edit", "Contracts", FormMethod.Post))
 {
@@ -23,8 +26,12 @@
                 <td>@Html.EditorFor(m =>m.ContractIdentifier)</td>
             </tr>
             <tr>
+                <td>Дата заключения договора</td>
+                <td><input type="date" name=@nameof(Model.ConclusionDate) value=@Model.ConclusionDate.ToString("yyyy-MM-dd") required></td>
+            </tr>
+            <tr>
                 <td>Начало действия договора</td>
-                <td>@Html.EditorFor(m =>m.PeriodStart)</td>
+                <td><input type="date" name=@nameof(Model.PeriodStart) value=@Model.PeriodStart.ToString("yyyy-MM-dd") required></td>
             </tr>
         </table>
     }
@@ -107,12 +114,16 @@
                 <td>@Html.EditorFor(m =>m.ContractIdentifier)</td>
             </tr>
             <tr>
+                <td>Дата заключения договора</td>
+                <td><input type="date" name=@nameof(Model.ConclusionDate) required></td>
+            </tr>
+            <tr>
                 <td>Начало действия договора</td>
-                <td>@Html.EditorFor(m =>m.PeriodStart)</td>
+                <td><input type="date" name=@nameof(Model.PeriodStart) value=@Model.PeriodStart.ToString("yyyy-MM-dd") required></td>
             </tr>
             <tr>
                 <td>Конец действия договора</td>
-                <td>@Html.EditorFor(m =>m.PeriodEnd)</td>
+                <td><input type="date" name=@nameof(Model.PeriodEnd) value=@Model.PeriodEnd.ToString("yyyy-MM-dd") required></td>
             </tr>
         </table>
 

@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Database.Entities;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Logic.Interfaces;
 using Logic.Models.Contracts;
+using Logic.Models.MonthReports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -52,15 +54,28 @@ namespace WebFront.Controllers
             }
 
             var contractToReturn = await _contractService.GetFullData(contractID);
-            var mappedContract = new RelatedContractsWithReportsViewModel
+            var orderedContracts = contractToReturn.Contracts.OrderBy(c => c.AssignmentDate);
+            var orderedReports = _mapper.Map<IEnumerable<MonthReportViewModel>>(contractToReturn.Reports).OrderBy(r => r.Year).ThenBy(r => r.Month).ToList();
+            var reportsIndex = 0;
+            foreach (var item in orderedContracts)
             {
-                RelatedContracts = _mapper.Map<List<ContractViewModel>>(contractToReturn.Contracts),
-                MonthReports = _mapper.Map<List<MonthReportViewModel>>(contractToReturn.Reports),
-                UntakenTimes = contractToReturn.UntakenTimeForContracts == null ? new() : contractToReturn.UntakenTimeForContracts.ToList()
-            };
+                var next = orderedContracts.FirstOrDefault(n => n.PeriodStart > item.PeriodStart);
+                while (reportsIndex < orderedReports.Count && (next == null || (orderedReports[reportsIndex].Year <= next.PeriodStart.Year && orderedReports[reportsIndex].Month < next.PeriodStart.Month)))
+                {
+                    var report = orderedReports[reportsIndex];
+                    report.ContractID = item.ID;
+                    reportsIndex++;
+                }
+            }
 
-            mappedContract.MonthReports.ForEach(r => r.ContractID = contractID);
-            return Ok(mappedContract);
+            return Ok(
+                new RelatedContractsWithReportsViewModel
+                {
+                    RelatedContracts = _mapper.Map<IEnumerable<ContractViewModel>>(orderedContracts),
+                    MonthReports = orderedReports,
+                    UntakenTimes = contractToReturn.UntakenTimeForContracts ?? Array.Empty<MonthReportsUntakenTimeModel>()
+                }
+            );
         }
 
         [HttpPost]
@@ -148,6 +163,39 @@ namespace WebFront.Controllers
             }
 
             return Ok(ret);
+        }
+
+        [HttpGet(nameof(GetMonthReport) + "/{contractID}/{year}/{month}")]
+        public async Task<IActionResult> GetMonthReport(int contractID, int year, int month)
+        {
+            bool isAdmin = IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User);
+            var contract = await _contractService.FirstOrDefaultAsync(c => c.ID == contractID);
+            if (contract == null)
+            {
+                return NotFound();
+            }
+
+            if (!isAdmin && contract.ID != IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User))
+            {
+                return BadRequest("Contract not found or you do not have rights to do it");
+            }
+
+            if (!contract.IsConfirmed)
+            {
+                return BadRequest("Contract is not confirmed");
+            }
+
+            if (contract.LinkingPartID == null)
+            {
+                return BadRequest("Contract doesn't have linking part. Contact administration");
+            }
+
+            var linkingPartID = contract.LinkingPartID.Value;
+            var monthReport = _mapper.Map<MonthReportViewModel>(await _contractService.GetReport(linkingPartID, month, year));
+            var maxVals = await _contractService.GetUntakenTimeAsync(contractID, new List<(int, int)> { (monthReport.Year, monthReport.Month) }, true);
+            monthReport.ContractID = contractID;
+            maxVals.ContractID = contractID;
+            return Ok(new { report = monthReport, maxValues = maxVals });
         }
 
         [HttpGet(nameof(GetUntakenTime))]

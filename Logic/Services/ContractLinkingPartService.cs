@@ -235,6 +235,8 @@ namespace Logic.Services
                 ret.ExamsTime = ret.ExamsTime < 0 ? 0 : ret.ExamsTime;
                 ret.CourseProjectsTime = ret.CourseProjectsTime < 0 ? 0 : ret.CourseProjectsTime;
             }
+
+            ret.ExceptForReportsWithKey = exceptValuesWithKeys;
             return ret;
         }
 

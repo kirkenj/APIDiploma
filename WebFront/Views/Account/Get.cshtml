@@ -1,7 +1,10 @@
 ﻿@model WebFront.Models.Account.UserViewModel
 @using WebFront.Constants;
 
-
+<b>
+    @(ViewData["Title"] = "Пользователь")
+</b>
+<br />
 @if (User?.Identity?.Name == Model.Login || IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User ?? throw new UnauthorizedAccessException()))
 {
     @Html.ActionLink("Редактировать", $"Edit", routeValues: new {ID = Model.ID})

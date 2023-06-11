@@ -3,7 +3,10 @@
 @using Logic.Models.ContractType;
 @using WebFront.Constants;
 @using WebFront.Models.ContractType;
-
+<b>
+    @(ViewData["Title"] = "Ставки типа договора")
+</b>
+<br />
 @{
     IEnumerable<ContractType> atachedObjects = ViewBag.AtachedObjects ?? Enumerable.Empty<ContractType>();
     var isAdmin = IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User);

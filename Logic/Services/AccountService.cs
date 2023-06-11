@@ -16,14 +16,14 @@ public class AccountService : IAccountService
 
     public DbSet<User> DbSet { get; private set; }
     public Func<CancellationToken, Task<int>> SaveChangesAsync { get; private set; }
-    public DbSet<UserAcademicDegreeAssignament> AssignmentsDBSet { get; set; }
+    public DbSet<UserAcademicDegreeAssignment> AssignmentsDBSet { get; set; }
 
     public AccountService(IAppDBContext context, IHashProvider hashProvider, IRoleService roleService, IAcademicDegreeService academicDegreeService)
     {
         _hashProvider = hashProvider;
         _roleService = roleService;
         DbSet = context.Set<User>();
-        AssignmentsDBSet = context.Set<UserAcademicDegreeAssignament>();
+        AssignmentsDBSet = context.Set<UserAcademicDegreeAssignment>();
         SaveChangesAsync = context.SaveChangesAsync;
         _academicDegreeService = academicDegreeService;
     }
@@ -73,7 +73,7 @@ public class AccountService : IAccountService
         await SaveChangesAsync.Invoke(CancellationToken.None);
     }
 
-    public virtual async Task AddAssignmentAsync(UserAcademicDegreeAssignament assignation, CancellationToken token = default)
+    public virtual async Task AddAssignmentAsync(UserAcademicDegreeAssignment assignation, CancellationToken token = default)
     {
         if (!await DbSet.AnyAsync(e => e.ID.Equals(assignation.ObjectIdentifier), token))
         {
@@ -96,7 +96,7 @@ public class AccountService : IAccountService
 
     public virtual async Task EditAssignmentAsync(int id, DateTime assignationActiveDate, int newValue, DateTime? newAssignationDate, CancellationToken token = default)
     {
-        var assignment = await GetAssignmentOnDate(assignationActiveDate, id, token) ?? throw new ObjectNotFoundException($"{typeof(UserAcademicDegreeAssignament).Name} not found with key [activeDate = {assignationActiveDate}, ObjectID = {id}]");
+        var assignment = await GetAssignmentOnDate(assignationActiveDate, id, token) ?? throw new ObjectNotFoundException($"{typeof(UserAcademicDegreeAssignment).Name} not found with key [activeDate = {assignationActiveDate}, ObjectID = {id}]");
         if (await _academicDegreeService.FirstOrDefaultAsync(d => d.ID == assignment.Value, token) is null)
         {
             throw new ObjectNotFoundException($"{typeof(AcademicDegree).Name} not found with ID = {assignment.Value}");
@@ -114,7 +114,7 @@ public class AccountService : IAccountService
         await SaveChangesAsync(token);
     }
 
-    public async Task<UserAcademicDegreeAssignament?> GetAssignmentOnDate(DateTime date, int objectIDToFindPerVal, CancellationToken token = default)
+    public async Task<UserAcademicDegreeAssignment?> GetAssignmentOnDate(DateTime date, int objectIDToFindPerVal, CancellationToken token = default)
     {
         return await AssignmentsDBSet.OrderByDescending(a => a.AssignmentDate).FirstOrDefaultAsync(a => a.AssignmentDate <= date && a.ObjectIdentifier.Equals(objectIDToFindPerVal), token);
     }
@@ -148,4 +148,6 @@ public class AccountService : IAccountService
 
         return entities;
     }
+
+    public bool IsSuperAdmin(User user) => _roleService.IsSuperAdminRoleID(user.ID);
 }

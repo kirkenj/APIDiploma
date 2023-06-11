@@ -4,8 +4,8 @@ namespace WebFront.Models.Contracts
 {
     public class RelatedContractsWithReportsViewModel
     {
-        public List<ContractViewModel> RelatedContracts { get; set; } = null!;
-        public List<MonthReportViewModel> MonthReports { get; set; } = null!;
-        public List<MonthReportsUntakenTimeModel> UntakenTimes { get; set; } = null!;
+        public IEnumerable<ContractViewModel> RelatedContracts { get; set; } = null!;
+        public IEnumerable<MonthReportViewModel> MonthReports { get; set; } = null!;
+        public IEnumerable<MonthReportsUntakenTimeModel> UntakenTimes { get; set; } = null!;
     }
 }

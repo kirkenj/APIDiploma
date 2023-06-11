@@ -3,7 +3,10 @@
 @using Logic.Models.ContractType;
 @using WebFront.Constants;
 @using WebFront.Models.ContractType;
-
+<b>
+    @(ViewData["Title"] = "Редактирование ставки типа договора")
+</b>
+<br />
 @{
     IEnumerable<ContractType> atachedObjects = ViewBag.AtachedObjects;
 }
@@ -18,7 +21,7 @@
                 Новая дата
             </td>
             <td>
-                <input type="date" name="newAssignationDate" value=@Model.AssignmentDate>
+                <input type="date" name="newAssignationDate" value=@Model.AssignmentDate.ToString("yyyy-MM-dd")>
             </td>
         </tr>
         <tr>

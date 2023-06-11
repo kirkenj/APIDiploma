@@ -129,9 +129,9 @@ namespace WebFront.Controllers
                 return BadRequest("Password can not be 'password'");
             }
 
-            bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
+            bool isSuperAdmin = _roleService.IsSuperAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
             var currentUserLogin = User.Identity?.Name ?? throw new UnauthorizedAccessException();
-            if (!isAdmin && currentUserLogin != userLoginToUpdatePassword)
+            if (!isSuperAdmin && currentUserLogin != userLoginToUpdatePassword)
             {
                 return BadRequest(IncludeModels.BadRequestTextFactory.GetNoRightsExceptionText());
             }
@@ -233,7 +233,7 @@ namespace WebFront.Controllers
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> AddAssignment(int id, DateTime assignmentDate, int Value, CancellationToken token = default)
         {
-            var newAssignation = new UserAcademicDegreeAssignament { AssignmentDate = assignmentDate, Value = Value, ObjectIdentifier = id };
+            var newAssignation = new UserAcademicDegreeAssignment { AssignmentDate = assignmentDate, Value = Value, ObjectIdentifier = id };
             await _accountService.AddAssignmentAsync(newAssignation, token);
             return RedirectToAction("Assignments", new { id });
         }

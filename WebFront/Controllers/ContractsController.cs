@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Database.Entities;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using Logic.Interfaces;
 using Logic.Models.Contracts;
+using Logic.Models.MonthReports;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebFront.Constants;
@@ -42,7 +42,7 @@ namespace WebFront.Controllers
                 selectionObject.UserIDs = new List<int> { IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User) };
             }
             var res = await _contractService.GetListViaSelectionObjectAsync(selectionObject, page, pageSize);
-            var ret = _mapper.Map<List<ContractViewModel>>(res);
+            var ret = _mapper.Map<IEnumerable<ContractViewModel>>(res);
 
             ViewBag.Users = (await _accountService.GetListViaSelectionObjectAsync(null)).Select(p => new KeyValuePair<int, string>(p.ID, p.NSP));
             ViewBag.Departments = (await _departmentService.GetListViaSelectionObjectAsync(null)).Select(p => new KeyValuePair<int, string>(p.ID, p.Name));
@@ -66,15 +66,28 @@ namespace WebFront.Controllers
             }
 
             var contractToReturn = await _contractService.GetFullData(id);
+            var orderedContracts = contractToReturn.Contracts.OrderBy(c => c.AssignmentDate);
+            var orderedReports = _mapper.Map<IEnumerable<MonthReportViewModel>>(contractToReturn.Reports).OrderBy(r => r.Year).ThenBy(r => r.Month).ToList();
+            var reportsIndex = 0;
+            foreach (var item in orderedContracts)
+            {
+                var next = orderedContracts.FirstOrDefault(n => n.PeriodStart > item.PeriodStart);
+                while (reportsIndex < orderedReports.Count && (next == null || (orderedReports[reportsIndex].Year <= next.PeriodStart.Year && orderedReports[reportsIndex].Month < next.PeriodStart.Month)))
+                {
+                    var report = orderedReports[reportsIndex];
+                    report.ContractID = item.ID;
+                    reportsIndex++;
+                }
+            }
+
+
             var mappedContract = new RelatedContractsWithReportsViewModel
             {
-                RelatedContracts = _mapper.Map<List<ContractViewModel>>(contractToReturn.Contracts),
-                MonthReports = _mapper.Map<List<MonthReportViewModel>>(contractToReturn.Reports),
-                UntakenTimes = contractToReturn.UntakenTimeForContracts == null ? new() : contractToReturn.UntakenTimeForContracts.ToList()
+                RelatedContracts = _mapper.Map<IEnumerable<ContractViewModel>>(orderedContracts),
+                MonthReports = orderedReports,
+                UntakenTimes = contractToReturn.UntakenTimeForContracts == null ? Array.Empty<MonthReportsUntakenTimeModel>() : contractToReturn.UntakenTimeForContracts
             };
-
             ViewBag.UserNSP = (await _accountService.FirstOrDefaultAsync(u => u.ID == contractToReturn.Contracts.First().UserID))?.NSP ?? "Undefined";
-            mappedContract.MonthReports.ForEach(r => r.ContractID = id);
             return View("Get", mappedContract);
         }
 
@@ -332,7 +345,7 @@ namespace WebFront.Controllers
         {
             if (periodEnd <= periodStart) return BadRequest("periodEnd <= periodStart");
             var res = await _contractService.GetReportsOnPeriodAsync(periodStart, periodEnd);
-            var ret = res.Select(r => new RelatedContractsWithReportsViewModel { RelatedContracts = _mapper.Map<List<ContractViewModel>>(r.Contracts), MonthReports = _mapper.Map<List<MonthReportViewModel>>(r.Reports) });
+            var ret = res.Select(r => new RelatedContractsWithReportsViewModel { RelatedContracts = _mapper.Map<IEnumerable<ContractViewModel>>(r.Contracts), MonthReports = _mapper.Map<IEnumerable<MonthReportViewModel>>(r.Reports) });
             return Ok(ret);
         }
 

@@ -160,7 +160,7 @@ namespace WebFront.Controllers
         [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
         public async Task<IActionResult> PostDegreeAssignment(int userId, DateTime assignationActiveDate, int Value, CancellationToken token = default)
         {
-            var newAssignation = new UserAcademicDegreeAssignament { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = userId };
+            var newAssignation = new UserAcademicDegreeAssignment { AssignmentDate = assignationActiveDate, Value = Value, ObjectIdentifier = userId };
             await _accountService.AddAssignmentAsync(newAssignation, token);
             return Ok();
         }

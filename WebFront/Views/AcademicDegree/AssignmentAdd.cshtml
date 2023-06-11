@@ -1,7 +1,9 @@
 ﻿@model AcademicDegreePriceAssignment
 @using Database.Entities;
 @using WebFront.Constants;
-
+<b>@(ViewData["Title"] = "Добавление ставок академ. степеней")
+</b>
+<br />
 @{
     IEnumerable<AcademicDegree> atachedObjects = ViewBag.AtachedObjects;
     int? forID = ViewBag.forID;
@@ -36,7 +38,7 @@
                 Значение
             </td>
             <td>
-                <input type="number" name=@nameof(Model.Value) value=@Model.Value step="0.01" required>
+                <input type="number" name=@nameof(Model.Value) step="0.01" required>
             </td>
         </tr>
     </table>

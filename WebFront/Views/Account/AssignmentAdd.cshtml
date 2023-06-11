@@ -1,7 +1,10 @@
-﻿@model UserAcademicDegreeAssignament
+﻿@model UserAcademicDegreeAssignment
 @using Database.Entities;
 @using WebFront.Constants;
-
+<b>
+    @(ViewData["Title"] = "Добавление назначения академ. степеней")
+</b>
+<br />
 @{
     IEnumerable<AcademicDegree> degrees = ViewBag.degrees ?? Enumerable.Empty<AcademicDegree>();
     IEnumerable<User> users = ViewBag.users ?? Enumerable.Empty<User>();

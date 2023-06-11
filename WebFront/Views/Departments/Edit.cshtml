@@ -1,7 +1,10 @@
 ﻿@model DepartmentViewModel
 @using WebFront.Constants;
 @using WebFront.Models.Departments;
-
+<b>
+    @(ViewData["Title"] = "Редактирование отдела")
+</b>
+<br />
 
 @using (var a = Html.BeginForm("Edit", "Departments", FormMethod.Post))
 {

@@ -1,7 +1,10 @@
 ﻿@model WebFront.Models.Contracts.RelatedContractsWithReportsViewModel;
 @using WebFront.Constants;
 @using Logic.Models.MonthReports;
-
+<b>
+    @(ViewData["Title"] = "Договор")
+</b>
+<br />
 @if (Model.RelatedContracts.Any(c => c.IsConfirmed))
 {
     @Html.ActionLink("Добавить допдоговор", "Add", new {forcontractId = Model.RelatedContracts.Where(c => c.IsConfirmed).OrderByDescending(c => c.PeriodStart).First().Id})
@@ -21,11 +24,12 @@
 
 <table>
     <tr>
+        <th class="brd">Дата заключения договора</th>
         <th class="brd">Название</th>
-        <th class="brd">Договор с / Отчет месяц-год</th>
-        <th class="brd">Итого часов</th>
+        <th class="brd">Активен с / Отчет месяц-год</th>
         <th class="brd">Подтвержден / заблокирован</th>
         <th class="brd"> </th>
+        <th class="brd">Итого часов</th>
         <th class="brd">Лекции</th>
         <th class="brd">Практические занятия</th>
         <th class="brd">Лабораторные занятия</th>
@@ -47,16 +51,15 @@
     </tr>
     @{
         var orderedContracts = Model.RelatedContracts.OrderBy(c => c.PeriodStart);
-        var orderedReports = Model.MonthReports.OrderBy(r => r.Year).ThenBy(r => r.Month).ToArray();
-        int reportsIndex = 0;
+        var orderedReports = Model.MonthReports.OrderBy(r => r.Year).ThenBy(r => r.Month);
         foreach (var item in orderedContracts)
         {
             var next = orderedContracts.FirstOrDefault(n => n.PeriodStart > item.PeriodStart);
 
             <tr class="grayColored">
+                <td class="brd">@item.ConclusionDate.ToShortDateString()</td>
                 <td class="brd">@item.ContractIdentifier</td>
                 <td class="brd">@item.PeriodStart.ToShortDateString()</td>
-                <td class="brd">@item.TimeSum</td>
                 @if (!item.IsConfirmed)
                 {
                     @using (Html.BeginForm("Confirm", "Contracts", new { item.Id }, FormMethod.Post))
@@ -71,6 +74,7 @@
                     <td class="brd"></td>
                 }
 
+                <td class="brd">@item.TimeSum</td>
                 <td class="brd">@item.LectionsTime</td>
                 <td class="brd">@item.PracticalClassesTime</td>
                 <td class="brd">@item.LaboratoryClassesTime</td>
@@ -95,6 +99,7 @@
             {
                 <tr class="darkGrayColored">
                     <td class="brd" colspan="5">Не занятое время</td>
+                    <td class="brd">@untakenTime.TimeSum</td>
                     <td class="brd">@untakenTime.LectionsTime</td>
                     <td class="brd">@untakenTime.PracticalClassesTime</td>
                     <td class="brd">@untakenTime.LaboratoryClassesTime</td>
@@ -116,15 +121,14 @@
                 </tr>
             }
 
-            while (reportsIndex < orderedReports.Length && (next == null || (orderedReports[reportsIndex].Year <= next.PeriodStart.Year && orderedReports[reportsIndex].Month < next.PeriodStart.Month)))
+            foreach (var report in orderedReports.Where(r => r.ContractID == item.Id))
             {
                 <tr>
                     <td class="brd"></td>
-                    <td class="brd">@($"{@orderedReports[reportsIndex].Month}-{orderedReports[reportsIndex].Year}")</td>
-                    <td class="brd">@orderedReports[reportsIndex].TimeSum</td>
+                    <td class="brd"></td>
+                    <td class="brd">@($"{report.Month}-{report.Year}")</td>
                     <td class="brd">
                         @{
-                            var report = orderedReports[reportsIndex];
                             if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
                             {
                                 @using (var a = Html.BeginForm(report.IsBlocked ? "UnBlockReport" : "BlockReport", "Contracts", new { report.LinkingPartID, report.Year, report.Month, report.ContractID }, FormMethod.Post))
@@ -150,32 +154,32 @@
                     </td>
                     <td class="brd">
                         @{
-                            if (!orderedReports[reportsIndex].IsBlocked)
+                            if (!report.IsBlocked)
                             {
-                                @Html.ActionLink("Редактировать", $"EditMonthReport", new {orderedReports[reportsIndex].ContractID, orderedReports[reportsIndex].Month, orderedReports[reportsIndex].Year})
+                                @Html.ActionLink("Редактировать", $"EditMonthReport", new {report.ContractID, report.Month, report.Year})
                             }
                         }
                     </td>
-                    <td class="brd">@orderedReports[reportsIndex].LectionsTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].PracticalClassesTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].LaboratoryClassesTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].ConsultationsTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].OtherTeachingClassesTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].CreditsTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].ExamsTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].CourseProjectsTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].InterviewsTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].TestsAndReferatsTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].InternshipsTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].DiplomasTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].DiplomasReviewsTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].SECTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].GraduatesManagementTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].GraduatesAcademicWorkTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].PlasticPosesDemonstrationTime</td>
-                    <td class="brd">@orderedReports[reportsIndex].TestingEscortTime</td>
+                    <td class="brd">@report.TimeSum</td>
+                    <td class="brd">@report.LectionsTime</td>
+                    <td class="brd">@report.PracticalClassesTime</td>
+                    <td class="brd">@report.LaboratoryClassesTime</td>
+                    <td class="brd">@report.ConsultationsTime</td>
+                    <td class="brd">@report.OtherTeachingClassesTime</td>
+                    <td class="brd">@report.CreditsTime</td>
+                    <td class="brd">@report.ExamsTime</td>
+                    <td class="brd">@report.CourseProjectsTime</td>
+                    <td class="brd">@report.InterviewsTime</td>
+                    <td class="brd">@report.TestsAndReferatsTime</td>
+                    <td class="brd">@report.InternshipsTime</td>
+                    <td class="brd">@report.DiplomasTime</td>
+                    <td class="brd">@report.DiplomasReviewsTime</td>
+                    <td class="brd">@report.SECTime</td>
+                    <td class="brd">@report.GraduatesManagementTime</td>
+                    <td class="brd">@report.GraduatesAcademicWorkTime</td>
+                    <td class="brd">@report.PlasticPosesDemonstrationTime</td>
+                    <td class="brd">@report.TestingEscortTime</td>
                 </tr>
-                reportsIndex++;
             }
         }
     }

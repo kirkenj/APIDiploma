@@ -9,6 +9,7 @@
         public bool IsConfirmed { get; set; } = false;
         public bool? HasChild { get; set; } = null;
         public int? LinkingPartID { get; set; }
+        public DateTime ConclusionDate { get; set; }
         public DateTime PeriodStart { get; set; } = DateTime.Now;
         public DateTime PeriodEnd { get; set; } = DateTime.Now.AddMonths(1);
         public string ContractIdentifier { get; set; } = null!;

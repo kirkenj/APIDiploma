@@ -3,7 +3,10 @@
 @using Logic.Models.ContractType;
 @using WebFront.Constants;
 @using WebFront.Models.ContractType;
-
+<b>
+    @(ViewData["Title"] = "Добавление ставки типа договора")
+</b>
+<br />
 @{
     IEnumerable<ContractType> atachedObjects = ViewBag.AtachedObjects;
     int? forID = ViewBag.forID;

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230603133314_mrepDate")]
-    partial class mrepDate
+    [Migration("20230608151544_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,7 +60,7 @@ namespace Database.Migrations
                 {
                     b.Property<DateTime>("AssignmentDate")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("AssignationDate");
+                        .HasColumnName("AssignmentDate");
 
                     b.Property<int>("ObjectIdentifier")
                         .HasColumnType("int")
@@ -102,6 +102,10 @@ namespace Database.Migrations
                     b.Property<DateTime>("AssignmentDate")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("AssignmentDate");
+
+                    b.Property<DateTime>("ConclusionDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("ConclusionDate");
 
                     b.Property<int?>("ConfirmedByUserID")
                         .HasColumnType("int")
@@ -289,7 +293,7 @@ namespace Database.Migrations
                 {
                     b.Property<DateTime>("AssignmentDate")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("AssignationDate");
+                        .HasColumnName("AssignmentDate");
 
                     b.Property<int>("ObjectIdentifier")
                         .HasColumnType("int")
@@ -574,7 +578,7 @@ namespace Database.Migrations
                             Name = "name1",
                             PasswordHash = "!#/)zW��C�JJ��",
                             Patronymic = "name1",
-                            RoleId = 1,
+                            RoleId = 3,
                             Surname = "name1"
                         },
                         new
@@ -584,16 +588,16 @@ namespace Database.Migrations
                             Name = "name2",
                             PasswordHash = "!#/)zW��C�JJ��",
                             Patronymic = "name2",
-                            RoleId = 1,
+                            RoleId = 2,
                             Surname = "name2"
                         });
                 });
 
-            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignament", b =>
+            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignment", b =>
                 {
                     b.Property<DateTime>("AssignmentDate")
                         .HasColumnType("datetime(6)")
-                        .HasColumnName("AssignationDate");
+                        .HasColumnName("AssignmentDate");
 
                     b.Property<int>("ObjectIdentifier")
                         .HasColumnType("int")
@@ -609,7 +613,7 @@ namespace Database.Migrations
 
                     b.HasIndex("Value");
 
-                    b.ToTable("UserAcademicDegreeAssignaments");
+                    b.ToTable("UserAcademicDegreeAssignments");
 
                     b.HasData(
                         new
@@ -627,7 +631,7 @@ namespace Database.Migrations
                         .HasForeignKey("ObjectIdentifier")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_AcademicDegree_AcademicDegreeValueAssignation");
+                        .HasConstraintName("FK_AcademicDegree_AcademicDegreeValueAssignment");
 
                     b.Navigation("ObjectRef");
                 });
@@ -693,7 +697,7 @@ namespace Database.Migrations
                         .HasForeignKey("ObjectIdentifier")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_ContractType_ContractTypeValueAssignation");
+                        .HasConstraintName("FK_ContractType_ContractTypeValueAssignment");
 
                     b.Navigation("ObjectRef");
                 });
@@ -730,14 +734,14 @@ namespace Database.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignament", b =>
+            modelBuilder.Entity("Database.Entities.UserAcademicDegreeAssignment", b =>
                 {
                     b.HasOne("Database.Entities.User", "ObjectRef")
                         .WithMany("Assignments")
                         .HasForeignKey("ObjectIdentifier")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_User_UserAcademicDegreeAssignation");
+                        .HasConstraintName("FK_User_UserAcademicDegreeAssignment");
 
                     b.HasOne("Database.Entities.AcademicDegree", "ValueRef")
                         .WithMany("UserAssignations")

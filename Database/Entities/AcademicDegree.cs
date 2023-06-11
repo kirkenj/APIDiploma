@@ -9,6 +9,6 @@ namespace Database.Entities
         public int ID { get; set; }
         public string Name { get; set; } = null!;
         public IEnumerable<AcademicDegreePriceAssignment> Assignments { get; set; } = null!;
-        public IEnumerable<UserAcademicDegreeAssignament> UserAssignations { get; set; } = null!;
+        public IEnumerable<UserAcademicDegreeAssignment> UserAssignations { get; set; } = null!;
     }
 }

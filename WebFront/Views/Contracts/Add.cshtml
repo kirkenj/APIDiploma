@@ -4,7 +4,10 @@
 @using WebFront.Models.Contracts;
 @using WebFront.Constants;
 @using WebFront.Models.Departments;
-
+<b>
+    @(ViewData["Title"] = "Добавление договора")
+</b>
+<br />
 @using (var a = Html.BeginForm("Add", "Contracts", FormMethod.Post))
 {
     bool isAdmin = IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User);
@@ -83,6 +86,10 @@
         <tr>
             <td>Идентификатор договора</td>
             <td>@Html.EditorFor(m =>m.ContractIdentifier)</td>
+        </tr>
+        <tr>
+            <td>Дата заключения договора</td>
+            <td><input type="date" name=@nameof(Model.ConclusionDate) required></td>
         </tr>
         <tr>
             <td>Начало действия договора</td>

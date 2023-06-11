@@ -11,6 +11,7 @@ namespace WebFront.RequestModels.Contracts
         [Required]
         public int DepartmentID { get; set; }
         public int? ParentContractID { get; set; }
+        public DateTime ConclusionDate { get; set; }
         public DateTime PeriodStart { get; set; }
         public DateTime PeriodEnd { get; set; }
         [Required]

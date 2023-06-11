@@ -1,6 +1,7 @@
 ﻿@model WebFront.Models.AcademicDegrees.AcademicDegreeViewModel
 @using WebFront.Constants;
-
+<b>@(ViewData["Title"] = "Академическая степень")</b>
+<br />
 
 @if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User ?? throw new UnauthorizedAccessException()))
 {

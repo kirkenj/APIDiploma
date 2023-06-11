@@ -1,7 +1,10 @@
 ﻿@using Database.Entities;
 @using WebFront.Constants;
 @model WebFront.Models.Account.UserViewModel
-
+<b>
+    @(ViewData["Title"] = "Редактирование пользователя")
+</b>
+<br />
 @using (Html.BeginForm("Edit", "Account", FormMethod.Post))
 {
     <table>
@@ -60,27 +63,32 @@
 <br>
 <br>
 <br>
-@using (Html.BeginForm("UpdatePassword", "Account", FormMethod.Post))
+
+@if (IncludeModels.UserIdentitiesTools.GetUserIsSuperAdminClaimValue(User) || IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User) == Model.ID) 
 {
-    <input type="hidden" name="userLoginToUpdatePassword" value=@Model.Login>
-    <table>
-        <tr>
-            <td>
-                Введите новый пароль
-            </td>
-            <td>
-                <input type="password" name="newPassword" value="password">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Подтвердите пароль
-            </td>
-            <td>
-                <input type="password" name="confirmPassword" value="password">
-            </td>
-        </tr>
-    </table>
-    
-    <input type="submit" value="Подтвердить" />
+
+    using (Html.BeginForm("UpdatePassword", "Account", FormMethod.Post))
+    {
+        <input type="hidden" name="userLoginToUpdatePassword" value=@Model.Login>
+        <table>
+            <tr>
+                <td>
+                    Введите новый пароль
+                </td>
+                <td>
+                    <input type="password" name="newPassword" value="password">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Подтвердите пароль
+                </td>
+                <td>
+                    <input type="password" name="confirmPassword" value="password">
+                </td>
+            </tr>
+        </table>
+
+        <input type="submit" value="Подтвердить" />
+    }
 }

@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Database.Entities
 {
-    [Table(nameof(UserAcademicDegreeAssignament) + "s")]
-    public class UserAcademicDegreeAssignament : IPeriodicValueAssignment<int, int, User>
+    [Table(nameof(UserAcademicDegreeAssignment) + "s")]
+    public class UserAcademicDegreeAssignment : IPeriodicValueAssignment<int, int, User>
     {
         public DateTime AssignmentDate { get; set; }
         public int Value { get; set; }

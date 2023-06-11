@@ -50,7 +50,7 @@ namespace Logic.Services
         private readonly IContractTypeService _contractTypeService;
 
         private readonly string[] MonthsNames = new string[] { "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь" };
-        private readonly string[] Headers = new string[] { "Лекции", "Практические занятия", "Лабораторные занятия", "Консультации", "Иное учебное занятие", "Зачеты", "Экзамены", "Курсовая работа, курсовой проект", "Собеседование ", "Контрольная работа, реферат", "Стажировка", "Дипломный проект, дипломная работа", "Рецензирование дипломных проектов, работ, маг.диссертаций", "ГЭК", "Руководство магистрантами", "Учебная работа с аспирантами", "Днмонстрация пластических поз", "Сопровождение тестирования", "Итого часов" };
+        private readonly string[] Headers = new string[] { "Лекции", "Практические занятия", "Лабораторные занятия", "Консультации", "Иное учебное занятие", "Зачеты", "Экзамены", "Курсовая работа, курсовой проект", "Собеседование ", "Контрольная работа, реферат", "Стажировка", "Дипломный проект, дипломная работа", "Рецензирование дипломных проектов, работ, маг.диссертаций", "ГЭК", "Руководство магистрантами", "Учебная работа с аспирантами", "Демонстрация пластических поз", "Сопровождение тестирования", "Итого часов" };
 
         public ExcelReportService(IAppDBContext appDBContext, IAccountService accountService, IAcademicDegreeService academicDegreeService, IDepartmentService departmentService, IContractTypeService contractTypeService)
         {
@@ -97,9 +97,6 @@ namespace Logic.Services
 
                 var datesOnPeriod = DateTimeProvider.GetDateRangeViaAddMonth(dateStart, dateEnd);
 
-
-
-
                 var linkingPartsList = await _contractLinkingPartDbSet.Include(l => l.Assignments).Include(l => l.MonthReports).Where(c => reportsRequest.Select(r => r.LinkingPartID).Distinct().Contains(c.ID)).ToListAsync();
                 var contractTypesList = await _contractTypeService.GetListViaSelectionObjectAsync(new Models.ContractType.ContractTypesSelectObject { IDs = linkingPartsList.Select(l => l.Assignments.First().ContractTypeID).Distinct() });
                 var departmentsList = await _departmentService.GetListViaSelectionObjectAsync(new Models.Department.DepartmentSelectObject { IDs = linkingPartsList.Select(l => l.Assignments.First().DepartmentID).Distinct() });
@@ -135,24 +132,24 @@ namespace Logic.Services
                     Dictionary<string, string> positionsPeopleRefsDict = new();
                     string key = "Проректор по учебной работе";
                     technoSheet.Cell("A1").Value = key;
-                    technoSheet.Cell("B1").Value = "А.П.КУРАКОВА";
+                    technoSheet.Cell("B1").Value = $"Проректор по учебной работе {grDep.Key}";
                     positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B1");
 
                     key = "Зам.начальника ПЭУ";
                     technoSheet.Cell("A2").Value = key;
-                    technoSheet.Cell("B2").Value = "Н.К.Зновец";
+                    technoSheet.Cell("B2").Value = $"Зам.начальника ПЭУ {grDep.Key}";
                     positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B2");
                     key = "Начальник УМУ";
                     technoSheet.Cell("A3").Value = key;
-                    technoSheet.Cell("B3").Value = "Л.И.Шахрай";
+                    technoSheet.Cell("B3").Value = $"Начальник УМУ {grDep.Key}";
                     positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B3");
                     key = "Декан факультета";
                     technoSheet.Cell("A4").Value = key;
-                    technoSheet.Cell("B4").Value = "А.М.Авсиевич";
+                    technoSheet.Cell("B4").Value = $"Декан факультета {grDep.Key}";
                     positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B4");
                     key = "Заведующий кафедрой";
                     technoSheet.Cell("A5").Value = key;
-                    technoSheet.Cell("B5").Value = "Ю.В.Полозков";
+                    technoSheet.Cell("B5").Value = $"Заведующий кафедрой {grDep.Key}";
                     positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B5");
 
 

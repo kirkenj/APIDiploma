@@ -9,5 +9,7 @@ namespace Logic.Interfaces
         public Task<Role?> GetRoleAsync(int roleId);
         public bool IsAdminRoleName(string roleName);
         public bool IsAdminRoleID(int roleID);
+        bool IsSuperAdminRoleID(int iD);
+        bool IsSuperAdminRoleName(string v);
     }
 }

@@ -1,7 +1,9 @@
 ﻿@using Database.Entities;
 @using WebFront.Constants;
 @model WebFront.Models.AcademicDegrees.AcademicDegreeViewModel
-
+<b>@(ViewData["Title"] = "Редактирование академ. степени")
+</b>
+<br />
 @using (var a = Html.BeginForm("Edit", "AcademicDegree", FormMethod.Post))
 {
     <table>

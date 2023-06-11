@@ -1,6 +1,9 @@
 ﻿@model WebFront.Models.Departments.DepartmentViewModel
 @using WebFront.Constants;
-
+<b>
+    @(ViewData["Title"] = "Отдела")
+</b>
+<br />
 
 @if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
 {

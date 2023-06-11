@@ -4,7 +4,10 @@
 @using WebFront.Models.Contracts;
 @using WebFront.Constants;
 @using WebFront.Models.Departments;
-
+<b>
+    @(ViewData["Title"] = "Добавление доп.догоора")
+</b>
+<br />
 @{
     @using (var a = Html.BeginForm("Add", "Contracts", FormMethod.Post))
     {
@@ -24,8 +27,12 @@
                 <td>@Html.EditorFor(m =>m.ContractIdentifier)</td>
             </tr>
             <tr>
+                <td>Дата заключения договора</td>
+                <td><input type="date" name=@nameof(Model.ConclusionDate) required></td>
+            </tr>
+            <tr>
                 <td>Начало действия договора</td>
-                <td><input type="date" name=@nameof(Model.PeriodStart) required></td>
+                <td><input type="date" name=@nameof(Model.PeriodStart) value=@Model.PeriodStart.ToString("yyyy-MM-dd") required></td>
             </tr>
         </table>
 

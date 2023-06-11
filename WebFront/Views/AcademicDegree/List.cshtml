@@ -3,7 +3,10 @@
 @using Logic.Models.AcademicDegree;
 @using WebFront.Constants;
 @using WebFront.Models.AcademicDegrees;
-
+<b>
+@(ViewData["Title"] = "Список академ. степеней")
+</b>
+<br />
 @{
     AcademicDegreeSelectObject? selectionObject = ViewBag.selectionObject;
     int pageVal = ViewBag.page;
