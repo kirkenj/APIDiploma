@@ -28,6 +28,9 @@ body {
     padding: 10px; /* Поля вокруг текста */
 }
 
+.lightGrayColored {
+    background-color: #f6f6f6;
+}
 .grayColored {
     background-color: rgb(238, 238, 238);
 }

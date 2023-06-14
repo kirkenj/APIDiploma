@@ -52,6 +52,11 @@ namespace Logic.Services
                 contracts = contracts.Where(c => c.IsConfirmed == selectionObject.IsConfirmed);
             }
 
+            if (selectionObject.IsParent != null)
+            {
+                contracts = contracts.Where(c => (c.ParentContractID == null) == selectionObject.IsParent);
+            }
+
             if (selectionObject.ContractTypeIDs != null)
             {
                 contracts = contracts.Where(c => selectionObject.ContractTypeIDs.Contains(c.ContractTypeID));
@@ -116,7 +121,7 @@ namespace Logic.Services
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            if (await DbSet.AnyAsync(c => c.ContractIdentifier == entity.ContractIdentifier, token))
+            if (await DbSet.AnyAsync(c => c.ContractIdentifier == entity.ContractIdentifier && c.ConclusionDate == entity.ConclusionDate, token))
             {
                 throw new ArgumentException("Contract identifier is not unique");
             }
@@ -264,7 +269,7 @@ namespace Logic.Services
                 throw new ArgumentNullException(nameof(valueToAply));
             }
 
-            if (await DbSet.AnyAsync(c => c.ContractIdentifier == valueToAply.ContractIdentifier && c.ID != valueToAply.ID, token))
+            if (await DbSet.AnyAsync(c => c.ContractIdentifier == valueToAply.ContractIdentifier && c.ConclusionDate == valueToAply.ConclusionDate && c.ID != valueToAply.ID, token))
             {
                 throw new ArgumentException("Contract identifier is not unique");
             }

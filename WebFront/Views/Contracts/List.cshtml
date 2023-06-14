@@ -61,6 +61,35 @@
                 </tr>
                 <tr>
                     <th>
+                        По отношению:
+                    </th>
+                    <th>
+                        <select name=@nameof(selectionObject.IsParent) >
+                            @if (selectionObject?.IsParent == null)
+                            {
+                                <option value=@true>Обычный</option>
+                                <option value=@false>Допдоговор</option>
+                                <option value=@null selected="selected">Любой</option>
+                            }
+                            else
+                            {
+                                if (selectionObject.IsParent == true)
+                                {
+                                    <option value=@true selected="selected">Обычный</option>
+                                    <option value=@false>Допдоговор</option>
+                                }
+                                else
+                                {
+                                    <option value=@true>Обычный</option>
+                                    <option value=@false selected="selected">Допдоговор</option>
+                                }
+                                <option value=@null>Любой</option>
+                            }
+                        </select>
+                    </th>
+                </tr>
+                <tr>
+                    <th>
                         Искать по отделам:
                     </th>
                     <th>
@@ -264,6 +293,37 @@
         <th class="brd">Учебная работа с аспирантами</th>
         <th class="brd">Демонстрация пластических поз</th>
         <th class="brd">Сопровождение тестирования</th>
+    </tr>
+    <tr class="lightGrayColored">
+        <th class="brd" colspan="2">К-во на странице: @Model.Count()</th>
+        <th class="brd"></th>
+        <th class="brd"></th>
+        <th class="brd"></th>
+        <th class="brd"></th>
+        <th class="brd"></th>
+        <th class="brd"></th>
+        <th class="brd"></th>
+        <th class="brd"></th>
+        <th class="brd">@Model.Sum(m => m.TimeSum)</th>
+        <th class="brd"></th>
+        <td class="brd">@Model.Sum(m => m.LectionsTime)</td>
+        <td class="brd">@Model.Sum(m => m.PracticalClassesTime)</td>
+        <td class="brd">@Model.Sum(m => m.LaboratoryClassesTime)</td>
+        <td class="brd">@Model.Sum(m => m.ConsultationsTime)</td>
+        <td class="brd">@Model.Sum(m => m.OtherTeachingClassesTime)</td>
+        <td class="brd">@Model.Sum(m => m.CreditsTime)</td>
+        <td class="brd">@Model.Sum(m => m.ExamsTime)</td>
+        <td class="brd">@Model.Sum(m => m.CourseProjectsTime)</td>
+        <td class="brd">@Model.Sum(m => m.InterviewsTime)</td>
+        <td class="brd">@Model.Sum(m => m.TestsAndReferatsTime)</td>
+        <td class="brd">@Model.Sum(m => m.InternshipsTime)</td>
+        <td class="brd">@Model.Sum(m => m.DiplomasTime)</td>
+        <td class="brd">@Model.Sum(m => m.DiplomasReviewsTime)</td>
+        <td class="brd">@Model.Sum(m => m.SECTime)</td>
+        <td class="brd">@Model.Sum(m => m.GraduatesManagementTime)</td>
+        <td class="brd">@Model.Sum(m => m.GraduatesAcademicWorkTime)</td>
+        <td class="brd">@Model.Sum(m => m.PlasticPosesDemonstrationTime)</td>
+        <td class="brd">@Model.Sum(m => m.TestingEscortTime)</td>
     </tr>
     @{
         foreach (var item in Model)

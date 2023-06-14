@@ -10,193 +10,221 @@
     @Html.ActionLink("Добавить допдоговор", "Add", new {forcontractId = Model.RelatedContracts.Where(c => c.IsConfirmed).OrderByDescending(c => c.PeriodStart).First().Id})
 }
 
-<table> 
+<div id="copy">
+    <table> 
 
-    <tr>
-        <td>Пользователь</td>
-        <td>@(ViewBag.UserNSP ?? "Undefined")</td>
-    </tr>
-    <tr>
-        <td>Конец действия договоров</td>
-        <td>@Model.RelatedContracts.First().PeriodEnd.ToShortDateString()</td>
-    </tr>
-</table>
+        <tr>
+            <td>Пользователь</td>
+            <td>@(ViewBag.UserNSP ?? "Undefined")</td>
+        </tr>
+        <tr>
+            <td>Конец действия договоров</td>
+            <td>@Model.RelatedContracts.First().PeriodEnd.ToShortDateString()</td>
+        </tr>
+    </table>
 
-<table>
-    <tr>
-        <th class="brd">Дата заключения договора</th>
-        <th class="brd">Название</th>
-        <th class="brd">Активен с / Отчет месяц-год</th>
-        <th class="brd">Подтвержден / заблокирован</th>
-        <th class="brd"> </th>
-        <th class="brd">Итого часов</th>
-        <th class="brd">Лекции</th>
-        <th class="brd">Практические занятия</th>
-        <th class="brd">Лабораторные занятия</th>
-        <th class="brd">Консультации</th>
-        <th class="brd">Иное учебное занятие</th>
-        <th class="brd">Зачеты</th>
-        <th class="brd">Экзамены</th>
-        <th class="brd">Курсовая работа, курсовой проект</th>
-        <th class="brd">Собеседование</th>
-        <th class="brd">Контрольная работа, реферат</th>
-        <th class="brd">Стажировка</th>
-        <th class="brd">Дипломный проект, дипломная работа</th>
-        <th class="brd">Рецензирование дипломных проектов, работ, маг. диссертаций</th>
-        <th class="brd">ГЭК</th>
-        <th class="brd">Руководство магистрантами</th>
-        <th class="brd">Учебная работа с аспирантами</th>
-        <th class="brd">Демонстрация пластических поз</th>
-        <th class="brd">Сопровождение тестирования</th>
-    </tr>
-    @{
-        var orderedContracts = Model.RelatedContracts.OrderBy(c => c.PeriodStart);
-        var orderedReports = Model.MonthReports.OrderBy(r => r.Year).ThenBy(r => r.Month);
-        foreach (var item in orderedContracts)
-        {
-            var next = orderedContracts.FirstOrDefault(n => n.PeriodStart > item.PeriodStart);
+    <br />
 
-            <tr class="grayColored">
-                <td class="brd">@item.ConclusionDate.ToShortDateString()</td>
-                <td class="brd">@item.ContractIdentifier</td>
-                <td class="brd">@item.PeriodStart.ToShortDateString()</td>
-                @if (!item.IsConfirmed)
-                {
-                    @using (Html.BeginForm("Confirm", "Contracts", new { item.Id }, FormMethod.Post))
-                    {
-                        <td>Нет @Html.ActionLink("Редактировать", $"Edit", new {item.Id})</td>
-                        <td class="brd"><input type="submit" value="Подтвердить" /> </td>
-                    }
-                }
-                else
-                {
-                    <td>Да</td>
-                    <td class="brd"></td>
-                }
-
-                <td class="brd">@item.TimeSum</td>
-                <td class="brd">@item.LectionsTime</td>
-                <td class="brd">@item.PracticalClassesTime</td>
-                <td class="brd">@item.LaboratoryClassesTime</td>
-                <td class="brd">@item.ConsultationsTime</td>
-                <td class="brd">@item.OtherTeachingClassesTime</td>
-                <td class="brd">@item.CreditsTime</td>
-                <td class="brd">@item.ExamsTime</td>
-                <td class="brd">@item.CourseProjectsTime</td>
-                <td class="brd">@item.InterviewsTime</td>
-                <td class="brd">@item.TestsAndReferatsTime</td>
-                <td class="brd">@item.InternshipsTime</td>
-                <td class="brd">@item.DiplomasTime</td>
-                <td class="brd">@item.DiplomasReviewsTime</td>
-                <td class="brd">@item.SECTime</td>
-                <td class="brd">@item.GraduatesManagementTime</td>
-                <td class="brd">@item.GraduatesAcademicWorkTime</td>
-                <td class="brd">@item.PlasticPosesDemonstrationTime</td>
-                <td class="brd">@item.TestingEscortTime</td>
-            </tr>
-
-            @if(item.IsConfirmed && Model.UntakenTimes.FirstOrDefault(c => c.ContractID == item.Id) is MonthReportsUntakenTimeModel untakenTime)
-            {
-                <tr class="darkGrayColored">
-                    <td class="brd" colspan="5">Не занятое время</td>
-                    <td class="brd">@untakenTime.TimeSum</td>
-                    <td class="brd">@untakenTime.LectionsTime</td>
-                    <td class="brd">@untakenTime.PracticalClassesTime</td>
-                    <td class="brd">@untakenTime.LaboratoryClassesTime</td>
-                    <td class="brd">@untakenTime.ConsultationsTime</td>
-                    <td class="brd">@untakenTime.OtherTeachingClassesTime</td>
-                    <td class="brd">@untakenTime.CreditsTime</td>
-                    <td class="brd">@untakenTime.ExamsTime</td>
-                    <td class="brd">@untakenTime.CourseProjectsTime</td>
-                    <td class="brd">@untakenTime.InterviewsTime</td>
-                    <td class="brd">@untakenTime.TestsAndReferatsTime</td>
-                    <td class="brd">@untakenTime.InternshipsTime</td>
-                    <td class="brd">@untakenTime.DiplomasTime</td>
-                    <td class="brd">@untakenTime.DiplomasReviewsTime</td>
-                    <td class="brd">@untakenTime.SECTime</td>
-                    <td class="brd">@untakenTime.GraduatesManagementTime</td>
-                    <td class="brd">@untakenTime.GraduatesAcademicWorkTime</td>
-                    <td class="brd">@untakenTime.PlasticPosesDemonstrationTime</td>
-                    <td class="brd">@untakenTime.TestingEscortTime</td>
-                </tr>
-            }
-
-            foreach (var report in orderedReports.Where(r => r.ContractID == item.Id))
-            {
-                <tr>
-                    <td class="brd"></td>
-                    <td class="brd"></td>
-                    <td class="brd">@($"{report.Month}-{report.Year}")</td>
-                    <td class="brd">
-                        @{
-                            if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
-                            {
-                                @using (var a = Html.BeginForm(report.IsBlocked ? "UnBlockReport" : "BlockReport", "Contracts", new { report.LinkingPartID, report.Year, report.Month, report.ContractID }, FormMethod.Post))
-                                {
-                                    @if (report.IsBlocked)
-                                    {
-                                        <input type="submit" value="Разблокировать">
-                                    }
-                                    else
-                                    {
-                                        <input type="submit" value="Заблокировать">
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (report.IsBlocked)
-                                {
-                                    @:Заблокирован
-                                }
-                            }
-                        }
-                    </td>
-                    <td class="brd">
-                        @{
-                            if (!report.IsBlocked)
-                            {
-                                @Html.ActionLink("Редактировать", $"EditMonthReport", new {report.ContractID, report.Month, report.Year})
-                            }
-                        }
-                    </td>
-                    <td class="brd">@report.TimeSum</td>
-                    <td class="brd">@report.LectionsTime</td>
-                    <td class="brd">@report.PracticalClassesTime</td>
-                    <td class="brd">@report.LaboratoryClassesTime</td>
-                    <td class="brd">@report.ConsultationsTime</td>
-                    <td class="brd">@report.OtherTeachingClassesTime</td>
-                    <td class="brd">@report.CreditsTime</td>
-                    <td class="brd">@report.ExamsTime</td>
-                    <td class="brd">@report.CourseProjectsTime</td>
-                    <td class="brd">@report.InterviewsTime</td>
-                    <td class="brd">@report.TestsAndReferatsTime</td>
-                    <td class="brd">@report.InternshipsTime</td>
-                    <td class="brd">@report.DiplomasTime</td>
-                    <td class="brd">@report.DiplomasReviewsTime</td>
-                    <td class="brd">@report.SECTime</td>
-                    <td class="brd">@report.GraduatesManagementTime</td>
-                    <td class="brd">@report.GraduatesAcademicWorkTime</td>
-                    <td class="brd">@report.PlasticPosesDemonstrationTime</td>
-                    <td class="brd">@report.TestingEscortTime</td>
-                </tr>
-            }
-        }
-    }
-</table>
-
-@if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User ?? throw new UnauthorizedAccessException()) || IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User) == Model.RelatedContracts.First().UserId)
-{
     <table>
-        @foreach (var c in Model.RelatedContracts)
-        {
-            <tr>
-                @using (var a = Html.BeginForm("Delete", "Contracts", new { id = c.Id }, FormMethod.Get))
+        <tr>
+            <th class="brd">Дата заключения договора</th>
+            <th class="brd">Название</th>
+            <th class="brd">Активен с / Отчет месяц-год</th>
+            <th class="brd">Подтвержден / заблокирован</th>
+            <th class="brd"> </th>
+            <th class="brd">Итого часов</th>
+            <th class="brd">Лекции</th>
+            <th class="brd">Практические занятия</th>
+            <th class="brd">Лабораторные занятия</th>
+            <th class="brd">Консультации</th>
+            <th class="brd">Иное учебное занятие</th>
+            <th class="brd">Зачеты</th>
+            <th class="brd">Экзамены</th>
+            <th class="brd">Курсовая работа, курсовой проект</th>
+            <th class="brd">Собеседование</th>
+            <th class="brd">Контрольная работа, реферат</th>
+            <th class="brd">Стажировка</th>
+            <th class="brd">Дипломный проект, дипломная работа</th>
+            <th class="brd">Рецензирование дипломных проектов, работ, маг. диссертаций</th>
+            <th class="brd">ГЭК</th>
+            <th class="brd">Руководство магистрантами</th>
+            <th class="brd">Учебная работа с аспирантами</th>
+            <th class="brd">Демонстрация пластических поз</th>
+            <th class="brd">Сопровождение тестирования</th>
+        </tr>
+        @{
+            var orderedContracts = Model.RelatedContracts.OrderBy(c => c.PeriodStart);
+            var orderedReports = Model.MonthReports.OrderBy(r => r.Year).ThenBy(r => r.Month);
+            foreach (var item in orderedContracts)
+            {
+                var next = orderedContracts.FirstOrDefault(n => n.PeriodStart > item.PeriodStart);
+
+                <tr class="grayColored">
+                    <td class="brd">@item.ConclusionDate.ToShortDateString()</td>
+                    <td class="brd">@item.ContractIdentifier</td>
+                    <td class="brd">@item.PeriodStart.ToShortDateString()</td>
+                    @if (!item.IsConfirmed)
+                    {
+                        @using (Html.BeginForm("Confirm", "Contracts", new { item.Id }, FormMethod.Post))
+                        {
+                            <td class="brd">Нет @Html.ActionLink("Редактировать", $"Edit", new {item.Id})</td>
+                            <td class="brd"><input type="submit" value="Подтвердить" /> </td>
+                        }
+                    }
+                    else
+                    {
+                        <td class="brd">Да</td>
+                        <td class="brd"></td>
+                    }
+
+                    <td class="brd">@item.TimeSum</td>
+                    <td class="brd">@item.LectionsTime</td>
+                    <td class="brd">@item.PracticalClassesTime</td>
+                    <td class="brd">@item.LaboratoryClassesTime</td>
+                    <td class="brd">@item.ConsultationsTime</td>
+                    <td class="brd">@item.OtherTeachingClassesTime</td>
+                    <td class="brd">@item.CreditsTime</td>
+                    <td class="brd">@item.ExamsTime</td>
+                    <td class="brd">@item.CourseProjectsTime</td>
+                    <td class="brd">@item.InterviewsTime</td>
+                    <td class="brd">@item.TestsAndReferatsTime</td>
+                    <td class="brd">@item.InternshipsTime</td>
+                    <td class="brd">@item.DiplomasTime</td>
+                    <td class="brd">@item.DiplomasReviewsTime</td>
+                    <td class="brd">@item.SECTime</td>
+                    <td class="brd">@item.GraduatesManagementTime</td>
+                    <td class="brd">@item.GraduatesAcademicWorkTime</td>
+                    <td class="brd">@item.PlasticPosesDemonstrationTime</td>
+                    <td class="brd">@item.TestingEscortTime</td>
+                </tr>
+
+                @if(item.IsConfirmed && Model.UntakenTimes.FirstOrDefault(c => c.ContractID == item.Id) is MonthReportsUntakenTimeModel untakenTime)
                 {
-                    <td>@c.ContractIdentifier</td>
-                    <td><input type="submit" value="Удалить"></td>
+                    <tr class="darkGrayColored">
+                        <td class="brd" colspan="3">Не занятое время</td>
+                        <td></td>
+                        <td></td>
+                        <td class="brd">@untakenTime.TimeSum</td>
+                        <td class="brd">@untakenTime.LectionsTime</td>
+                        <td class="brd">@untakenTime.PracticalClassesTime</td>
+                        <td class="brd">@untakenTime.LaboratoryClassesTime</td>
+                        <td class="brd">@untakenTime.ConsultationsTime</td>
+                        <td class="brd">@untakenTime.OtherTeachingClassesTime</td>
+                        <td class="brd">@untakenTime.CreditsTime</td>
+                        <td class="brd">@untakenTime.ExamsTime</td>
+                        <td class="brd">@untakenTime.CourseProjectsTime</td>
+                        <td class="brd">@untakenTime.InterviewsTime</td>
+                        <td class="brd">@untakenTime.TestsAndReferatsTime</td>
+                        <td class="brd">@untakenTime.InternshipsTime</td>
+                        <td class="brd">@untakenTime.DiplomasTime</td>
+                        <td class="brd">@untakenTime.DiplomasReviewsTime</td>
+                        <td class="brd">@untakenTime.SECTime</td>
+                        <td class="brd">@untakenTime.GraduatesManagementTime</td>
+                        <td class="brd">@untakenTime.GraduatesAcademicWorkTime</td>
+                        <td class="brd">@untakenTime.PlasticPosesDemonstrationTime</td>
+                        <td class="brd">@untakenTime.TestingEscortTime</td>
+                    </tr>
                 }
-            </tr>
+
+                foreach (var report in orderedReports.Where(r => r.ContractID == item.Id))
+                {
+                    <tr>
+                        <td class="brd"></td>
+                        <td class="brd"></td>
+                        <td class="brd">@($"{report.Month}-{report.Year}")</td>
+                        <td class="brd">
+                            @{
+                                if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
+                                {
+                                    @using (var a = Html.BeginForm(report.IsBlocked ? "UnBlockReport" : "BlockReport", "Contracts", new { report.LinkingPartID, report.Year, report.Month, report.ContractID }, FormMethod.Post))
+                                    {
+                                        @if (report.IsBlocked)
+                                        {
+                                            <input type="submit" value="Разблокировать">
+                                        }
+                                        else
+                                        {
+                                            <input type="submit" value="Заблокировать">
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (report.IsBlocked)
+                                    {
+                                        @:Заблокирован
+                                    }
+                                }
+                            }
+                        </td>
+                        <td class="brd">
+                            @{
+                                if (!report.IsBlocked)
+                                {
+                                    @Html.ActionLink("Редактировать", $"EditMonthReport", new {report.ContractID, report.Month, report.Year})
+                                }
+                            }
+                        </td>
+                        <td class="brd">@report.TimeSum</td>
+                        <td class="brd">@report.LectionsTime</td>
+                        <td class="brd">@report.PracticalClassesTime</td>
+                        <td class="brd">@report.LaboratoryClassesTime</td>
+                        <td class="brd">@report.ConsultationsTime</td>
+                        <td class="brd">@report.OtherTeachingClassesTime</td>
+                        <td class="brd">@report.CreditsTime</td>
+                        <td class="brd">@report.ExamsTime</td>
+                        <td class="brd">@report.CourseProjectsTime</td>
+                        <td class="brd">@report.InterviewsTime</td>
+                        <td class="brd">@report.TestsAndReferatsTime</td>
+                        <td class="brd">@report.InternshipsTime</td>
+                        <td class="brd">@report.DiplomasTime</td>
+                        <td class="brd">@report.DiplomasReviewsTime</td>
+                        <td class="brd">@report.SECTime</td>
+                        <td class="brd">@report.GraduatesManagementTime</td>
+                        <td class="brd">@report.GraduatesAcademicWorkTime</td>
+                        <td class="brd">@report.PlasticPosesDemonstrationTime</td>
+                        <td class="brd">@report.TestingEscortTime</td>
+                    </tr>
+                }
+            }
         }
     </table>
-}
+</div>
+
+<button type="button" onclick="copyEvent('copy')">Copy</button>
+<script>
+    function copyEvent(id)
+    {
+        var str = document.getElementById(id);
+        window.getSelection().selectAllChildren(str);
+        document.execCommand("Copy")
+    }
+</script>
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+<details>
+    <summary>Удалить</summary>
+    @if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User ?? throw new UnauthorizedAccessException()) || IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User) == Model.RelatedContracts.First().UserId)
+    {
+        <table>
+            @foreach (var c in Model.RelatedContracts)
+            {
+                <tr>
+                    @using (var a = Html.BeginForm("Delete", "Contracts", new { id = c.Id }, FormMethod.Get))
+                    {
+                        <td>@c.ContractIdentifier</td>
+                        <td><input type="submit" value="Удалить"></td>
+                    }
+                </tr>
+            }
+        </table>
+    }
+</details>

@@ -1,5 +1,4 @@
-﻿using ClosedXML.Excel;
-using Logic.Interfaces;
+﻿using Logic.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebFront.Constants;
@@ -12,7 +11,7 @@ namespace WebFront.Controllers
     [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
     public class ExcelReportController : ControllerBase
     {
-        private IExcelReportService _excelReportService;
+        private readonly IExcelReportService _excelReportService;
 
         public ExcelReportController(IExcelReportService excelReportService)
         {
