@@ -85,6 +85,6 @@ namespace Logic.Services
 
         public bool IsSuperAdminRoleID(int iD) => IncludeModels.RolesNavigation.SuperAdminRoleID == iD;
 
-        public bool IsSuperAdminRoleName(string v)=>IncludeModels.RolesNavigation.SuperAdminRoleName == v;
+        public bool IsSuperAdminRoleName(string v) => IncludeModels.RolesNavigation.SuperAdminRoleName == v;
     }
 }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using ClosedXML.Excel;
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

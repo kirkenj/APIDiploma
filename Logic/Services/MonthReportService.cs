@@ -30,10 +30,10 @@ namespace Logic.Services
 
             var valueToUpdate = await DbSet.FirstOrDefaultAsync(m => m.LinkingPartID == valueToAply.LinkingPartID && m.Year == valueToAply.Year && m.Month == valueToAply.Month, cancellationToken: token)
                 ?? throw new ObjectNotFoundException($"Month report not found by key [m.LinkingPartID == {valueToAply.LinkingPartID}, Year == {valueToAply.Month}, m.Month = {valueToAply.Month}]");
-            
-            
-            
-            
+
+
+
+
             DbSet.Remove(valueToUpdate);
             await SaveChangesAsync(token);
             DbSet.Add(valueToAply);

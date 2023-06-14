@@ -61,7 +61,7 @@ namespace Logic.Services
 
             var linkingPart = await DbSet.Include(l => l.MonthReports).Include(l => l.Assignments.Where(a => a.IsConfirmed)).FirstOrDefaultAsync(l => l.MonthReports.Any(r => r.LinkingPartID == monthReportToAply.LinkingPartID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year))
                 ?? throw new ObjectNotFoundException($"Month report not found by key[ID = {monthReportToAply.LinkingPartID}, Month = {monthReportToAply.Month}, Year = {monthReportToAply.Year}]");
-            
+
             if (linkingPart.MonthReports.First(r => r.LinkingPartID == monthReportToAply.LinkingPartID && r.Month == monthReportToAply.Month && r.Year == monthReportToAply.Year).IsBlocked)
             {
                 throw new InvalidOperationException("This month report is blocked for edition");
@@ -69,7 +69,7 @@ namespace Logic.Services
 
             var availableTime = await GetContractsUntakenTimeAsync(
                 linkingPart.Assignments.OrderByDescending(c => c.AssignmentDate).First(c => c.AssignmentDate <= new DateTime(monthReportToAply.Year, monthReportToAply.Month, 1)).ID,
-                new List<(int,int)> { (monthReportToAply.Year, monthReportToAply.Month) }, true);
+                new List<(int, int)> { (monthReportToAply.Year, monthReportToAply.Month) }, true);
             if (availableTime.LectionsTime < monthReportToAply.LectionsTime)
                 throw new ArgumentException($"availableTime.LectionsTime > monthReportToAply.LectionsTime");
             if (availableTime.PracticalClassesTime < monthReportToAply.PracticalClassesTime)
@@ -108,7 +108,7 @@ namespace Logic.Services
                 throw new ArgumentException($"availableTime.TestingEscortTime > monthReportToAply.TestingEscortTime");
             await _monthReportService.UpdateAsync(monthReportToAply);
         }
-    
+
 
         public async Task BlockReport(int linkingPartID, int month, int year, int userID, CancellationToken token = default)
         {
@@ -250,7 +250,7 @@ namespace Logic.Services
             };
 
             List<MonthReportsUntakenTimeModel> q = new();
-            foreach(var a in part.Assignments)
+            foreach (var a in part.Assignments)
             {
                 q.Add(await GetContractsUntakenTimeAsync(a.ID, Enumerable.Empty<(int, int)>(), true));
             }

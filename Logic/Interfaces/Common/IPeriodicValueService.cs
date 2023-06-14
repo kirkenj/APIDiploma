@@ -1,5 +1,4 @@
 ﻿using Database.Interfaces;
-using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using Logic.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,7 +33,7 @@ namespace Logic.Interfaces.Common
         public async Task<IEnumerable<(TAssignmentType? value, DateTime date)>> GetAssignmentForEachMonthOnPeriodAsync(TAssignationIDType objectID, DateTime dateStart, DateTime dateEnd, CancellationToken token = default)
         {//тут стоит переделать в алгоритмы, как минимум, которые не будут каждый раз обращаться в БД.
             (dateStart, dateEnd) = dateStart > dateEnd ? (dateEnd, dateStart) : (dateStart, dateEnd);
-            var orderedMonths = DateTimeProvider.GetDateRangeViaAddMonth(dateStart, dateEnd).OrderBy(d=>d);
+            var orderedMonths = DateTimeProvider.GetDateRangeViaAddMonth(dateStart, dateEnd).OrderBy(d => d);
             //return orderedMonths.Select(m => (AssignmentsDBSet.OrderByDescending(a => a.AssignmentDate).FirstOrDefault(a => a.ObjectIdentifier.Equals(objectID) && a.AssignmentDate <= m), m ));
 
             var firstDateAssignment = await GetAssignmentOnDate(orderedMonths.First(), objectID, token);
@@ -62,7 +61,7 @@ namespace Logic.Interfaces.Common
             }
 
             assignments = assignments.OrderByDescending(a => a.AssignmentDate);
-            return orderedMonths.Select(m => (assignments.FirstOrDefault(a => a.ObjectIdentifier.Equals(objectID) && a.AssignmentDate <= m), m ));
+            return orderedMonths.Select(m => (assignments.FirstOrDefault(a => a.ObjectIdentifier.Equals(objectID) && a.AssignmentDate <= m), m));
         }
     }
 }

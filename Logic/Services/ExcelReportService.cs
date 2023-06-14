@@ -40,7 +40,7 @@ namespace Logic.Services
             ID = -1,
             Name = "  ",
         };
-        
+
         private readonly DbSet<MonthReport> _monthReportDbSet;
         private readonly DbSet<ContractLinkingPart> _contractLinkingPartDbSet;
         private readonly IAcademicDegreeService _academicDegreeService;
@@ -86,7 +86,7 @@ namespace Logic.Services
 
                 reportsRequest = reportsRequest.OrderBy(r => r.MontYearAsDate);
                 var recordsList = await reportsRequest.ToListAsync();
-                                
+
                 if (!recordsList.Any())
                 {
                     throw new ArgumentException("No records found with given parameters");
@@ -99,8 +99,8 @@ namespace Logic.Services
                 var departmentsList = await _departmentService.GetListViaSelectionObjectAsync(new Models.Department.DepartmentSelectObject { IDs = linkingPartsList.Select(l => l.Assignments.First().DepartmentID).Distinct() });
                 var degreesList = await _academicDegreeService.GetListViaSelectionObjectAsync(null);
 
-                var linkingPartDictSource = linkingPartsList.Select(l => (LinkingPartID:l.ID, ReportsTimeSumValue:l.MonthReports.Where(r => r.MontYearAsDate < dateStart).Sum(r => r.TimeSum), formula:string.Empty, IsRef:false)).ToDictionary(i => i.LinkingPartID);
-                var linkingPartDict = linkingPartsList.Select(l => (LinkingPartID:l.ID, ReportsTimeSumValue:l.MonthReports.Where(r => r.MontYearAsDate < dateStart).Sum(r => r.TimeSum), formula:string.Empty, IsRef:false)).ToDictionary(i => i.LinkingPartID);
+                var linkingPartDictSource = linkingPartsList.Select(l => (LinkingPartID: l.ID, ReportsTimeSumValue: l.MonthReports.Where(r => r.MontYearAsDate < dateStart).Sum(r => r.TimeSum), formula: string.Empty, IsRef: false)).ToDictionary(i => i.LinkingPartID);
+                var linkingPartDict = linkingPartsList.Select(l => (LinkingPartID: l.ID, ReportsTimeSumValue: l.MonthReports.Where(r => r.MontYearAsDate < dateStart).Sum(r => r.TimeSum), formula: string.Empty, IsRef: false)).ToDictionary(i => i.LinkingPartID);
 
                 var grByDep = recordsList.GroupBy(r => r.LinkingPart.Assignments.First().DepartmentID);
 
@@ -223,7 +223,7 @@ namespace Logic.Services
                                 sheet.Cell($"{LeftoverColumnLetter}{rowIndex}").FormulaA1 = $"{AllowedHoursColumnLetter}{rowIndex} - ({sumCell.Address} + {prevDoneHoursCell}{rowIndex})";
 
                                 linkingPartDict.Remove(row.LinkingPartID);
-                                linkingPartDict.Add(row.LinkingPartID, (row.LinkingPartID, -1, $"{prevDoneHoursCell.Worksheet.Name}!{prevDoneHoursCell.Address} + {prevDoneHoursCell.Worksheet.Name}!{sumCell.Address}", true ));
+                                linkingPartDict.Add(row.LinkingPartID, (row.LinkingPartID, -1, $"{prevDoneHoursCell.Worksheet.Name}!{prevDoneHoursCell.Address} + {prevDoneHoursCell.Worksheet.Name}!{sumCell.Address}", true));
 
                                 rowIndex++;
                             }
@@ -271,7 +271,7 @@ namespace Logic.Services
                                 var column = sheet.Column(firstColumnIndex + i);
                                 sheet.Cell(rowIndex, firstColumnIndex + i).FormulaA1 = $"Sum({column.ColumnLetter()}{rowIndexStart}:{column.ColumnLetter()}{rowIndex - 1})";
                             }
-                            rowIndex+=3;
+                            rowIndex += 3;
                             for (int i = 0; i < Headers.Length; i++)
                             {
                                 var cellToPrint = sheet.Cell(rowIndex, 1 + i);
@@ -349,8 +349,9 @@ namespace Logic.Services
                             for (int i = 0; i < datesOnPeriod.Length; i++)
                             {
                                 var report = lpart.FirstOrDefault(r => r.MontYearAsDate == datesOnPeriod[i]);
-                                if (report != null) {
-                                    
+                                if (report != null)
+                                {
+
                                     commonSheet.Cell(lPartRowPrintIndex, 5 + i).FormulaA1 = reportsSumRefDict[report];
                                 }
                                 else
@@ -433,9 +434,9 @@ namespace Logic.Services
             }
 
             return path;
-        } 
+        }
 
-        private async Task<Dictionary<ContractType, (string nameRef, Dictionary<DateTime, string> values)>> AddContractTypesWithAssignments(IXLWorksheet sheet, IEnumerable<ContractType> degrees, IEnumerable<DateTime> dates, CancellationToken token = default) 
+        private async Task<Dictionary<ContractType, (string nameRef, Dictionary<DateTime, string> values)>> AddContractTypesWithAssignments(IXLWorksheet sheet, IEnumerable<ContractType> degrees, IEnumerable<DateTime> dates, CancellationToken token = default)
         {
             sheet.Cell(1, 1).Value = "Наименование";
             int rowInddexToPrintValue = 2;
@@ -472,7 +473,7 @@ namespace Logic.Services
             return dict;
         }
 
-        private async Task<Dictionary<AcademicDegree, (string nameRef, Dictionary<DateTime, string> values)>> AddAcademicDegreesWithAssignments(IXLWorksheet sheet, IEnumerable<AcademicDegree> degrees, IEnumerable<DateTime> dates, CancellationToken token = default) 
+        private async Task<Dictionary<AcademicDegree, (string nameRef, Dictionary<DateTime, string> values)>> AddAcademicDegreesWithAssignments(IXLWorksheet sheet, IEnumerable<AcademicDegree> degrees, IEnumerable<DateTime> dates, CancellationToken token = default)
         {
             sheet.Cell(1, 1).Value = "Наименование";
             int rowInddexToPrintDegree = 2;

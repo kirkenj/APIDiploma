@@ -1,8 +1,8 @@
 ﻿// A set of C# classes for spelling Russian numerics 
 // Copyright (c) 2002 RSDN Group
 
-using System.Text;
 using System.Collections.Specialized;
+using System.Text;
 
 namespace Logic.Services
 {

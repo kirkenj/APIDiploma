@@ -19,7 +19,7 @@ namespace Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8,0,33)));
+            optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaDatabaseConnectionString") ?? throw new Exception($"DiplomaDatabaseConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33)));
             //optionsBuilder.UseMySql(Environment.GetEnvironmentVariable("DiplomaLocalMySQLConnectionString") ?? throw new Exception($"DiplomaLocalMySQLConnectionString not found'"), new MySqlServerVersion(new Version(8, 0, 33)));
         }
 
@@ -124,7 +124,7 @@ namespace Database
                 entity.Property(e => e.UserID).HasColumnName("UserID");
                 entity.Property(e => e.ParentContractID).IsRequired(false).HasColumnName("ParentContractID");
                 entity.Property(e => e.ContractIdentifier).HasColumnName("ContractIdentifier");
-                entity.HasIndex(e => new { e.ContractIdentifier, e.ConclusionDate}).IsUnique();
+                entity.HasIndex(e => new { e.ContractIdentifier, e.ConclusionDate }).IsUnique();
                 entity.Property(e => e.AssignmentDate).HasColumnName("AssignmentDate");
                 entity.Property(e => e.ConclusionDate).HasColumnName("ConclusionDate");
                 entity.Property(e => e.PeriodStart).HasColumnName("PeriodStart");

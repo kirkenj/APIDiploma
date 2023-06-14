@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Database.Entities;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using Logic.Interfaces;
 using Logic.Models.Contracts;
 using Logic.Models.MonthReports;

@@ -100,8 +100,8 @@ namespace WebFront.Controllers
                 bool isAdmin = _roleService.IsAdminRoleName(IncludeModels.UserIdentitiesTools.GetUserRoleClaimValue(User));
                 var currentUserId = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
                 var contractToSend = await _contractService.FirstOrDefaultAsync(c => c.ID == forContractId);
-                if(contractToSend == null) 
-                { 
+                if (contractToSend == null)
+                {
                     return NotFound(IncludeModels.BadRequestTextFactory.GetObjectNotFoundExceptionText($"Id = {forContractId}"));
                 }
 
@@ -122,7 +122,7 @@ namespace WebFront.Controllers
             var deps = await _departmentService.GetListViaSelectionObjectAsync(null, 1, int.MaxValue);
             var types = await _contractTypeService.GetListViaSelectionObjectAsync(null, 1, int.MaxValue);
             ViewBag.Departments = _mapper.Map<IEnumerable<DepartmentViewModel>>(deps);
-            ViewBag.ContractTypes = _mapper.Map< IEnumerable<ContractTypeViewModel>>(types);
+            ViewBag.ContractTypes = _mapper.Map<IEnumerable<ContractTypeViewModel>>(types);
             if (IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
             {
                 ViewBag.Users = _mapper.Map<IEnumerable<UserViewModel>>(await _accountService.GetListViaSelectionObjectAsync(null, 1, int.MaxValue));
@@ -189,7 +189,7 @@ namespace WebFront.Controllers
                 newContract.UserID = IncludeModels.UserIdentitiesTools.GetUserIDClaimValue(User);
             }
 
-            await _contractService.UpdateAsync(newContract); 
+            await _contractService.UpdateAsync(newContract);
             return RedirectToAction(nameof(List));
         }
 
