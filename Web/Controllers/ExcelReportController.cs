@@ -1,14 +1,12 @@
 ﻿using Logic.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebFront.Constants;
 
 namespace WebFront.Controllers
 {
 
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
+    //[Authorize(IncludeModels.PolicyNavigation.OnlyAdminPolicyName)]
     public class ExcelReportController : ControllerBase
     {
         private readonly IExcelReportService _excelReportService;
@@ -20,7 +18,7 @@ namespace WebFront.Controllers
 
 
         [HttpGet(nameof(GetMonthReportsReportAsExcel))]
-        public async Task<IActionResult> GetMonthReportsReportAsExcel(DateTime dateStart, DateTime dateEnd, IEnumerable<int>? departmentIDs = null)
+        public async Task<IActionResult> GetMonthReportsReportAsExcel(DateTime dateStart, DateTime dateEnd, [FromQuery] IEnumerable<int>? departmentIDs = null)
         {
             if (dateStart == dateEnd)
             {
@@ -35,6 +33,9 @@ namespace WebFront.Controllers
             var path = await _excelReportService.GetReport(dateStart, dateEnd, departmentIDs);
             var bytes = System.IO.File.ReadAllBytes(path);
             System.IO.File.Delete(path);
+            //var stream = new MemoryStream(bytes);
+            //IFormFile formFile = new FormFile(stream, stream.Position, stream.Length, "meow", "file.xlsx");
+            //return Ok(stream);
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "file.xlsx");
         }
     }

@@ -94,6 +94,21 @@ namespace Logic.Services
 
                 var datesOnPeriod = DateTimeProvider.GetDateRangeViaAddMonth(dateStart, dateEnd).ToArray();
 
+                var globalConstantsSheet = workbook.Worksheets.Add("Глобальные_константы");
+                Dictionary<string, string> globalConstantsDict = new();
+                string globalKey = "Проректор по учебной работе";
+                globalConstantsSheet.Cell("A1").Value = globalKey;
+                globalConstantsSheet.Cell("B1").Value = $"ЗАМЕНИТЬ В {globalConstantsSheet.Name}.{globalKey}";
+                globalConstantsDict.Add(globalKey, $"{globalConstantsSheet.Name}!B1");
+                globalKey = "Зам.начальника ПЭУ";
+                globalConstantsSheet.Cell("A2").Value = globalKey;
+                globalConstantsSheet.Cell("B2").Value = $"ЗАМЕНИТЬ В {globalConstantsSheet.Name}.{globalKey}";
+                globalConstantsDict.Add(globalKey, $"{globalConstantsSheet.Name}!B2");
+                globalKey = "Начальник УМУ";
+                globalConstantsSheet.Cell("A3").Value = globalKey;
+                globalConstantsSheet.Cell("B3").Value = $"ЗАМЕНИТЬ В {globalConstantsSheet.Name}.{globalKey}";
+                globalConstantsDict.Add(globalKey, $"{globalConstantsSheet.Name}!B3");
+                                
                 var linkingPartsList = await _contractLinkingPartDbSet.Include(l => l.Assignments).Include(l => l.MonthReports).Where(c => reportsRequest.Select(r => r.LinkingPartID).Distinct().Contains(c.ID)).ToListAsync();
                 var contractTypesList = await _contractTypeService.GetListViaSelectionObjectAsync(new Models.ContractType.ContractTypesSelectObject { IDs = linkingPartsList.Select(l => l.Assignments.First().ContractTypeID).Distinct() });
                 var departmentsList = await _departmentService.GetListViaSelectionObjectAsync(new Models.Department.DepartmentSelectObject { IDs = linkingPartsList.Select(l => l.Assignments.First().DepartmentID).Distinct() });
@@ -121,29 +136,28 @@ namespace Logic.Services
                     var userSheet = workbook.Worksheets.Add($"{curDep.Name}_работники");
                     var usersExceDict = await AddUsersOnPage(userSheet, grDep.OrderBy(r => r.LinkingPart.Assignments.First().ContractTypeID).Select(r => r.LinkingPart.Assignments.First().User).Distinct(), degreesDict, datesOnPeriod);
 
-                    var technoSheet = workbook.Worksheets.Add($"{curDep.Name}_Константы");
-                    Dictionary<string, string> positionsPeopleRefsDict = new();
+                    var deptTechnoSheet = workbook.Worksheets.Add($"{curDep.Name}_Константы");
+                    Dictionary<string, string> deptConstants = new();
                     string key = "Проректор по учебной работе";
-                    technoSheet.Cell("A1").Value = key;
-                    technoSheet.Cell("B1").Value = $"ЗАМЕНИТЬ В {technoSheet.Name}.{key}";
-                    positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B1");
-
+                    deptTechnoSheet.Cell("A1").Value = key;
+                    deptTechnoSheet.Cell("B1").FormulaA1 = globalConstantsDict[key];
+                    deptConstants.Add(key, $"{deptTechnoSheet.Name}!B1");
                     key = "Зам.начальника ПЭУ";
-                    technoSheet.Cell("A2").Value = key;
-                    technoSheet.Cell("B2").Value = $"ЗАМЕНИТЬ В {technoSheet.Name}.{key}";
-                    positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B2");
+                    deptTechnoSheet.Cell("A2").Value = key;
+                    deptTechnoSheet.Cell("B2").FormulaA1 = globalConstantsDict[key];
+                    deptConstants.Add(key, $"{deptTechnoSheet.Name}!B2");
                     key = "Начальник УМУ";
-                    technoSheet.Cell("A3").Value = key;
-                    technoSheet.Cell("B3").Value = $"ЗАМЕНИТЬ В {technoSheet.Name}.{key}";
-                    positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B3");
+                    deptTechnoSheet.Cell("A3").Value = key;
+                    deptTechnoSheet.Cell("B3").FormulaA1 = globalConstantsDict[key];
+                    deptConstants.Add(key, $"{deptTechnoSheet.Name}!B3");
                     key = "Декан факультета";
-                    technoSheet.Cell("A4").Value = key;
-                    technoSheet.Cell("B4").Value = $"ЗАМЕНИТЬ В {technoSheet.Name}.{key}";
-                    positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B4");
+                    deptTechnoSheet.Cell("A4").Value = key;
+                    deptTechnoSheet.Cell("B4").Value = $"ЗАМЕНИТЬ В {deptTechnoSheet.Name}.{key}";
+                    deptConstants.Add(key, $"{deptTechnoSheet.Name}!B4");
                     key = "Заведующий кафедрой";
-                    technoSheet.Cell("A5").Value = key;
-                    technoSheet.Cell("B5").Value = $"ЗАМЕНИТЬ В {technoSheet.Name}.{key}";
-                    positionsPeopleRefsDict.Add(key, $"{technoSheet.Name}!B5");
+                    deptTechnoSheet.Cell("A5").Value = key;
+                    deptTechnoSheet.Cell("B5").Value = $"ЗАМЕНИТЬ В {deptTechnoSheet.Name}.{key}";
+                    deptConstants.Add(key, $"{deptTechnoSheet.Name}!B5");
 
 
                     var commonSheet = workbook.Worksheets.Add($"{curDep.Name}_Общая");
@@ -156,7 +170,7 @@ namespace Logic.Services
                         var curType = contractTypesList.First(c => c.ID == grType.Key);
                         foreach (var grMonth in grByMonth)
                         {
-                            var sheet = workbook.Worksheets.Add($"{curDep.Name}_{curType.Name}_{MonthsNames[grMonth.Key.Month - 1]}_{grMonth.First().Year}");
+                            var sheet = workbook.Worksheets.Add($"{curDep.Name}_{curType.Name}_{MonthsNames[grMonth.Key.Month - 1][0..3]}_{grMonth.First().Year}");
                             int rowIndexStart = 11;
                             int rowIndex = rowIndexStart;
                             PrintHeadersForMonthReport(sheet, rowIndex++, firstColumnIndex);
@@ -177,7 +191,7 @@ namespace Logic.Services
                                 var contracts = row.LinkingPart.Assignments.OrderByDescending(c => c.AssignmentDate);
                                 var displayContract = contracts.Last();
                                 var valueContract = contracts.First();
-                                sheet.Cell($"O4").FormulaA1 = positionsPeopleRefsDict["Проректор по учебной работе"];
+                                sheet.Cell($"O4").FormulaA1 = deptConstants["Проректор по учебной работе"];
                                 sheet.Cell($"{ListNumberColumnLetter}{rowIndex}").Value = rowIndex - rowIndexStart;
                                 sheet.Range($"{HomeAddressAndPassportColumnLetterStart}{rowIndex}:{HomeAddressAndPassportColumnLetterEnd}{rowIndex}").Merge().FirstCell().FormulaA1 = userRefs.passportExcelRef;
                                 sheet.Range($"{ContractColumnLetterStart}{rowIndex}:{ContractColumnLetterEnd}{rowIndex}").Merge().FirstCell().Value = $"{displayContract.ContractIdentifier} от {displayContract.ConclusionDate.ToShortDateString()} c {displayContract.PeriodStart.ToShortDateString()} по {displayContract.PeriodEnd.ToShortDateString()}";
@@ -253,15 +267,16 @@ namespace Logic.Services
                             sheet.Cell($"{HoursAmmColumnLetter}{rowIndex}").FormulaA1 = $"Sum({HoursAmmColumnLetter}{rowIndexStart}:{HoursAmmColumnLetter}{rowIndex - 1})";
                             var sumRange = sheet.Range($"{SumToBePadColumnLetterStart}{rowIndex}:{SumToBePadColumnLetterEnd}{rowIndex}").Merge();
                             sumRange.FirstCell().FormulaA1 = $"Sum({SumToBePadColumnLetterStart}{rowIndexStart}:{SumToBePadColumnLetterStart}{rowIndex - 1})";
-                            var toParse = sumRange.FirstCell().Value.ToString();
-                            if (double.TryParse(toParse, out double res))
+                            var cellToParse = sumRange.FirstCell();
+                            var valueToParse = cellToParse.Value.ToString();
+                            if (double.TryParse(valueToParse, out double res))
                             {
 
                                 sheet.Range($"B{rowIndex + 1}:F{rowIndex + 1}").Merge().Value = "Прошу оплатить за счет внебюджетных средств";
 
                                 var moneyWordPlace = sheet.Range($"H{rowIndex + 1}:S{rowIndex + 1}").Merge();
                                 moneyWordPlace.Style.Fill.BackgroundColor = XLColor.LightYellow;
-                                moneyWordPlace.Value = RusCurrency.Str(res);
+                                moneyWordPlace.FirstCell().Value = RusCurrency.Str(res);
                                 moneyWordPlace.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                                 moneyWordPlace.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
                             }
@@ -295,101 +310,99 @@ namespace Logic.Services
 
                             sheet.Range($"B{rowIndex + 5}:D{rowIndex + 5}").Merge().Value = "Зам.начальника ПЭУ";
                             sheet.Range($"E{rowIndex + 5}:F{rowIndex + 5}").Merge().Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                            sheet.Range($"G{rowIndex + 5}:H{rowIndex + 5}").Merge().FirstCell().FormulaA1 = positionsPeopleRefsDict["Зам.начальника ПЭУ"];
+                            sheet.Range($"G{rowIndex + 5}:H{rowIndex + 5}").Merge().FirstCell().FormulaA1 = deptConstants["Зам.начальника ПЭУ"];
 
                             sheet.Range($"B{rowIndex + 6}:D{rowIndex + 6}").Merge().Value = "Начальник УМУ";
                             sheet.Range($"E{rowIndex + 6}:F{rowIndex + 6}").Merge().Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                            sheet.Range($"G{rowIndex + 6}:H{rowIndex + 6}").Merge().FirstCell().FormulaA1 = positionsPeopleRefsDict["Начальник УМУ"];
+                            sheet.Range($"G{rowIndex + 6}:H{rowIndex + 6}").Merge().FirstCell().FormulaA1 = deptConstants["Начальник УМУ"];
 
                             sheet.Range($"B{rowIndex + 7}:D{rowIndex + 7}").Merge().Value = "Декан факультета";
                             sheet.Range($"E{rowIndex + 7}:F{rowIndex + 7}").Merge().Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                            sheet.Range($"G{rowIndex + 7}:H{rowIndex + 7}").Merge().FirstCell().FormulaA1 = positionsPeopleRefsDict["Декан факультета"];
+                            sheet.Range($"G{rowIndex + 7}:H{rowIndex + 7}").Merge().FirstCell().FormulaA1 = deptConstants["Декан факультета"];
 
                             sheet.Range($"B{rowIndex + 8}:D{rowIndex + 8}").Merge().Value = "Заведующий кафедрой";
                             sheet.Range($"E{rowIndex + 8}:F{rowIndex + 8}").Merge().Style.Border.BottomBorder = XLBorderStyleValues.Thin;
-                            sheet.Range($"G{rowIndex + 8}:H{rowIndex + 8}").Merge().FirstCell().FormulaA1 = positionsPeopleRefsDict["Заведующий кафедрой"]; ;
+                            sheet.Range($"G{rowIndex + 8}:H{rowIndex + 8}").Merge().FirstCell().FormulaA1 = deptConstants["Заведующий кафедрой"]; ;
                         }
+                    }
 
-                        var lPartsGrouping = grDep.GroupBy(r => r.LinkingPartID);
-                        var lPartRowPrintIndex = 3;
+                    var lPartsGrouping = grDep.GroupBy(r => r.LinkingPartID);
+                    var lPartRowPrintIndex = 3;
 
-                        commonSheet.Cell(lPartRowPrintIndex, 1).Value = "N п/п";
-                        commonSheet.Cell(lPartRowPrintIndex, 2).Value = "Фамилия, имя, отчество";
-                        commonSheet.Cell(lPartRowPrintIndex, 3).Value = "Разрешено по договору";
-                        commonSheet.Cell(lPartRowPrintIndex, 4).Value = "Выполнено за предыдущие месяцы";
+                    commonSheet.Cell(lPartRowPrintIndex, 1).Value = "N п/п";
+                    commonSheet.Cell(lPartRowPrintIndex, 2).Value = "Фамилия, имя, отчество";
+                    commonSheet.Cell(lPartRowPrintIndex, 3).Value = "Разрешено по договору";
+                    commonSheet.Cell(lPartRowPrintIndex, 4).Value = "Выполнено за предыдущие месяцы";
+                    for (int i = 0; i < datesOnPeriod.Length; i++)
+                    {
+                        commonSheet.Cell(lPartRowPrintIndex, 5 + i).Value = $"{MonthsNames[datesOnPeriod[i].Month - 1]} {datesOnPeriod[i].Year}";
+                    }
+
+                    commonSheet.Cell(lPartRowPrintIndex, 5 + datesOnPeriod.Length).Value = "Выполнено";
+                    commonSheet.Cell(lPartRowPrintIndex, 5 + datesOnPeriod.Length + 1).Value = "Остаток";
+                    commonSheet.Cell(1, 5 + datesOnPeriod.Length + 6).Value = "Данные из договора";
+
+                    for (int i = 0; i < Headers.Length; i++)
+                    {
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + i).Value = Headers[i];
+                    }
+
+                    lPartRowPrintIndex++;
+                    var lpartFirstPrintIndex = lPartRowPrintIndex;
+
+                    foreach (var lpart in lPartsGrouping)
+                    {
+                        var linkingPart = linkingPartsList.First(l => l.ID == lpart.Key);
+                        commonSheet.Cell(lPartRowPrintIndex, 1).Value = lPartRowPrintIndex - 1;
+
+                        var commonUserCell = commonSheet.Cell(lPartRowPrintIndex, 2);
+                        commonUserCell.FormulaA1 = usersExceDict[lpart.First().LinkingPart.Assignments.First().User].NSPExcelRef;
+                        var allowedHoursCommonSheetCell = commonSheet.Cell(lPartRowPrintIndex, 3);
+                        allowedHoursCommonSheetCell.Value = lpart.First().LinkingPart.Assignments.Last().TimeSum;
+
+                        commonSheet.Cell(lPartRowPrintIndex, 4).Value = linkingPartDictSource[lpart.Key].ReportsTimeSumValue;
                         for (int i = 0; i < datesOnPeriod.Length; i++)
                         {
-                            commonSheet.Cell(lPartRowPrintIndex, 5 + i).Value = $"{MonthsNames[datesOnPeriod[i].Month - 1]} {datesOnPeriod[i].Year}";
+                            var report = lpart.FirstOrDefault(r => r.MontYearAsDate == datesOnPeriod[i]);
+                            if (report != null)
+                            {
+
+                                commonSheet.Cell(lPartRowPrintIndex, 5 + i).FormulaA1 = reportsSumRefDict[report];
+                            }
+                            else
+                            {
+                                commonSheet.Cell(lPartRowPrintIndex, 5 + i).Value = 0;
+                            }
                         }
 
-                        commonSheet.Cell(lPartRowPrintIndex, 5 + datesOnPeriod.Length).Value = "Выполнено";
-                        commonSheet.Cell(lPartRowPrintIndex, 5 + datesOnPeriod.Length + 1).Value = "Остаток";
-                        commonSheet.Cell(1, 5 + datesOnPeriod.Length + 6).Value = "Данные из договора";
+                        var ctDisplay = linkingPart.Assignments.Last();
 
-                        for (int i = 0; i < Headers.Length; i++)
-                        {
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + i).Value = Headers[i];
-                        }
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8).Value = ctDisplay.LectionsMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 1).Value = ctDisplay.PracticalClassesMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 2).Value = ctDisplay.LaboratoryClassesMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 3).Value = ctDisplay.ConsultationsMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 4).Value = ctDisplay.OtherTeachingClassesMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 5).Value = ctDisplay.CreditsMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 6).Value = ctDisplay.ExamsMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 7).Value = ctDisplay.CourseProjectsMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 8).Value = ctDisplay.InterviewsMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 9).Value = ctDisplay.TestsAndReferatsMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 10).Value = ctDisplay.InternshipsMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 11).Value = ctDisplay.DiplomasMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 12).Value = ctDisplay.DiplomasReviewsMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 13).Value = ctDisplay.SECMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 14).Value = ctDisplay.GraduatesManagementMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 15).Value = ctDisplay.GraduatesAcademicWorkMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 16).Value = ctDisplay.PlasticPosesDemonstrationMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 17).Value = ctDisplay.TestingEscortMaxTime;
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 18).FormulaA1 = $"Sum({commonSheet.Range(lPartRowPrintIndex, datesOnPeriod.Length + 8, lPartRowPrintIndex, datesOnPeriod.Length + 8 + 17).RangeAddress})";
+                        commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 19).FormulaA1 = commonUserCell.Address.ToString();
+
+                        var sumCommonCell = commonSheet.Cell(lPartRowPrintIndex, 5 + datesOnPeriod.Length);
+                        sumCommonCell.FormulaA1 = $"Sum({commonSheet.Cell(lPartRowPrintIndex, 4).Address}:{commonSheet.Cell(lPartRowPrintIndex, 5 - 1 + datesOnPeriod.Length).Address})";
+                        commonSheet.Cell(lPartRowPrintIndex, 5 + datesOnPeriod.Length + 1).FormulaA1 = $"{allowedHoursCommonSheetCell.Address} - {sumCommonCell.Address}";
 
                         lPartRowPrintIndex++;
-                        var lpartFirstPrintIndex = lPartRowPrintIndex;
-
-
-                        foreach (var lpart in lPartsGrouping)
-                        {
-                            var linkingPart = linkingPartsList.First(l => l.ID == lpart.Key);
-                            commonSheet.Cell(lPartRowPrintIndex, 1).Value = lPartRowPrintIndex - 1;
-
-                            var commonUserCell = commonSheet.Cell(lPartRowPrintIndex, 2);
-                            commonUserCell.FormulaA1 = usersExceDict[lpart.First().LinkingPart.Assignments.First().User].NSPExcelRef;
-                            var allowedHoursCommonSheetCell = commonSheet.Cell(lPartRowPrintIndex, 3);
-                            allowedHoursCommonSheetCell.Value = lpart.First().LinkingPart.Assignments.Last().TimeSum;
-
-                            commonSheet.Cell(lPartRowPrintIndex, 4).Value = linkingPartDictSource[lpart.Key].ReportsTimeSumValue;
-                            for (int i = 0; i < datesOnPeriod.Length; i++)
-                            {
-                                var report = lpart.FirstOrDefault(r => r.MontYearAsDate == datesOnPeriod[i]);
-                                if (report != null)
-                                {
-
-                                    commonSheet.Cell(lPartRowPrintIndex, 5 + i).FormulaA1 = reportsSumRefDict[report];
-                                }
-                                else
-                                {
-                                    commonSheet.Cell(lPartRowPrintIndex, 5 + i).Value = 0;
-                                }
-                            }
-
-                            var ctDisplay = linkingPart.Assignments.Last();
-
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8).Value = ctDisplay.LectionsMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 1).Value = ctDisplay.PracticalClassesMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 2).Value = ctDisplay.LaboratoryClassesMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 3).Value = ctDisplay.ConsultationsMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 4).Value = ctDisplay.OtherTeachingClassesMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 5).Value = ctDisplay.CreditsMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 6).Value = ctDisplay.ExamsMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 7).Value = ctDisplay.CourseProjectsMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 8).Value = ctDisplay.InterviewsMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 9).Value = ctDisplay.TestsAndReferatsMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 10).Value = ctDisplay.InternshipsMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 11).Value = ctDisplay.DiplomasMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 12).Value = ctDisplay.DiplomasReviewsMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 13).Value = ctDisplay.SECMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 14).Value = ctDisplay.GraduatesManagementMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 15).Value = ctDisplay.GraduatesAcademicWorkMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 16).Value = ctDisplay.PlasticPosesDemonstrationMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 17).Value = ctDisplay.TestingEscortMaxTime;
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 18).FormulaA1 = $"Sum({commonSheet.Range(lPartRowPrintIndex, datesOnPeriod.Length + 8, lPartRowPrintIndex, datesOnPeriod.Length + 8 + 17).RangeAddress})";
-                            commonSheet.Cell(lPartRowPrintIndex, datesOnPeriod.Length + 8 + 19).FormulaA1 = commonUserCell.Address.ToString();
-
-                            var sumCommonCell = commonSheet.Cell(lPartRowPrintIndex, 5 + datesOnPeriod.Length);
-                            sumCommonCell.FormulaA1 = $"Sum({commonSheet.Cell(lPartRowPrintIndex, 4).Address}:{commonSheet.Cell(lPartRowPrintIndex, 5 - 1 + datesOnPeriod.Length).Address})";
-                            commonSheet.Cell(lPartRowPrintIndex, 5 + datesOnPeriod.Length + 1).FormulaA1 = $"{allowedHoursCommonSheetCell.Address} - {sumCommonCell.Address}";
-
-                            lPartRowPrintIndex++;
-                        }
-
                         commonSheet.Cell(lPartRowPrintIndex, 4).FormulaA1 = $"Sum({commonSheet.Range(lpartFirstPrintIndex, 4, lPartRowPrintIndex - 1, 4).RangeAddress})";
                         for (int i = 0; i < datesOnPeriod.Length; i++)
                         {
@@ -430,6 +443,7 @@ namespace Logic.Services
                     }
                 }
 
+                workbook.RecalculateAllFormulas();
                 workbook.SaveAs(path);
             }
 
@@ -516,6 +530,12 @@ namespace Logic.Services
         {
             sheet.Cell(1, 1).Value = "ФИО";
             sheet.Cell(1, 2).Value = "Паспортные данные";
+            var counter = 0;
+            foreach (var date in dates)
+            {
+                sheet.Cell(1, 4 + counter).Value = $"{date.Month}-{date.Year}";
+                counter++;
+            }
             Dictionary<User, (string passportExcelRef, string NSPExcelRef, Dictionary<DateTime, (string degreesExcelRefs, string ratesExcelRefs)> degreeOnDateDict)> usersExceDict = new();
             int userPrintRowIndex = 2;
             var degreesKeys = degreesDict.Keys.ToList();
@@ -532,12 +552,12 @@ namespace Logic.Services
                 sheet.Cell(userPrintRowIndex, 3).Value = "Степень";
                 sheet.Cell(userPrintRowIndex + 1, 3).Value = "Ставка";
                 var dateValues = await _accountService.GetAssignmentForEachMonthOnPeriodAsync(user.ID, dates.Min(), dates.Max());
-                var counter = 0;
+                counter = 0;
                 Dictionary<DateTime, (string degreesExcelRefs, string ratesExcelRefs)> degreeOnDateDict = new();
                 foreach (var dateValue in dateValues)
                 {
-                    var degreeCell = sheet.Cell(userPrintRowIndex, 3 + counter);
-                    var rateCell = sheet.Cell(userPrintRowIndex + 1, 3 + counter);
+                    var degreeCell = sheet.Cell(userPrintRowIndex, 4 + counter);
+                    var rateCell = sheet.Cell(userPrintRowIndex + 1, 4 + counter);
                     AcademicDegree key;
                     if (dateValue.value == null)
                     {

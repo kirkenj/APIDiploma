@@ -36,5 +36,10 @@ public static class IncludeModels
         public static string GetNoRightsExceptionText() => "You have no rights to do it";
         public static string GetObjectNotFoundExceptionText(string key) => $"Object not found with key {key}";
     }
+
+    public static class ControllersActionsRoot
+    {
+        public const string SPELL_NUMBER_ROUTE = "/Tools/SpellNumber";
+    }
 }
 

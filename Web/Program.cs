@@ -43,13 +43,12 @@ builder.Services.AddTransient<IDepartmentService, DepartmentService>();
 builder.Services.AddTransient<IContractService, ContractService>();
 builder.Services.AddTransient<IContractTypeService, ContractTypeService>();
 builder.Services.AddTransient<IContractLinkingPartService, ContractLinkingPartService>();
+builder.Services.AddTransient<IExcelReportService, ExcelReportService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IMonthReportService, MonthReportService>();
 builder.Services.AddTransient<IAcademicDegreeService, AcademicDegreeService>();
 builder.Services.AddTransient<IHashProvider, HashProvider>((a) => new HashProvider(HashAlgorithm.Create("MD5") ?? throw new ArgumentException("Hash algorithm not found"), System.Text.Encoding.UTF8));
 
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//    .AddCookie(options => options.LoginPath = "/login");
 
 builder.Services.AddAuthentication(options =>
 {

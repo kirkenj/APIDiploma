@@ -63,7 +63,7 @@
                     <td class="brd">@item.ConclusionDate.ToShortDateString()</td>
                     <td class="brd">@item.ContractIdentifier</td>
                     <td class="brd">@item.PeriodStart.ToShortDateString()</td>
-                    @if (!item.IsConfirmed)
+                    @if (!item.IsConfirmed && IncludeModels.UserIdentitiesTools.GetUserIsAdminClaimValue(User))
                     {
                         @using (Html.BeginForm("Confirm", "Contracts", new { item.Id }, FormMethod.Post))
                         {
