@@ -15,13 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Database\Database.csproj" />
     <ProjectReference Include="..\Logic\Logic.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Database">
-      <HintPath>..\Database\bin\Debug\net6.0\Database.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
